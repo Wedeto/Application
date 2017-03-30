@@ -1,0 +1,73 @@
+{
+    "name": "wasp/platform",
+    "license": "MIT",
+    "description": "WASP Platform - Platform, dispatcher etc",
+    "homepage": "https://wasp.systems/",
+    "library": "project",
+    "require": {
+        "WASP/Auth": "@dev",
+        "WASP/DB": "@dev",
+        "WASP/FileFormats": "@dev",
+        "WASP/HTTP": "@dev",
+        "WASP/I18n": "@dev",
+        "WASP/IO": "@dev",
+        "WASP/Log": "@dev",
+        "WASP/Mail": "@dev",
+        "WASP/Resolve": "@dev",
+        "WASP/Util": "@dev",
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "WASP\\Platform\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Egbert van der Wal",
+            "email": "egbert@wasp.systems"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/Auth"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/DB"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/FileFormats"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/HTTP"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/I18n"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/IO"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/Log"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/Mail"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/Resolve"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/WASP-Systems/Util"
+        }
+    ]
+}
