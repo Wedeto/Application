@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 $type = $this->request->chooseResponse(array("text/html", "text/plain"));
 
 $error_code = 500;
-if ($exception instanceof WASP\Http\Error)
+if ($exception instanceof Wedeto\HTTP\Response\Error)
     $error_code = (int)$exception->getCode();
 
 $error_title = "Unexpected error";
@@ -55,7 +55,7 @@ if ($dev || $cli)
 {
     $error_description .= 
         "\n\nDescription: " . $exception->getMessage() . "\n" 
-        . WASP\Debug\Logger::str($exception);
+        . Wedeto\Util\Functions::str($exception);
 }
 elseif (method_exists($exception, 'getUserMessage'))
 {

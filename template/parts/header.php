@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -38,6 +38,6 @@ $this->addCSS('foundation-icons');
     <body>
         <div class="top-bar">
             <img src="<?=URL('/assets/img/touch-icon-152.png');?>" style="height: 20px;" />
-            <strong>WASP - Web Application Software Platform</strong>
+            <strong>Wedeto - WEb DEvelopment TOolkit</strong>
         </div>
         <div class="row" style="margin-top: 10px;">

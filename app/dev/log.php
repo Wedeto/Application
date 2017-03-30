@@ -26,11 +26,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 use Wedeto\Template;
 use Wedeto\System;
 use Wedeto\Dictionary;
-use Wedeto\Http\DataResponse;
-use Wedeto\Http\Error as HttpError;
+use Wedeto\HTTP\Response\DataResponse;
+use Wedeto\HTTP\Response\Error as HTTPError;
 
 if (!System::config()->get('site', 'dev'))
-    throw new HttpError(403, 'Forbidden', t('Developer mode is disabled'));
+    throw new HTTPError(403, 'Forbidden', t('Developer mode is disabled'));
 
 /**
  * LogOutput provides a way to show the logs using your browser
@@ -49,7 +49,7 @@ class LogOutput
     public function getLog()
     {
         if (!System::config()->get('site', 'dev'))
-            throw new HttpError(403, 'Forbidden', t('Developer mode is disabled'));
+            throw new HTTPError(403, 'Forbidden', t('Developer mode is disabled'));
 
         $lines = 10;
         if ($this->request->get->has('count', Dictionary::TYPE_INT))
@@ -59,18 +59,18 @@ class LogOutput
         $lines = max(1, $lines);
 
         $path = Wedeto\Platform\System::path();
-        $log = $path->log . '/wasp.log';
+        $log = $path->log . '/wedeto.log';
         $phplog = $path->log . '/error-php.log';
 
         $log_contents = shell_exec('cat ' . $log . ' | grep -v "dev\/log\/getLog" | tail -n ' . $lines);
         $phplog_contents = shell_exec('tail -n ' . $lines . ' ' . $phplog);
 
-        $wasplog = explode("\n", $log_contents);
+        $wedetolog = explode("\n", $log_contents);
         $phplog = explode("\n", $phplog_contents);
 
         $data = new Dictionary(array(
             'phplog' => $phplog,
-            'wasplog' => $wasplog
+            'wedetolog' => $wedetolog
         ));
         throw new DataResponse($data);
     }

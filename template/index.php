@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -30,7 +30,7 @@ require tpl('parts/header');
         </div>
         <div class="large-10 medium-10 small-11 columns callout">
             <h1>It works</h1/>
-            <p>If you are seeing this, it means the WASP platform managed to resolve your route and output this sample page.</p>
+            <p>If you are seeing this, it means the Wedeto platform managed to resolve your route and output this sample page.</p>
         </div>
 <?php
 require tpl('parts/footer');

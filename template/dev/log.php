@@ -1,11 +1,34 @@
 <?php
+/*
+This is part of Wedeto, the WEb DEvelopment TOolkit.
+It is published under the MIT Open Source License.
+
+Copyright 2017, Egbert van der Wal
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
 $this->addJS('vendor/jquery');
-$this->addStyle('#phplog,#wasplog {overflow: auto; white-space: pre-wrap;font-size:0.8em;}');
+$this->addStyle('#phplog,#wedetolog {overflow: auto; white-space: pre-wrap;font-size:0.8em;}');
 include tpl('parts/header');
 ?>
         <div class="large-12 medium-12 columns callout">
-            <pre id="wasplog" title="<?=txt(t('WASP log messages are displayed here'));?>">
+            <pre id="wedetolog" title="<?=txt(t('Wedeto log messages are displayed here'));?>">
             </pre>
         </div>
         <div class="large-12 medium-12 columns callout">
@@ -18,7 +41,7 @@ include tpl('parts/header');
 
             function updateLog()
             {
-                // Get the log files from WASP
+                // Get the log files from Wedeto
                 if (!window.jQuery)
                     return;
 
@@ -30,11 +53,11 @@ include tpl('parts/header');
 
                     phpl[0].scrollTop = phpl[0].scrollHeight;
 
-                    var waspl = $('#wasplog');
-                    waspl.text('');
-                    for (var i = 0; i < response.wasplog.length; ++i)
-                        waspl.append(response.wasplog[i], "<br>");
-                    waspl[0].scrollTop = waspl[0].scrollHeight;
+                    var wedetol = $('#wedetolog');
+                    wedetol.text('');
+                    for (var i = 0; i < response.wedetolog.length; ++i)
+                        wedetol.append(response.wedetolog[i], "<br>");
+                    wedetol[0].scrollTop = wedetol[0].scrollHeight;
                 }, "json");
             }
 

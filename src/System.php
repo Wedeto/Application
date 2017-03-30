@@ -135,7 +135,7 @@ class System
         // Set up root logger
         $root_logger = Logger::getLogger();
         $root_logger->setLevel(LogLevel::DEBUG);
-        $logfile = $this->path_config->log . '/wasp' . $test . '.log';
+        $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
         $root_logger->addLogHandler(new FileWriter($logfile, LogLevel::INFO));
 
         //

@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -34,7 +34,7 @@ if ($dev || $cli)
 {
     $error_description .= 
         "\nDescription: " . $exception->getMessage() . "\n" 
-        . WASP\Util\Functions::str($exception);
+        . Wedeto\Util\Functions::str($exception);
 }
 
 $type_name = str_replace("/", "_" ,$type) . ".php";
