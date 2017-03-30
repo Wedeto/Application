@@ -5,8 +5,9 @@
                 "name": "wasp/auth",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/Auth",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -15,8 +16,9 @@
                 "name": "wasp/db",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/DB",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -25,8 +27,9 @@
                 "name": "wasp/fileformats",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/FileFormats",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -35,8 +38,9 @@
                 "name": "wasp/http",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/HTTP",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -45,8 +49,9 @@
                 "name": "wasp/i18n",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/I18n",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -55,8 +60,9 @@
                 "name": "wasp/io",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/IO",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -65,8 +71,9 @@
                 "name": "wasp/log",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/Log",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -75,8 +82,9 @@
                 "name": "wasp/mail",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/Mail",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -85,8 +93,9 @@
                 "name": "wasp/platform",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/Platform",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -95,8 +104,9 @@
                 "name": "wasp/resolve",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/Resolve",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         },
@@ -105,8 +115,9 @@
                 "name": "wasp/util",
                 "version": "0.9.0",
                 "source": {
+                    "type": "git",
                     "url": "https://github.com/WASP-Systems/Util",
-                    "type": "git"
+                    "reference": "master"
                 }
             }
         }
