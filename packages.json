@@ -6,7 +6,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/Auth",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -16,7 +16,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/DB",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -26,7 +26,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/FileFormats",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -36,7 +36,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/HTTP",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -46,7 +46,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/I18n",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -56,7 +56,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/IO",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -66,7 +66,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/Log",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -76,7 +76,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/Mail",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -86,7 +86,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/Platform",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -96,7 +96,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/Resolve",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         },
@@ -106,7 +106,7 @@
                 "version": "0.9.0",
                 "dist": {
                     "url": "https://github.com/WASP-Systems/Util",
-                    "type": "vcs"
+                    "type": "git"
                 }
             }
         }
