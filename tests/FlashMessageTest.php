@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,13 +23,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto;
 
 use PHPUnit\Framework\TestCase;
-use WASP\Http\Request;
+use Wedeto\Http\Request;
 
 /**
- * @covers WASP\FlashMessage
+ * @covers Wedeto\FlashMessage
  */
 final class FlashMessageTest extends TestCase
 {
@@ -45,13 +45,13 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers WASP\FlashMessage::__construct
-     * @covers WASP\FlashMessage::getMessage
-     * @covers WASP\FlashMessage::getType
-     * @covers WASP\FlashMessage::getTypeName
-     * @covers WASP\FlashMessage::hasNext
-     * @covers WASP\FlashMessage::next
-     * @covers WASP\FlashMessage::count
+     * @covers Wedeto\FlashMessage::__construct
+     * @covers Wedeto\FlashMessage::getMessage
+     * @covers Wedeto\FlashMessage::getType
+     * @covers Wedeto\FlashMessage::getTypeName
+     * @covers Wedeto\FlashMessage::hasNext
+     * @covers Wedeto\FlashMessage::next
+     * @covers Wedeto\FlashMessage::count
      */
     public function testFlashMessage()
     {
@@ -122,16 +122,16 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers WASP\FlashMessage::count
+     * @covers Wedeto\FlashMessage::count
      */
     public function testFlashMessageCountEmpty()
     {
-        unset($this->request->session['WASP_FM']);
+        unset($this->request->session['WEDETO_FM']);
         $this->assertEquals(FlashMessage::count(), 0);
     }
 
     /**
-     * @covers WASP\FlashMessage::__construct
+     * @covers Wedeto\FlashMessage::__construct
      */
     public function testNoSession()
     {
@@ -142,8 +142,8 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers WASP\FlashMessage::hasNext
-     * @covers WASP\FlashMessage::next
+     * @covers Wedeto\FlashMessage::hasNext
+     * @covers Wedeto\FlashMessage::next
      */
     public function testNoNextAvailable()
     {

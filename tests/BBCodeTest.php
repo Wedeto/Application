@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,19 +23,19 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers WASP\BBCode
+ * @covers Wedeto\Platform\BBCode
  */
 final class bbcodeTest extends TestCase
 {
     /**
-     * @covers WASP\BBCode::__construct
-     * @covers WASP\BBCode::setDefault
-     * @covers WASP\BBCode::getDefault
+     * @covers Wedeto\Platform\BBCode::__construct
+     * @covers Wedeto\Platform\BBCode::setDefault
+     * @covers Wedeto\Platform\BBCode::getDefault
      */
     public function testDefault()
     {
@@ -48,8 +48,8 @@ final class bbcodeTest extends TestCase
     }
     
     /**
-     * @covers WASP\BBCode::__construct
-     * @covers WASP\BBCode::apply
+     * @covers Wedeto\Platform\BBCode::__construct
+     * @covers Wedeto\Platform\BBCode::apply
      */
     public function testConfig()
     {
@@ -105,7 +105,7 @@ final class bbcodeTest extends TestCase
     }
 
     /**
-     * @covers WASP\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::addRule
      */
     public function testExceptionInvalidArguments()
     {
@@ -117,7 +117,7 @@ final class bbcodeTest extends TestCase
     }
 
     /**
-     * @covers WASP\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::addRule
      */
     public function testExceptionInvalidPattern()
     {
@@ -129,7 +129,7 @@ final class bbcodeTest extends TestCase
     }
 
     /**
-     * @covers WASP\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::addRule
      */
     public function testExceptionInvalidReplacement()
     {
@@ -145,8 +145,8 @@ final class bbcodeTest extends TestCase
     }
 
     /**
-     * @covers WASP\BBCode::addRule
-     * @covers WASP\BBCode::apply
+     * @covers Wedeto\Platform\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::apply
      */
     public function testCallback()
     {
@@ -163,8 +163,8 @@ final class bbcodeTest extends TestCase
     }
 
     /*
-     * @covers WASP\BBCode::addRule
-     * @covers WASP\BBCode::apply
+     * @covers Wedeto\Platform\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::apply
      */
     public function testInvalidPattern()
     {
@@ -174,8 +174,8 @@ final class bbcodeTest extends TestCase
     }
 
     /*
-     * @covers WASP\BBCode::addRule
-     * @covers WASP\BBCode::apply
+     * @covers Wedeto\Platform\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::apply
      */
     public function testInvalidString()
     {
@@ -187,9 +187,9 @@ final class bbcodeTest extends TestCase
     }
 
     /**
-     * @covers WASP\BBCode::__construct
-     * @covers WASP\BBCode::addRule
-     * @covers WASP\BBCode::apply
+     * @covers Wedeto\Platform\BBCode::__construct
+     * @covers Wedeto\Platform\BBCode::addRule
+     * @covers Wedeto\Platform\BBCode::apply
      */
     public function testAddRule()
     {

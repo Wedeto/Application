@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,10 +23,10 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-use WASP\HTTP\Request;
-use WASP\HTTP\CachePolicy;
-use WASP\HTTP\Response\Error as HTTPError;
-use WASP\HTTP\Response\FileResponse;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\CachePolicy;
+use Wedeto\HTTP\Response\Error as HTTPError;
+use Wedeto\HTTP\Response\FileResponse;
 
 $path = implode("/", $url_args->getAll());
 

@@ -1,122 +1,122 @@
 {
     "packages": {
-        "wasp/auth": {
+        "wedeto/auth": {
             "dev-master": {
-                "name": "wasp/auth",
+                "name": "wedeto/auth",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/Auth",
+                    "url": "https://github.com/Wedeto/Auth",
                     "reference": "master"
                 }
             }
         },
-        "wasp/db": {
+        "wedeto/db": {
             "dev-master": {
-                "name": "wasp/db",
+                "name": "wedeto/db",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/DB",
+                    "url": "https://github.com/Wedeto/DB",
                     "reference": "master"
                 }
             }
         },
-        "wasp/fileformats": {
+        "wedeto/fileformats": {
             "dev-master": {
-                "name": "wasp/fileformats",
+                "name": "wedeto/fileformats",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/FileFormats",
+                    "url": "https://github.com/Wedeto/FileFormats",
                     "reference": "master"
                 }
             }
         },
-        "wasp/http": {
+        "wedeto/http": {
             "dev-master": {
-                "name": "wasp/http",
+                "name": "wedeto/http",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/HTTP",
+                    "url": "https://github.com/Wedeto/HTTP",
                     "reference": "master"
                 }
             }
         },
-        "wasp/i18n": {
+        "wedeto/i18n": {
             "dev-master": {
-                "name": "wasp/i18n",
+                "name": "wedeto/i18n",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/I18n",
+                    "url": "https://github.com/Wedeto/I18n",
                     "reference": "master"
                 }
             }
         },
-        "wasp/io": {
+        "wedeto/io": {
             "dev-master": {
-                "name": "wasp/io",
+                "name": "wedeto/io",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/IO",
+                    "url": "https://github.com/Wedeto/IO",
                     "reference": "master"
                 }
             }
         },
-        "wasp/log": {
+        "wedeto/log": {
             "dev-master": {
-                "name": "wasp/log",
+                "name": "wedeto/log",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/Log",
+                    "url": "https://github.com/Wedeto/Log",
                     "reference": "master"
                 }
             }
         },
-        "wasp/mail": {
+        "wedeto/mail": {
             "dev-master": {
-                "name": "wasp/mail",
+                "name": "wedeto/mail",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/Mail",
+                    "url": "https://github.com/Wedeto/Mail",
                     "reference": "master"
                 }
             }
         },
-        "wasp/platform": {
+        "wedeto/platform": {
             "dev-master": {
-                "name": "wasp/platform",
+                "name": "wedeto/platform",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/Platform",
+                    "url": "https://github.com/Wedeto/Platform",
                     "reference": "master"
                 }
             }
         },
-        "wasp/resolve": {
+        "wedeto/resolve": {
             "dev-master": {
-                "name": "wasp/resolve",
+                "name": "wedeto/resolve",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/Resolve",
+                    "url": "https://github.com/Wedeto/Resolve",
                     "reference": "master"
                 }
             }
         },
-        "wasp/util": {
+        "wedeto/util": {
             "dev-master": {
-                "name": "wasp/util",
+                "name": "wedeto/util",
                 "version": "0.9.0",
                 "source": {
                     "type": "git",
-                    "url": "https://github.com/WASP-Systems/Util",
+                    "url": "https://github.com/Wedeto/Util",
                     "reference": "master"
                 }
             }

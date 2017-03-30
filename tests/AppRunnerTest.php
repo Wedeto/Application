@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,17 +23,17 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
-use WASP\Http\StringResponse;
-use WASP\Http\Request;
-use WASP\Http\Error as HttpError;
+use Wedeto\HTTP\StringResponse;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\Error as HttpError;
 use RuntimeException;
 use Psr\Log\LogLevel;
 
 /**
- * @covers WASP\AppRunner
+ * @covers Wedeto\Platform\AppRunner
  */
 final class AppRunnerTest extends TestCase
 {
@@ -51,7 +51,7 @@ final class AppRunnerTest extends TestCase
 
         $this->testpath = $this->pathconfig->var . '/test';
         IO\Dir::mkdir($this->testpath);
-        $this->filename = tempnam($this->testpath, "wasptest") . ".php";
+        $this->filename = tempnam($this->testpath, "wedetotest") . ".php";
         $this->classname = "cl_" . str_replace(".", "", basename($this->filename));
 
         $logger = Debug\Logger::getLogger(AppRunner::class);
@@ -67,15 +67,15 @@ final class AppRunnerTest extends TestCase
     }
 
     /**
-     * @covers WASP\AppRunner::__construct
-     * @covers WASP\AppRunner::execute
+     * @covers Wedeto\Platform\AppRunner::__construct
+     * @covers Wedeto\Platform\AppRunner::execute
      */
     public function testAppReturnsResponse()
     {
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 return new StringResponse("Mock", "text/plain");
 EOT;
@@ -93,7 +93,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 throw new StringResponse("Mock", "text/plain");
 EOT;
@@ -111,7 +111,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 echo "MOCK";
 
@@ -141,7 +141,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 \$tpl->setTemplate('foobar');
 \$tpl->render();
@@ -166,7 +166,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 for (\$i = 0; \$i < 10; ++\$i)
     ;
@@ -202,7 +202,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -237,7 +237,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -272,7 +272,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -304,7 +304,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -331,7 +331,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -358,18 +358,18 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
-use WASP\Dictionary;
-use WASP\Http\Request;
-use WASP\Template;
+use Wedeto\HTTP\Response\StringResponse;
+use Wedeto\Util\Dictionary;
+use Wedeto\HTTP\Request;
+use Wedeto\Platform\Template;
 
 class {$classname}
 {
     public function foo(Request \$arg1, Template \$arg2, Dictionary \$arg3)
     {
         \$vals = \$arg3->toArray();
-        if (!(\$arg2 instanceof WASP\Template))
-            throw new WASP\Http\Error('No template');
+        if (!(\$arg2 instanceof Wedeto\Platform\Template))
+            throw new Wedeto\HTTP\Response\Error('No template');
         \$vals[] = \$arg1->url;
         return new StringResponse(implode(",", \$vals), "text/plain");
     }
@@ -397,7 +397,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -433,12 +433,12 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
-use WASP\Http\Request;
-use WASP\Template;
-use WASP\Dictionary;
-use WASP\Resolve\Resolver;
-use WASP\Debug\Logger;
+use Wedeto\HTTP\Response\StringResponse;
+use Wedeto\HTTP\Request;
+use Wedeto\Platform\Template;
+use Wedeto\Util\Dictionary;
+use Wedeto\Resolve\Resolver;
+use Wedeto\Log\Logger;
 
 class {$classname}
 {
@@ -460,7 +460,7 @@ class {$classname}
         if (\$this->resolve instanceof Resolver)
             \$response[] = "Resolver";
         else
-            throw new \RuntimeException('Invalid resolve: ' . WASP\\Debug\\Logger::str(\$this->resolve));
+            throw new \RuntimeException('Invalid resolve: ' . Wedeto\\Util\\functions::str(\$this->resolve));
 
         if (\$this->url_args instanceof Dictionary)
             \$response[] = "Dictionary";
@@ -494,9 +494,9 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
-use WASP\Dictionary;
-use WASP\Http\Request;
+use Wedeto\HTTP\Response\StringResponse;
+use Wedeto\Util\Dictionary;
+use Wedeto\HTTP\Request;
 
 class {$classname}
 {
@@ -523,7 +523,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -555,7 +555,7 @@ EOT;
         $phpcode = <<<EOT
 <?php
 
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -581,7 +581,7 @@ EOT;
         $classname = $this->classname;
         $phpcode = <<<EOT
 <?php
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -608,7 +608,7 @@ EOT;
         $classname = $this->classname;
         $phpcode = <<<EOT
 <?php
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -640,7 +640,7 @@ EOT;
         $this->request->url_args[1] = 3;
         $phpcode = <<<EOT
 <?php
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -667,7 +667,7 @@ EOT;
         $this->request->url_args[1] = 3;
         $phpcode = <<<EOT
 <?php
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
@@ -693,11 +693,11 @@ EOT;
         $classname = $this->classname;
         $phpcode = <<<EOT
 <?php
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public function foo(WASP\MockAppRunnerDAO \$arg1, string \$arg2)
+    public function foo(Wedeto\Platform\MockAppRunnerDAO \$arg1, string \$arg2)
     {
         return new StringResponse(\$arg1->getName() . \$arg2, "text/plain");
     }
@@ -723,11 +723,11 @@ EOT;
         $classname = $this->classname;
         $phpcode = <<<EOT
 <?php
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public function foo(string \$arg1, string \$arg2, WASP\MockAppRunnerDAO \$arg3)
+    public function foo(string \$arg1, string \$arg2, Wedeto\Platform\MockAppRunnerDAO \$arg3)
     {
         return new StringResponse(\$arg3->getName(), "text/plain");
     }
@@ -755,7 +755,7 @@ class MockAppRunnerRequest extends Request
     }
 }
 
-class MockAppRunnerDAO extends \WASP\DB\DAO
+class MockAppRunnerDAO extends \Wedeto\DB\DAO
 {
     protected $name;
 
@@ -764,7 +764,7 @@ class MockAppRunnerDAO extends \WASP\DB\DAO
         $this->name = $name . "DAO";
     }
 
-    public static function get($id, \WASP\DB\DB $database = null)
+    public static function get($id, \Wedeto\DB\DB $database = null)
     {
         return new MockAppRunnerDAO($id);
     }

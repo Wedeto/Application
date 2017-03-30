@@ -1,7 +1,6 @@
 <?php
-
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -24,13 +23,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Model;
+namespace Wedeto\Model;
 
-use WASP\DB\DAO;
-use WASP\DB\DB;
-use WASP\DB\Table\Table;
-use WASP\DB\Table\Column;
-use WASP\DB\Table\Index;
+use Wedeto\DB\DAO;
+use Wedeto\DB\DB;
+use Wedeto\DB\Table\Table;
+use Wedeto\DB\Table\Column;
+use Wedeto\DB\Table\Index;
 
 class DBVersion extends DAO
 {

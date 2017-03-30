@@ -1,7 +1,7 @@
 Auth
     - ACL
         - DBRuleLoader
-            # WASP\DB\DAO -- ACLRule?!?!
+            # Wedeto\DB\DAO -- ACLRule?!?!
         - Entity
         - Exception
         - Hierarchy
@@ -10,33 +10,33 @@ Auth
         - Role
         - RuleLoader
     - Rule
-        # WASP\DB\DAO
+        # Wedeto\DB\DAO
     - AuthenticationError
     - Authentication
-        # WASP\Util\Dictionary
-        # WASP\HTTP\Session
+        # Wedeto\Util\Dictionary
+        # Wedeto\HTTP\Session
     - GroupInterface
-        # WASP\HTTP\Session
+        # Wedeto\HTTP\Session
     - PasswordGenerator
-        # WASP\Util\Functions
-        # WASP\IOException?!
+        # Wedeto\Util\Functions
+        # Wedeto\IOException?!
     - UserInterface
-        # WASP\HTTP\Session
+        # Wedeto\HTTP\Session
 
 DB
     - DAO
-        # WASP\Util\Functions
+        # Wedeto\Util\Functions
     - DB
-        # WASP\Util\Functions
-        # WASP\Util\LoggerAwareStaticTrait
-        # WASP\Util\Dictionary
+        # Wedeto\Util\Functions
+        # Wedeto\Util\LoggerAwareStaticTrait
+        # Wedeto\Util\Dictionary
     - Driver
         - PGSQL
-            # WASP\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\LoggerAwareStaticTrait
         - MySQL
-            # WASP\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\LoggerAwareStaticTrait
         - Driver
-            # WASP\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\LoggerAwareStaticTrait
     - Migration
     - Migrator
     - Query
@@ -59,54 +59,54 @@ DB
         - Update
         - ConstantValue
         - OrderClause
-            # WASP\Util\Functions
+            # Wedeto\Util\Functions
     - Schema
         - Schema
-            # WASP\Util\Dictionary
-            # WASP\Util\Cache
+            # Wedeto\Util\Dictionary
+            # Wedeto\Util\Cache
         - Table
-            # WASP\Util\Functions
-            # WASP\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\Functions
+            # Wedeto\Util\LoggerAwareStaticTrait
         - ForeignKEy
-            # WASP\Util\Functions
+            # Wedeto\Util\Functions
         - Column
             - Column
-                # WASP\Util\Functions
+                # Wedeto\Util\Functions
 
 HTTP
     - Cookie
 
     - Responder
-        # WASP\Util\LoggerAwareStaticTrait
+        # Wedeto\Util\LoggerAwareStaticTrait
 
     - Response
         - DataResponse
-            # WASP\Util\Dictionary
-            # WASP\Util\LoggerAwareStaticTrait
-            # WASP\FileFormats\*/Writer (w/class_exists)
+            # Wedeto\Util\Dictionary
+            # Wedeto\Util\LoggerAwareStaticTrait
+            # Wedeto\FileFormats\*/Writer (w/class_exists)
 
         - Error
-            # WASP\Util\Dictionary
-            # WASP\Util\LoggerAwareStaticTrait
-            # WASP\Util\Functions
+            # Wedeto\Util\Dictionary
+            # Wedeto\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\Functions
 
         - FileHandleResponse
-            # WASP\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\LoggerAwareStaticTrait
 
         - FileResponse
-            # WASP\Util\LoggerAwareStaticTrait
-            # WASP\Util\Functions
-            # WASP\Util\DefVal
+            # Wedeto\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\Functions
+            # Wedeto\Util\DefVal
 
         - RedirectRequest
         - StringResponse
 
     - Request
-        # WASP\Util\Dictionary
+        # Wedeto\Util\Dictionary
         
     - Session
-        # WASP\Util\Dictionary
-        # WASP\Util\ErrorInterceptor
+        # Wedeto\Util\Dictionary
+        # Wedeto\Util\ErrorInterceptor
 
     - StatusCode
 
@@ -122,12 +122,12 @@ I18n
     - I18nException
     - TranslateLogger
         # Psr\Log\LogLevel
-        # WASP\Log\LogWriterInterface
-        # WASP\Log\Logger
+        # Wedeto\Log\LogWriterInterface
+        # Wedeto\Log\Logger
     - Translate
-        # WASP\Util\LoggerAwareStaticTrait
-        # WASP\IO\Dir
-        # WASP\Util\Dictionary
+        # Wedeto\Util\LoggerAwareStaticTrait
+        # Wedeto\IO\Dir
+        # Wedeto\Util\Dictionary
 
         ** Convencience global functions?!?!
 
@@ -138,16 +138,16 @@ I18n
             - Rule
             - Symbol
         - TextDomain
-            # WASP\Util\Dictionary
+            # Wedeto\Util\Dictionary
         - Translator
-            # WASP\Util\Cache
-            # WASP\Util\LoggerAwareStaticTrait
+            # Wedeto\Util\Cache
+            # Wedeto\Util\LoggerAwareStaticTrait
 
 IO
     - DirReader
     - Path
     - File
-        # WASP\Util\LoggerAwareStaticTrait
+        # Wedeto\Util\LoggerAwareStaticTrait
     - IOException
     - PermissionError
     - MimeTypes
@@ -169,32 +169,32 @@ FileFormats
         - Reader
         - Writer
             # PHP_XML
-            # WASP\Util\Functions
+            # Wedeto\Util\Functions
     - YAML
         - Reader
         - Writer
             # PHP_YAML
-            # WASP\Util\Functions
+            # Wedeto\Util\Functions
 
     - AbstractReader
     - AbstractWriter
     - ReaderFactory
-        # WASP\Util\Hook
+        # Wedeto\Util\Hook
     - WriterFactory
-        # WASP\Util\Hook
+        # Wedeto\Util\Hook
 
 Log
     - DevLogger
         ** TODO: Rename to MemLogger?
     - FileWriter
         # Psr/Log/LogLevel
-        # WASP\IO\File
+        # Wedeto\IO\File
     - LoggerFactory
-        # WASP\Util\Hook
+        # Wedeto\Util\Hook
     - Logger
         # Psr\Log\AbstractLogger
         # Psr\Log\LogLevel
-        # WASP\Util\Functions
+        # Wedeto\Util\Functions
 
         ** TODO: Convenvience global functions necessary?
 
@@ -228,7 +228,7 @@ Platform
     - FlashMessage
     - Model
         - DBVersion
-            # WASP\DB
+            # Wedeto\DB
     - Module
         - BasicModule
         - Manager

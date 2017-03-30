@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,30 +23,30 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
 use RuntimeException;
 use InvalidArgumentException;
 
 use Psr\Log\LogLevel;
 
-use WASP\IO\Path;
+use Wedeto\IO\Path;
 
 
-use WASP\Util\Dictionary;
-use WASP\Util\Cache;
-use WASP\Util\ErrorInterceptor;
+use Wedeto\Util\Dictionary;
+use Wedeto\Util\Cache;
+use Wedeto\Util\ErrorInterceptor;
 
-use WASP\Log\{Logger, LoggerFactory, FileWriter, MemLogger};
-use WASP\Log;
+use Wedeto\Log\{Logger, LoggerFactory, FileWriter, MemLogger};
+use Wedeto\Log;
 
-use WASP\Resolve\Autoloader;
-use WASP\Resolve\Resolver;
+use Wedeto\Resolve\Autoloader;
+use Wedeto\Resolve\Resolver;
 
-use WASP\HTTP\Request;
-use WASP\HTTP\Error as HTTPError;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\Error as HTTPError;
 
-use WASP\I18n;
+use Wedeto\I18n;
 
 /**
  * @codeCoverageIgnore System is already executed before tests run
@@ -84,7 +84,7 @@ class System
     public static function getInstance()
     {
         if (self::$instance === null)
-            throw new RuntimeException("WASP has not been initialized yet");
+            throw new RuntimeException("Wedeto has not been initialized yet");
 
         return self::$instance;
     }
@@ -108,7 +108,7 @@ class System
         // Set up logging
         ini_set('log_errors', '1');
 
-        $test = WASP_TEST === 1 ? "-test" : "";
+        $test = WEDETO_TEST === 1 ? "-test" : "";
 
         if (PHP_SAPI === 'cli')
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
@@ -153,7 +153,7 @@ class System
         if (isset($_SERVER['REQUEST_URI']))
         {
             Log\debug(
-                "WASP.System", 
+                "Wedeto.System", 
                 "*** Starting processing for {0} request to {1}", 
                 [$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']]
             );
@@ -241,7 +241,7 @@ class System
      */
     public function __set($parameter, $value)
     {
-        if (!defined('WASP_TEST') || WASP_TEST !== 1)
+        if (!defined('WEDETO_TEST') || WEDETO_TEST !== 1)
             throw new RuntimeException("Cannot modify system objects");
         
         if (!property_exists($this, $parameter))
@@ -298,7 +298,7 @@ class System
 
     private function setupTranslateLog()
     {
-        $logger = Logger::getLogger('WASP.I18n.Translator.Translator');
+        $logger = Logger::getLogger('Wedeto.I18n.Translator.Translator');
         $handler = new I18n\TranslateLogger($this->path_config->log . '/translate-%s-%s.pot');
         $logger->addLogHandler($handler);
     }

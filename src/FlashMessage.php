@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -22,10 +22,10 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
-use WASP\Util\Dictionary;
-use WASP\Util\Functions as WF;
+use Wedeto\Util\Dictionary;
+use Wedeto\Util\Functions as WF;
 
 class FlashMessage
 {
@@ -35,7 +35,7 @@ class FlashMessage
     const WARN = 3;
     const ERROR = 4;
 
-    private static $KEY = "WASP_FM";
+    private static $KEY = "WEDETO_FM";
 
     public static $types = array(
         self::ERROR => "ERROR",

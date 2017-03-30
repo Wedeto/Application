@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,19 +23,19 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Initialize WASP
+// Initialize Wedeto
 require "../bootstrap/init.php";
 
 $root = dirname(dirname(__FILE__));
-$path = new WASP\Platform\PathConfig(array('root' => $root));
+$path = new Wedeto\Platform\PathConfig(array('root' => $root));
 
 // Dispatch the request
 $ini_file = $root . '/config/main.ini';
-$reader = WASP\FileFormats\ReaderFactory::factory($ini_file);
-$config = new WASP\Util\Dictionary($reader->readFile($ini_file));
+$reader = Wedeto\FileFormats\ReaderFactory::factory($ini_file);
+$config = new Wedeto\Util\Dictionary($reader->readFile($ini_file));
 
-$wasp = WASP\Platform\System::setup($path, $config);
-$dispatcher = $wasp->get('dispatcher');
+$wedeto = Wedeto\Platform\System::setup($path, $config);
+$dispatcher = $wedeto->get('dispatcher');
 $dispatcher->dispatch();
 
 die();

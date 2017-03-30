@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,36 +23,36 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers WASP\Path
+ * @covers Wedeto\Path
  */
 final class PathTest extends TestCase
 {
-    private $wasproot;
+    private $wedetoroot;
 
     public function setUp()
     {
-        $this->wasproot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
+        $this->wedetoroot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
     }
 
     public function tearDown()
     {
-        $this->wasproot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
-        new Path(array('root' => $this->wasproot));
+        $this->wedetoroot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
+        new Path(array('root' => $this->wedetoroot));
     }
 
     /**
-     * @covers WASP\Path::__construct
-     * @covers WASP\Path::checkPaths
-     * @covers WASP\Path::current
+     * @covers Wedeto\Path::__construct
+     * @covers Wedeto\Path::checkPaths
+     * @covers Wedeto\Path::current
      */
     public function testPath()
     {
-        $root = $this->wasproot;
+        $root = $this->wedetoroot;
 
         $path = new Path(array('root' => $root));
         $this->assertEquals($root, $path->root);
@@ -92,7 +92,7 @@ final class PathTest extends TestCase
     }
 
     /**
-     * @covers WASP\Path::__construct
+     * @covers Wedeto\Path::__construct
      */
     public function testExceptionRootInvalid()
     {
@@ -102,11 +102,11 @@ final class PathTest extends TestCase
     }
 
     /**
-     * @covers WASP\Path::__construct
+     * @covers Wedeto\Path::__construct
      */
     public function testExceptionWebrootInvalid()
     {
-        $path = $this->wasproot;
+        $path = $this->wedetoroot;
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("Path http (/tmp/non/existing/dir) does not exist");
         new Path(array('root' => $path, 'http' => '/tmp/non/existing/dir'));

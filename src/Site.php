@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,12 +23,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
 use Locale;
 
-use WASP\HTTP\URL;
-use WASP\Util\Dictionary;
+use Wedeto\HTTP\URL;
+use Wedeto\Util\Dictionary;
 
 class Site
 {
@@ -115,9 +115,9 @@ class Site
      * configuration.
      *
      * A Site is a collection of VirtualHosts that each provide a localized version
-     * of the same content. The VirtualHost in use determines the locale set in WASP.
+     * of the same content. The VirtualHost in use determines the locale set in Wedeto.
      * 
-     * WASP can serve multiple sites that contain different content. In absence of
+     * Wedeto can serve multiple sites that contain different content. In absence of
      * multi-site, multi-vhost information, a single site with a single virtual
      * host is set up. 
      *

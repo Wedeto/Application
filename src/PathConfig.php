@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,10 +23,10 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
-use WASP\IO\Path;
-use WASP\IO\IOException;
+use Wedeto\IO\Path;
+use Wedeto\IO\IOException;
 
 final class PathConfig
 {
@@ -94,7 +94,7 @@ final class PathConfig
 
     public function checkPaths()
     {
-        if ($this->path_checked && (!is_defined('WASP_TEST') || WASP_TEST === 0))
+        if ($this->path_checked && (!is_defined('WEDETO_TEST') || WEDETO_TEST === 0))
             return;
 
         foreach (array('root', 'core', 'var', 'modules', 'http', 'config', 'assets') as $type)
@@ -130,7 +130,7 @@ final class PathConfig
 
     public static function setCurrent(Path $instance)
     {
-        if (!defined('WASP_TEST') || WASP_TEST !== 1)
+        if (!defined('WEDETO_TEST') || WEDETO_TEST !== 1)
             throw new \RuntimeException("Cannot change active path instance");
         self::$instance = $instance;
     }

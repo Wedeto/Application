@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,22 +23,22 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-use WASP\Resolve\Autoloader;
+use Wedeto\Resolve\Autoloader;
 
 // Set up the autoloader
 $root = 
-    dirname( // WASP
+    dirname( // Wedeto
         dirname( // sys
             realpath(__FILE__) // init.php
         )
     );
 
-require_once $root . "/core/lib/WASP/Resolve/Autoloader.php";
-Autoloader::registerNS('WASP', $root . '/core/lib/WASP');
+require_once $root . "/core/lib/WEDETO/Resolve/Autoloader.php";
+Autoloader::registerNS('Wedeto', $root . '/core/lib/Wedeto');
 Autoloader::registerNS('Psr\\Log', $root . '/core/lib/Psr/Log');
 
 // Disable some testing code with a define, because they cannot be overridden.
-define('WASP_TEST', 0);
+define('WEDETO_TEST', 0);
 
 if (PHP_SAPI === 'cli')
     ini_set('display_errors', 'on');

@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,14 +23,14 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
-use WASP\Http\StringResponse;
+use Wedeto\HTTP\Response\StringResponse;
 
 /**
- * @covers WASP\AssetManager
+ * @covers Wedeto\Platform\AssetManager
  */
 final class AssetManagerTest extends TestCase
 {
@@ -50,11 +50,11 @@ final class AssetManagerTest extends TestCase
     }
 
     /**
-     * @covers WASP\AssetManager::__construct
-     * @covers WASP\AssetManager::addScript
-     * @covers WASP\AssetManager::addCSS
-     * @covers WASP\AssetManager::injectScript
-     * @covers WASP\AssetManager::injectCSS
+     * @covers Wedeto\Platform\AssetManager::__construct
+     * @covers Wedeto\Platform\AssetManager::addScript
+     * @covers Wedeto\Platform\AssetManager::addCSS
+     * @covers Wedeto\Platform\AssetManager::injectScript
+     * @covers Wedeto\Platform\AssetManager::injectCSS
      */
     public function testAssets()
     {
@@ -84,8 +84,8 @@ final class AssetManagerTest extends TestCase
         $mgr->addCSS('test3.css');
         $mgr->addCSS('test3.min.css');
 
-        $this->assertEquals('#WASP-JAVASCRIPT#', $mgr->injectScript());
-        $this->assertEquals('#WASP-CSS#', $mgr->injectCSS());
+        $this->assertEquals('#WEDETO-JAVASCRIPT#', $mgr->injectScript());
+        $this->assertEquals('#WEDETO-CSS#', $mgr->injectCSS());
 
         $mgr->setMinified(false);
         $this->assertFalse($mgr->getMinified());

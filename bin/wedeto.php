@@ -1,9 +1,9 @@
 <?php
 
-use WASP\Platform\CLI;
-use WASP\Platform\TaskRunner;
-use WASP\Util\Dictionary;
-use WASP\File\Resolve;
+use Wedeto\Platform\CLI;
+use Wedeto\Platform\TaskRunner;
+use Wedeto\Util\Dictionary;
+use Wedeto\IO\Resolve;
 
 require_once "../bootstrap/init.php";
 

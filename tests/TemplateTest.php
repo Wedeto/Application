@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,15 +23,15 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto;
 
 use PHPUnit\Framework\TestCase;
-use WASP\Http\Error as HttpError;
-use WASP\Http\Request;
-use WASP\Http\StringResponse;
+use Wedeto\Http\Error as HttpError;
+use Wedeto\Http\Request;
+use Wedeto\Http\StringResponse;
 
 /**
- * @covers WASP\Template
+ * @covers Wedeto\Template
  */
 final class TemplateTest extends TestCase
 {
@@ -47,7 +47,7 @@ final class TemplateTest extends TestCase
 
         $this->testpath = System::path()->var . '/test';
         IO\Dir::mkdir($this->testpath);
-        $this->filename = tempnam($this->testpath, "wasptest") . ".php";
+        $this->filename = tempnam($this->testpath, "wedetotest") . ".php";
     }
 
     public function tearDown()
@@ -57,10 +57,10 @@ final class TemplateTest extends TestCase
 
 
     /**
-     * @covers WASP\Template::__construct
-     * @covers WASP\Template::assign
-     * @covers WASP\Template::setTitle
-     * @covers WASP\Template::title
+     * @covers Wedeto\Template::__construct
+     * @covers Wedeto\Template::assign
+     * @covers Wedeto\Template::setTitle
+     * @covers Wedeto\Template::title
      */
     public function testConstruct()
     {
@@ -121,8 +121,8 @@ final class TemplateTest extends TestCase
         $js_str = $tpl->insertJS();
         $css_str = $tpl->insertCSS();
 
-        $this->assertEquals('#WASP-JAVASCRIPT#', $js_str);
-        $this->assertEquals('#WASP-CSS#', $css_str);
+        $this->assertEquals('#WEDETO-JAVASCRIPT#', $js_str);
+        $this->assertEquals('#WEDETO-CSS#', $css_str);
     }
 
     public function testSetExceptionTemplate()
@@ -140,8 +140,8 @@ final class TemplateTest extends TestCase
     }
 
     /**
-     * @covers WASP\Template::render
-     * @covers WASP\Template::renderReturn
+     * @covers Wedeto\Template::render
+     * @covers Wedeto\Template::renderReturn
      */
     public function testRender()
     {
@@ -169,8 +169,8 @@ EOT;
     }
 
     /**
-     * @covers WASP\Template::render
-     * @covers WASP\Template::renderReturn
+     * @covers Wedeto\Template::render
+     * @covers Wedeto\Template::renderReturn
      */
     public function testRenderThrowsError()
     {
@@ -193,8 +193,8 @@ EOT;
     }
 
     /**
-     * @covers WASP\Template::render
-     * @covers WASP\Template::renderReturn
+     * @covers Wedeto\Template::render
+     * @covers Wedeto\Template::renderReturn
      */
     public function testRenderThrowsCustomResponse()
     {
@@ -203,7 +203,7 @@ EOT;
 if (\$this->request->wantJSON())
 {
     \$data = ['foo', 'bar'];
-    throw new WASP\Http\DataResponse(\$data);
+    throw new Wedeto\Http\DataResponse(\$data);
 }
 ?>
 EOT;
@@ -218,7 +218,7 @@ EOT;
         {
             $tpl->render();
         }
-        catch (\WASP\Http\DataResponse $e)
+        catch (\Wedeto\Http\DataResponse $e)
         {
             $actual = $e->getDictionary()->getAll();
             $expected = ['foo', 'bar'];
@@ -227,14 +227,14 @@ EOT;
     }
 
     /**
-     * @covers WASP\Template::render
-     * @covers WASP\Template::renderReturn
+     * @covers Wedeto\Template::render
+     * @covers Wedeto\Template::renderReturn
      */
     public function testRenderThrowsTerminateRequest()
     {
         $tpl_file = <<<EOT
 <?php
-throw new WASP\TerminateRequest("Foobar!");
+throw new Wedeto\TerminateRequest("Foobar!");
 ?>
 EOT;
         file_put_contents($this->filename, $tpl_file);
@@ -354,7 +354,7 @@ EOT;
     }
 }
 
-class MockTemplateResolver extends \WASP\Resolve\Resolver
+class MockTemplateResolver extends \Wedeto\Resolve\Resolver
 {
     public function __construct()
     {}

@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,31 +23,31 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
 use Throwable;
 use DateTime;
 
-use WASP\Util\LoggerAwareStaticTrait;
+use Wedeto\Util\LoggerAwareStaticTrait;
 
-use WASP\Log\MemLogger;
+use Wedeto\Log\MemLogger;
 
-use WASP\Resolve\Resolver;
+use Wedeto\Resolve\Resolver;
 
-use WASP\Util\Hook;
-use WASP\Util\Dictionary;
-use WASP\Util\Functions as WF;
+use Wedeto\Util\Hook;
+use Wedeto\Util\Dictionary;
+use Wedeto\Util\Functions as WF;
 
-use WASP\HTTP\Request;
-use WASP\HTTP\Responder;
-use WASP\HTTP\Response\{Response, DataResponse, StringResponse};
-use WASP\HTTP\Response\Error as HTTPError;
-use WASP\HTTP\StatusCode;
-use WASP\HTTP\URL;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\Responder;
+use Wedeto\HTTP\Response\{Response, DataResponse, StringResponse};
+use Wedeto\HTTP\Response\Error as HTTPError;
+use Wedeto\HTTP\StatusCode;
+use Wedeto\HTTP\URL;
 
-use WASP\IO\MimeTypes;
+use Wedeto\IO\MimeTypes;
 
-use WASP\FileFormats\WriterFactory;
+use Wedeto\FileFormats\WriterFactory;
 
 /**
  * Dispatcher dispatches a HTTP Request to the correct route.
@@ -152,7 +152,7 @@ class Dispatcher
     }
 
     /**
-     * @return WASP\HTTP\Request the request being served
+     * @return Wedeto\HTTP\Request the request being served
      */
     public function getRequest()
     {
@@ -169,7 +169,7 @@ class Dispatcher
     }
 
     /**
-     * @return WASP\Autoload\Resolver The app, template and asset resolver
+     * @return Wedeto\Autoload\Resolver The app, template and asset resolver
      */
     public function getResolver()
     {
@@ -178,8 +178,8 @@ class Dispatcher
 
     /**
      * Set the resolver used for resolving apps
-     * @param WASP\Resolve\Resolver The resolver
-     * @return WASP\HTTP\Request Provides fluent interface
+     * @param Wedeto\Resolve\Resolver The resolver
+     * @return Wedeto\HTTP\Request Provides fluent interface
      */
     public function setResolver(Resolver $resolver)
     {
@@ -194,7 +194,7 @@ class Dispatcher
             echo "-- aTTACHING HOOK FOR ASSET MANAGER\n";
             $this->template = new Template($this->resolver);
             $asset_manager = new AssetManager($this->vhost, $this->resolver);
-            Hook::subscribe('WASP.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
+            Hook::subscribe('Wedeto.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
             echo "-- aTTACHED HOOK FOR ASSET MANAGER\n";
             $this->template
                 ->setAssetManager($asset_manager)
@@ -254,7 +254,7 @@ class Dispatcher
                 {
                     $loghook = new MemLogHook($memlogger, $this);
                     Hook::subscribe(
-                        "WASP.HTTP.Responder.Respond", 
+                        "Wedeto.HTTP.Responder.Respond", 
                         new MemLogHook($memlogger, $this),
                         Hook::RUN_LAST
                     );

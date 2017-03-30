@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,30 +23,30 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers WASP\SafeHTML
+ * @covers Wedeto\SafeHTML
  */
 final class SafeHTMLTest extends TestCase
 {
     public $counter = 0;
 
     /**
-     * @covers WASP\SafeHTML::__construct
-     * @covers WASP\SafeHTML::setDefault
-     * @covers WASP\SafeHTML::allowTag
-     * @covers WASP\SafeHTML::removeTag
-     * @covers WASP\SafeHTML::allowAttribute
-     * @covers WASP\SafeHTML::getHTML
-     * @covers WASP\SafeHTML::addCallback
-     * @covers WASP\SafeHTML::allowLinks
-     * @covers WASP\SafeHTML::allowProtocol
-     * @covers WASP\SafeHTML::sanitizeNode
-     * @covers WASP\SafeHTML::unwrapContents
-     * @covers WASP\SafeHTML::sanitizeAttributes
+     * @covers Wedeto\SafeHTML::__construct
+     * @covers Wedeto\SafeHTML::setDefault
+     * @covers Wedeto\SafeHTML::allowTag
+     * @covers Wedeto\SafeHTML::removeTag
+     * @covers Wedeto\SafeHTML::allowAttribute
+     * @covers Wedeto\SafeHTML::getHTML
+     * @covers Wedeto\SafeHTML::addCallback
+     * @covers Wedeto\SafeHTML::allowLinks
+     * @covers Wedeto\SafeHTML::allowProtocol
+     * @covers Wedeto\SafeHTML::sanitizeNode
+     * @covers Wedeto\SafeHTML::unwrapContents
+     * @covers Wedeto\SafeHTML::sanitizeAttributes
      */
     public function testSafeHTML()
     {

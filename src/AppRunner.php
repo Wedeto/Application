@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,17 +23,17 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
-use WASP\DB\DB;
-use WASP\DB\DAO;
-use WASP\Util\Dictionary;
-use WASP\Util\LoggerAwareStaticTrait;
-use WASP\Log\Logger;
-use WASP\HTTP\Request;
-use WASP\HTTP\Response\Response;
-use WASP\HTTP\Error as HTTPError;
-use WASP\HTTP\StatusCode;
+use Wedeto\DB\DB;
+use Wedeto\DB\DAO;
+use Wedeto\Util\Dictionary;
+use Wedeto\Util\LoggerAwareStaticTrait;
+use Wedeto\Log\Logger;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\Response\Response;
+use Wedeto\HTTP\Error as HTTPError;
+use Wedeto\HTTP\StatusCode;
 
 use ReflectionMethod;
 use Throwable;
@@ -61,7 +61,7 @@ class AppRunner
 
     /**
      * Create the AppRunner with the request and the app path
-     * @param WASP\HTTP\Request $request The request being answered
+     * @param Wedeto\HTTP\Request $request The request being answered
      * @param string $app The path to the appplication to run
      */
     public function __construct(Dispatcher $dispatcher, string $app)
@@ -93,7 +93,7 @@ class AppRunner
 
     /**
      * Run the app and make produce a response.
-     * @throws WASP\HTTP\Response
+     * @throws Wedeto\HTTP\Response
      */
     public function execute()
     {
@@ -265,7 +265,7 @@ class AppRunner
      *
      * The parameters of your methods are extracted using reflection and
      * matched to the request. You can use string or int types, or subclasses
-     * of WASP\DB\DAO. In the latter case, the object will be instantiated
+     * of Wedeto\DB\DAO. In the latter case, the object will be instantiated
      * using the parameter as identifier, that will be passed to the
      * DAO::get method.
      */

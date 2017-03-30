@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,19 +23,19 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\Platform;
+namespace Wedeto\Platform;
 
 use JSONSerializable;
 use InvalidArgumentException;
 
-use WASP\Util\LoggerAwareStaticTrait;
-use WASP\Util\Functions as WF;
+use Wedeto\Util\LoggerAwareStaticTrait;
+use Wedeto\Util\Functions as WF;
 
-use WASP\HTTP\Request;
-use WASP\HTTP\Response\Response;
-use WASP\HTTP\Response\StringResponse;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\Response\Response;
+use Wedeto\HTTP\Response\StringResponse;
 
-use WASP\Resolve\Resolver;
+use Wedeto\Resolve\Resolver;
 
 class AssetManager
 {
@@ -172,12 +172,12 @@ class AssetManager
 
     public function injectScript()
     {
-        return "#WASP-JAVASCRIPT#";
+        return "#WEDETO-JAVASCRIPT#";
     }
 
     public function injectCSS()
     {
-        return "#WASP-CSS#";
+        return "#WEDETO-CSS#";
     }
 
     public function resolveAssets(array $list, $type)
@@ -230,14 +230,14 @@ class AssetManager
             $tpl->assign('scripts', $scripts);
             $tpl->assign('inline_js', $this->inline_variables);
             $script_html = $tpl->renderReturn()->getOutput($mime);
-            $output = str_replace('#WASP-JAVASCRIPT#', $script_html, $output);
+            $output = str_replace('#WEDETO-JAVASCRIPT#', $script_html, $output);
 
             $tpl = new Template($this->resolver);
             $tpl->setTemplate('parts/stylesheets');
             $tpl->assign('stylesheets', $css);
             $tpl->assign('inline_css', $this->inline_style);
             $css_html = $tpl->renderReturn()->getOutput($mime);
-            $output = str_replace('#WASP-CSS#', $css_html, $output);
+            $output = str_replace('#WEDETO-CSS#', $css_html, $output);
 
             // Tidy up output when configured and available
             if ($this->tidy)

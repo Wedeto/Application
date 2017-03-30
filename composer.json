@@ -1,76 +1,76 @@
 {
-    "name": "wasp/platform",
+    "name": "wedeto/platform",
     "license": "MIT",
-    "description": "WASP Platform - Platform, dispatcher etc",
-    "homepage": "https://wasp.systems/",
+    "description": "Wedeto Platform - Platform, dispatcher etc",
+    "homepage": "https://wedeto.net/",
     "library": "project",
     "require": {
-        "WASP/Auth": "@dev",
-        "WASP/DB": "@dev",
-        "WASP/FileFormats": "@dev",
-        "WASP/HTTP": "@dev",
-        "WASP/I18n": "@dev",
-        "WASP/IO": "@dev",
-        "WASP/Log": "@dev",
-        "WASP/Mail": "@dev",
-        "WASP/Resolve": "@dev",
-        "WASP/Util": "@dev",
+        "Wedeto/Auth": "@dev",
+        "Wedeto/DB": "@dev",
+        "Wedeto/FileFormats": "@dev",
+        "Wedeto/HTTP": "@dev",
+        "Wedeto/I18n": "@dev",
+        "Wedeto/IO": "@dev",
+        "Wedeto/Log": "@dev",
+        "Wedeto/Mail": "@dev",
+        "Wedeto/Resolve": "@dev",
+        "Wedeto/Util": "@dev",
         "php": ">=7.0.0"
     },
     "autoload": {
         "psr-4": {
-            "WASP\\Platform\\": "src/"
+            "Wedeto\\Platform\\": "src/"
         }
     },
     "authors": [
         {
             "name": "Egbert van der Wal",
-            "email": "egbert@wasp.systems"
+            "email": "ewal@pointpro.nl"
         }
     ],
     "bin": [
-        "bin/wasp.php"
+        "bin/wedeto.php"
     ],
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/Auth"
+            "url": "https://github.com/Wedeto/Auth"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/DB"
+            "url": "https://github.com/Wedeto/DB"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/FileFormats"
+            "url": "https://github.com/Wedeto/FileFormats"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/HTTP"
+            "url": "https://github.com/Wedeto/HTTP"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/I18n"
+            "url": "https://github.com/Wedeto/I18n"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/IO"
+            "url": "https://github.com/Wedeto/IO"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/Log"
+            "url": "https://github.com/Wedeto/Log"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/Mail"
+            "url": "https://github.com/Wedeto/Mail"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/Resolve"
+            "url": "https://github.com/Wedeto/Resolve"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/WASP-Systems/Util"
+            "url": "https://github.com/Wedeto/Util"
         }
     ]
 }

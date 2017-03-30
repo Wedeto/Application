@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,26 +23,26 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers WASP\TaskRunner
- * @covers WASP\Task
+ * @covers Wedeto\TaskRunner
+ * @covers Wedeto\Task
  */
 final class TaskRunnerTest extends TestCase implements Task
 {
     private static $task_ran = false;
 
     /**
-     * @covers WASP\TaskRunner::registerTask
-     * @covers WASP\TaskRunner::listTasks
-     * @covers WASP\TaskRunner::run
+     * @covers Wedeto\TaskRunner::registerTask
+     * @covers Wedeto\TaskRunner::listTasks
+     * @covers Wedeto\TaskRunner::run
      */
     public function testTaskRunner()
     {
-        TaskRunner::registerTask('WASP:TaskRunnerTest', 'Run test tasks');
+        TaskRunner::registerTask('Wedeto:TaskRunnerTest', 'Run test tasks');
         $fh = fopen('php://memory', 'rw');
         TaskRunner::listTasks($fh);
         fseek($fh, 0);
@@ -62,7 +62,7 @@ final class TaskRunnerTest extends TestCase implements Task
 
         $this->assertFalse(self::$task_ran);
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::run('WASP:TaskRunnerTest', $fh);
+        TaskRunner::run('Wedeto:TaskRunnerTest', $fh);
         fseek($fh, 0);
         $data3 = fread($fh, 10000);
         fclose($fh);
@@ -70,27 +70,27 @@ final class TaskRunnerTest extends TestCase implements Task
         $this->assertEmpty($data3);
 
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::run('WASP:Path', $fh);
+        TaskRunner::run('Wedeto:Path', $fh);
         fseek($fh, 0);
         $data3 = fread($fh, 10000);
         fclose($fh);
-        $this->assertEquals($data3, "Error: invalid task: WASP\\Path\n");
+        $this->assertEquals($data3, "Error: invalid task: Wedeto\\Path\n");
 
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::run('WASP:NonExistingTask', $fh);
+        TaskRunner::run('Wedeto:NonExistingTask', $fh);
         fseek($fh, 0);
         $data3 = fread($fh, 10000);
         fclose($fh);
-        $this->assertEquals($data3, "Error: task does not exist: WASP\\NonExistingTask\n");
+        $this->assertEquals($data3, "Error: task does not exist: Wedeto\\NonExistingTask\n");
 
         $fh = fopen('php://memory', 'rw');
         $this->assertTrue(self::$task_ran);
-        TaskRunner::run('WASP:TaskRunnerTest', $fh);
+        TaskRunner::run('Wedeto:TaskRunnerTest', $fh);
         fseek($fh, 0);
         $exc = fread($fh, 10000);
         fclose($fh);
 
-        $msg = "Error: error while running task: WASP\TaskRunnerTest";
+        $msg = "Error: error while running task: Wedeto\TaskRunnerTest";
 		$this->assertEquals($msg, substr($exc, 0, strlen($msg)));
     }
 

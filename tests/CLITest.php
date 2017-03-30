@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,12 +23,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers WASP\CLI
+ * @covers Wedeto\Platform\CLI
  */
 class CLITest extends TestCase
 {
@@ -38,8 +38,8 @@ class CLITest extends TestCase
      * $argv or $_SERVER['argv'] has no effect. Therefore, the
      * output of getopt // CLI::parse cannot be reliably unit tested.
      *
-     * @covers WASP\CLI::__construct
-     * @covers WASP\CLI::formatText
+     * @covers Wedeto\Platform\CLI::__construct
+     * @covers Wedeto\Platform\CLI::formatText
      */
     public function testFormatText()
     {
@@ -58,10 +58,10 @@ class CLITest extends TestCase
     }
 
     /**
-     * @covers WASP\CLI::__construct
-     * @covers WASP\CLI::addOption
-     * @covers WASP\CLI::getOptString
-     * @covers WASP\CLI::mapOptions
+     * @covers Wedeto\Platform\CLI::__construct
+     * @covers Wedeto\Platform\CLI::addOption
+     * @covers Wedeto\Platform\CLI::getOptString
+     * @covers Wedeto\Platform\CLI::mapOptions
      */
     public function testGetOptString()
     {
