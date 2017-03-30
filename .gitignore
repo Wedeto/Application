@@ -1,5 +1,3 @@
 config/*.ini
-var/log/*.log
 var/*
-modules/*
 .*.swp
