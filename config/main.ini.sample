@@ -1,0 +1,43 @@
+[site]
+site_id = "fedcba9876543210"
+secure = 1
+www = 1
+dev = 1
+redirect_unknown = 0
+default_language = en
+url = "example.com;example.net;example.nl"
+
+[sql]
+username = 
+password = 
+hostname = localhost
+database = 
+type = mysql 
+
+[mail]
+username = 
+password = 
+server = localhost
+port = 587
+
+[admin]
+username = admin
+password = password
+
+[domainlanguage]
+url_en = "example.com;example.net"
+url_nl = "example.nl"
+
+[path]
+template = ""
+app = ""
+assets = ""
+uploads = ""
+
+[image]
+max_dimension = 1600
+thumbsize = 200
+path = "uploads"
+
+[date]
+format = "H:i:s"

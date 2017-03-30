@@ -1,0 +1,265 @@
+Auth
+    - ACL
+        - DBRuleLoader
+            # WASP\DB\DAO -- ACLRule?!?!
+        - Entity
+        - Exception
+        - Hierarchy
+        - ActionValidatorInterface
+        - RuleLoaderInterface
+        - Role
+        - RuleLoader
+    - Rule
+        # WASP\DB\DAO
+    - AuthenticationError
+    - Authentication
+        # WASP\Util\Dictionary
+        # WASP\HTTP\Session
+    - GroupInterface
+        # WASP\HTTP\Session
+    - PasswordGenerator
+        # WASP\Util\Functions
+        # WASP\IOException?!
+    - UserInterface
+        # WASP\HTTP\Session
+
+DB
+    - DAO
+        # WASP\Util\Functions
+    - DB
+        # WASP\Util\Functions
+        # WASP\Util\LoggerAwareStaticTrait
+        # WASP\Util\Dictionary
+    - Driver
+        - PGSQL
+            # WASP\Util\LoggerAwareStaticTrait
+        - MySQL
+            # WASP\Util\LoggerAwareStaticTrait
+        - Driver
+            # WASP\Util\LoggerAwareStaticTrait
+    - Migration
+    - Migrator
+    - Query
+        - Builder
+        - LimitClause
+        - DuplicateKey
+        - OffsetClause
+        - GroupByClause
+        - Delete
+        - Insert
+        - SourceSubQuery
+        - JoinClause
+        - Direction
+        - Operator
+        - WhereClause
+        - ConstantArray
+        - HavingClause
+        - Clause
+        - UnionClause
+        - Update
+        - ConstantValue
+        - OrderClause
+            # WASP\Util\Functions
+    - Schema
+        - Schema
+            # WASP\Util\Dictionary
+            # WASP\Util\Cache
+        - Table
+            # WASP\Util\Functions
+            # WASP\Util\LoggerAwareStaticTrait
+        - ForeignKEy
+            # WASP\Util\Functions
+        - Column
+            - Column
+                # WASP\Util\Functions
+
+HTTP
+    - Cookie
+
+    - Responder
+        # WASP\Util\LoggerAwareStaticTrait
+
+    - Response
+        - DataResponse
+            # WASP\Util\Dictionary
+            # WASP\Util\LoggerAwareStaticTrait
+            # WASP\FileFormats\*/Writer (w/class_exists)
+
+        - Error
+            # WASP\Util\Dictionary
+            # WASP\Util\LoggerAwareStaticTrait
+            # WASP\Util\Functions
+
+        - FileHandleResponse
+            # WASP\Util\LoggerAwareStaticTrait
+
+        - FileResponse
+            # WASP\Util\LoggerAwareStaticTrait
+            # WASP\Util\Functions
+            # WASP\Util\DefVal
+
+        - RedirectRequest
+        - StringResponse
+
+    - Request
+        # WASP\Util\Dictionary
+        
+    - Session
+        # WASP\Util\Dictionary
+        # WASP\Util\ErrorInterceptor
+
+    - StatusCode
+
+    - URLException
+    - URL
+        - intl\idn_to_utf8
+
+    - ?UploadException
+    - ?Upload
+
+I18n
+    - Formatting
+    - I18nException
+    - TranslateLogger
+        # Psr\Log\LogLevel
+        # WASP\Log\LogWriterInterface
+        # WASP\Log\Logger
+    - Translate
+        # WASP\Util\LoggerAwareStaticTrait
+        # WASP\IO\Dir
+        # WASP\Util\Dictionary
+
+        ** Convencience global functions?!?!
+
+    - Translator
+        - GetText
+        - Plural
+            - Parser
+            - Rule
+            - Symbol
+        - TextDomain
+            # WASP\Util\Dictionary
+        - Translator
+            # WASP\Util\Cache
+            # WASP\Util\LoggerAwareStaticTrait
+
+IO
+    - DirReader
+    - Path
+    - File
+        # WASP\Util\LoggerAwareStaticTrait
+    - IOException
+    - PermissionError
+    - MimeTypes
+
+FileFormats
+    - CSV
+        - Reader
+        - Writer
+    - INI
+        - Reader
+        - Writer
+    - JSON
+        - Reader
+        - Writer
+    - PHPS
+        - Reader
+        - Writer
+    - XML
+        - Reader
+        - Writer
+            # PHP_XML
+            # WASP\Util\Functions
+    - YAML
+        - Reader
+        - Writer
+            # PHP_YAML
+            # WASP\Util\Functions
+
+    - AbstractReader
+    - AbstractWriter
+    - ReaderFactory
+        # WASP\Util\Hook
+    - WriterFactory
+        # WASP\Util\Hook
+
+Log
+    - DevLogger
+        ** TODO: Rename to MemLogger?
+    - FileWriter
+        # Psr/Log/LogLevel
+        # WASP\IO\File
+    - LoggerFactory
+        # WASP\Util\Hook
+    - Logger
+        # Psr\Log\AbstractLogger
+        # Psr\Log\LogLevel
+        # WASP\Util\Functions
+
+        ** TODO: Convenvience global functions necessary?
+
+Mail
+    - Address
+    - HeaderWrap
+    - HTMLMessage
+    - MailException
+    - Message
+    - Mime
+        - Attachment
+        - Message
+        - Mime
+        - PartInterface
+        - Part
+    - Protocol
+        - AbstractProtocol
+        - ProtocolException
+        - SMTP
+    - SMTPSender
+
+Platform
+    - AppRunner
+    - AssetManager
+        ** TODO: Hook into Responder
+    - BBCode
+    - CLIException
+    - CLI
+    - DevLogHook
+        ** TODO: Hook into Responder
+    - FlashMessage
+    - Model
+        - DBVersion
+            # WASP\DB
+    - Module
+        - BasicModule
+        - Manager
+        - Module
+    - Path
+    - SafeHTML
+    - Site
+    - System
+    - Task
+    - TaskRunner
+    - Template
+    - TerminateRequest
+    - VirtualHost
+
+Resolve
+    - Autoloader
+        # uses Psr/Log/LoggerInterface (LoggerAwareStaticTrait?)
+    - Route
+    - Resolver
+        # Util\LoggerAwareStatic
+        # Util\Cache
+
+Util
+    - Cache
+    - Date
+    - DefVal
+    - Dictionary
+    - Encoding
+    - ErrorInterceptor
+    - Functions
+    - Hook
+    - HookInterrupted
+    - LoggerAwareStaticTrait
+        # Psr/Log/LoggerInterface
