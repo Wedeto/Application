@@ -28,6 +28,9 @@
             "email": "egbert@wasp.systems"
         }
     ],
+    "bin": [
+        "bin/wasp.php"
+    ],
     "repositories": [
         {
             "type": "vcs",
