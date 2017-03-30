@@ -1,0 +1,114 @@
+{
+    "packages": {
+        "wasp/auth": {
+            "dev-master": {
+                "name": "wasp/auth",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/Auth",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/db": {
+            "dev-master": {
+                "name": "wasp/db",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/DB",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/fileformats": {
+            "dev-master": {
+                "name": "wasp/fileformats",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/FileFormats",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/http": {
+            "dev-master": {
+                "name": "wasp/http",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/HTTP",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/i18n": {
+            "dev-master": {
+                "name": "wasp/i18n",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/I18n",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/io": {
+            "dev-master": {
+                "name": "wasp/io",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/IO",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/log": {
+            "dev-master": {
+                "name": "wasp/log",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/Log",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/mail": {
+            "dev-master": {
+                "name": "wasp/mail",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/Mail",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/platform": {
+            "dev-master": {
+                "name": "wasp/platform",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/Platform",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/resolve": {
+            "dev-master": {
+                "name": "wasp/resolve",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/Resolve",
+                    "type": "vcs"
+                }
+            }
+        },
+        "wasp/util": {
+            "dev-master": {
+                "name": "wasp/util",
+                "version": "0.9.0",
+                "dist": {
+                    "url": "https://github.com/WASP-Systems/Util",
+                    "type": "vcs"
+                }
+            }
+        }
+    }
+}
