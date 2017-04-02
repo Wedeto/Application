@@ -55,6 +55,7 @@ class System
 {
     private static $instance = null;
 
+    private $autoloader = null;
     private $bootstrapped = false;
     private $path_config;
     private $config;
@@ -114,6 +115,9 @@ class System
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
         else
             ini_set('error_log', $this->path_config->log . '/error-php' . $test . '.log');
+
+        // Set up the autoloader
+        $this->configureAutoloaderAndResolver();
 
         // Set default permissions for files and directories
         $this->setCreatePermissions();
@@ -301,5 +305,36 @@ class System
         $logger = Logger::getLogger('Wedeto.I18n.Translator.Translator');
         $handler = new I18n\TranslateLogger($this->path_config->log . '/translate-%s-%s.pot');
         $logger->addLogHandler($handler);
+    }
+
+    private function configureAutoloaderAndResolver()
+    {
+        if ($this->autoloader !== null)
+            return;
+
+        // Construct the Wedeto autoloader and resolver
+        $this->autoloader = new Autoloader();
+        $this->resolver = new Resolver();
+        spl_autoload_register(array($autoloader, 'autoload'), true, true);
+
+        $cl = self::findComposerAutoloader();
+        if (!empty($cl))
+        {
+            $this->autoloader->importComposerAutoloaderConfiguration($cl);
+            $this->resolver->importComposerAutoloaderConfiguration($cl);
+        }
+        else
+        {
+            // Apparently, composer is not in use. Assume that Wedeto is packaged in one directory and add that
+            $my_dir = __DIR__;
+            $wedeto_dir = dirname(dirname($my_dir));
+
+            $this->autoloader->registerNS("Wedeto\\", $wedeto_dir, Autoloader::PSR4);
+
+            // Find modules containing assets, templates or apps
+            $modules = $this->resolver->findModules($wedeto_dir);
+            foreach ($modules as $name => $path)
+                $this->resolver->registerModule($name, $path);
+        }
     }
 }
