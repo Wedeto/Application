@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 final class SystemTest extends TestCase
 {
     /**
-     * @covers Wedeto\System::getInstance
+     * @covers Wedeto\Platform\System::getInstance
      */
     public function testInstance()
     {
@@ -42,7 +42,7 @@ final class SystemTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\System::bootstrap
+     * @covers Wedeto\Platform\System::bootstrap
      */
     public function testNotDouble()
     {

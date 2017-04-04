@@ -23,23 +23,18 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wedeto\TaskRunner
- * @covers Wedeto\Task
+ * @covers Wedeto\Platform\TaskRunner
+ * @covers Wedeto\Platform\Task
  */
 final class TaskRunnerTest extends TestCase implements Task
 {
     private static $task_ran = false;
 
-    /**
-     * @covers Wedeto\TaskRunner::registerTask
-     * @covers Wedeto\TaskRunner::listTasks
-     * @covers Wedeto\TaskRunner::run
-     */
     public function testTaskRunner()
     {
         TaskRunner::registerTask('Wedeto:TaskRunnerTest', 'Run test tasks');

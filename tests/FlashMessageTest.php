@@ -23,13 +23,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
-use Wedeto\Http\Request;
+use Wedeto\HTTP\Request;
 
 /**
- * @covers Wedeto\FlashMessage
+ * @covers Wedeto\Platform\FlashMessage
  */
 final class FlashMessageTest extends TestCase
 {
@@ -45,13 +45,13 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\FlashMessage::__construct
-     * @covers Wedeto\FlashMessage::getMessage
-     * @covers Wedeto\FlashMessage::getType
-     * @covers Wedeto\FlashMessage::getTypeName
-     * @covers Wedeto\FlashMessage::hasNext
-     * @covers Wedeto\FlashMessage::next
-     * @covers Wedeto\FlashMessage::count
+     * @covers Wedeto\Platform\FlashMessage::__construct
+     * @covers Wedeto\Platform\FlashMessage::getMessage
+     * @covers Wedeto\Platform\FlashMessage::getType
+     * @covers Wedeto\Platform\FlashMessage::getTypeName
+     * @covers Wedeto\Platform\FlashMessage::hasNext
+     * @covers Wedeto\Platform\FlashMessage::next
+     * @covers Wedeto\Platform\FlashMessage::count
      */
     public function testFlashMessage()
     {
@@ -122,7 +122,7 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\FlashMessage::count
+     * @covers Wedeto\Platform\FlashMessage::count
      */
     public function testFlashMessageCountEmpty()
     {
@@ -131,7 +131,7 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\FlashMessage::__construct
+     * @covers Wedeto\Platform\FlashMessage::__construct
      */
     public function testNoSession()
     {
@@ -142,8 +142,8 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\FlashMessage::hasNext
-     * @covers Wedeto\FlashMessage::next
+     * @covers Wedeto\Plaform\FlashMessage::hasNext
+     * @covers Wedeto\Platform\FlashMessage::next
      */
     public function testNoNextAvailable()
     {
@@ -160,7 +160,7 @@ final class FlashMessageTest extends TestCase
     }
 }
 
-class MockFlashMessageRequest extends Http\Request
+class MockFlashMessageRequest extends Request
 {
     public function __construct()
     {

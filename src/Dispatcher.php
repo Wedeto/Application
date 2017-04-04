@@ -191,11 +191,9 @@ class Dispatcher
     {
         if ($this->template === null)
         {
-            echo "-- aTTACHING HOOK FOR ASSET MANAGER\n";
             $this->template = new Template($this->resolver);
             $asset_manager = new AssetManager($this->vhost, $this->resolver);
             Hook::subscribe('Wedeto.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
-            echo "-- aTTACHED HOOK FOR ASSET MANAGER\n";
             $this->template
                 ->setAssetManager($asset_manager)
                 ->assign('request', $this->request)

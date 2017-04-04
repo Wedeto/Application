@@ -27,6 +27,8 @@ namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
+use Wedeto\HTTP;
+use Wedeto\Resolve;
 use Wedeto\HTTP\Response\StringResponse;
 
 /**
@@ -319,13 +321,13 @@ EOT;
     }
 }
 
-class MockAssetRequest extends Http\Request
+class MockAssetRequest extends HTTP\Request
 {
     public function __construct()
     {
         $this->resolver = new MockAssetResolver();
         $this->vhost = new MockAssetVhost();
-        $this->response_builder = new Http\ResponseBuilder($this);
+        $this->responder = new HTTP\Responder($this);
     }
 }
 

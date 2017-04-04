@@ -23,30 +23,30 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wedeto\SafeHTML
+ * @covers Wedeto\Platform\SafeHTML
  */
 final class SafeHTMLTest extends TestCase
 {
     public $counter = 0;
 
     /**
-     * @covers Wedeto\SafeHTML::__construct
-     * @covers Wedeto\SafeHTML::setDefault
-     * @covers Wedeto\SafeHTML::allowTag
-     * @covers Wedeto\SafeHTML::removeTag
-     * @covers Wedeto\SafeHTML::allowAttribute
-     * @covers Wedeto\SafeHTML::getHTML
-     * @covers Wedeto\SafeHTML::addCallback
-     * @covers Wedeto\SafeHTML::allowLinks
-     * @covers Wedeto\SafeHTML::allowProtocol
-     * @covers Wedeto\SafeHTML::sanitizeNode
-     * @covers Wedeto\SafeHTML::unwrapContents
-     * @covers Wedeto\SafeHTML::sanitizeAttributes
+     * @covers Wedeto\Platform\SafeHTML::__construct
+     * @covers Wedeto\Platform\SafeHTML::setDefault
+     * @covers Wedeto\Platform\SafeHTML::allowTag
+     * @covers Wedeto\Platform\SafeHTML::removeTag
+     * @covers Wedeto\Platform\SafeHTML::allowAttribute
+     * @covers Wedeto\Platform\SafeHTML::getHTML
+     * @covers Wedeto\Platform\SafeHTML::addCallback
+     * @covers Wedeto\Platform\SafeHTML::allowLinks
+     * @covers Wedeto\Platform\SafeHTML::allowProtocol
+     * @covers Wedeto\Platform\SafeHTML::sanitizeNode
+     * @covers Wedeto\Platform\SafeHTML::unwrapContents
+     * @covers Wedeto\Platform\SafeHTML::sanitizeAttributes
      */
     public function testSafeHTML()
     {

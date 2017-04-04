@@ -23,15 +23,15 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
-use Wedeto\Http\Error as HttpError;
-use Wedeto\Http\Request;
-use Wedeto\Http\StringResponse;
+use Wedeto\HTTP\Response\Error as HTTPError;
+use Wedeto\HTTP\Request;
+use Wedeto\HTTP\StringResponse;
 
 /**
- * @covers Wedeto\Template
+ * @covers Wedeto\Platform\Template
  */
 final class TemplateTest extends TestCase
 {
@@ -57,10 +57,10 @@ final class TemplateTest extends TestCase
 
 
     /**
-     * @covers Wedeto\Template::__construct
-     * @covers Wedeto\Template::assign
-     * @covers Wedeto\Template::setTitle
-     * @covers Wedeto\Template::title
+     * @covers Wedeto\Platform\Template::__construct
+     * @covers Wedeto\Platform\Template::assign
+     * @covers Wedeto\Platform\Template::setTitle
+     * @covers Wedeto\Platform\Template::title
      */
     public function testConstruct()
     {
@@ -140,8 +140,8 @@ final class TemplateTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Template::render
-     * @covers Wedeto\Template::renderReturn
+     * @covers Wedeto\Platform\Template::render
+     * @covers Wedeto\Platform\Template::renderReturn
      */
     public function testRender()
     {
@@ -169,8 +169,8 @@ EOT;
     }
 
     /**
-     * @covers Wedeto\Template::render
-     * @covers Wedeto\Template::renderReturn
+     * @covers Wedeto\Platform\Template::render
+     * @covers Wedeto\Platform\Template::renderReturn
      */
     public function testRenderThrowsError()
     {
@@ -193,8 +193,8 @@ EOT;
     }
 
     /**
-     * @covers Wedeto\Template::render
-     * @covers Wedeto\Template::renderReturn
+     * @covers Wedeto\Platform\Template::render
+     * @covers Wedeto\Platform\Template::renderReturn
      */
     public function testRenderThrowsCustomResponse()
     {
@@ -218,7 +218,7 @@ EOT;
         {
             $tpl->render();
         }
-        catch (\Wedeto\Http\DataResponse $e)
+        catch (\Wedeto\HTTP\Response\DataResponse $e)
         {
             $actual = $e->getDictionary()->getAll();
             $expected = ['foo', 'bar'];
@@ -227,14 +227,14 @@ EOT;
     }
 
     /**
-     * @covers Wedeto\Template::render
-     * @covers Wedeto\Template::renderReturn
+     * @covers Wedeto\Platform\Template::render
+     * @covers Wedeto\Platform\Template::renderReturn
      */
     public function testRenderThrowsTerminateRequest()
     {
         $tpl_file = <<<EOT
 <?php
-throw new Wedeto\TerminateRequest("Foobar!");
+throw new Wedeto\Platform\TerminateRequest("Foobar!");
 ?>
 EOT;
         file_put_contents($this->filename, $tpl_file);

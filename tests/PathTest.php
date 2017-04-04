@@ -23,12 +23,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto;
+namespace Wedeto\Platform;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wedeto\Path
+ * @covers Wedeto\Platform\Path
  */
 final class PathTest extends TestCase
 {
@@ -46,9 +46,9 @@ final class PathTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Path::__construct
-     * @covers Wedeto\Path::checkPaths
-     * @covers Wedeto\Path::current
+     * @covers Wedeto\Platform\Path::__construct
+     * @covers Wedeto\Platform\Path::checkPaths
+     * @covers Wedeto\Platform\Path::current
      */
     public function testPath()
     {
@@ -92,7 +92,7 @@ final class PathTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Path::__construct
+     * @covers Wedeto\Platform\Path::__construct
      */
     public function testExceptionRootInvalid()
     {
@@ -102,7 +102,7 @@ final class PathTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Path::__construct
+     * @covers Wedeto\Platform\Path::__construct
      */
     public function testExceptionWebrootInvalid()
     {
