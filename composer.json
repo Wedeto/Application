@@ -7,14 +7,14 @@
     "require": {
         "Wedeto/Auth": "@dev",
         "Wedeto/DB": "@dev",
-        "Wedeto/FileFormats": "@dev",
-        "Wedeto/HTTP": "@dev",
+        "Wedeto/FileFormats": "0.9.*",
+        "Wedeto/HTTP": "0.9.*",
         "Wedeto/I18n": "@dev",
-        "Wedeto/IO": "@dev",
-        "Wedeto/Log": "@dev",
+        "Wedeto/IO": "0.9.*",
+        "Wedeto/Log": "0.9.*",
         "Wedeto/Mail": "@dev",
-        "Wedeto/Resolve": "@dev",
-        "Wedeto/Util": "@dev",
+        "Wedeto/Resolve": "0.9.*",
+        "Wedeto/Util": "0.9.*",
         "php": ">=7.0.0"
     },
     "autoload": {
@@ -42,35 +42,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/Wedeto/FileFormats"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/HTTP"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/Wedeto/I18n"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/IO"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/Log"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/Mail"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/Resolve"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/Util"
         }
     ]
 }
