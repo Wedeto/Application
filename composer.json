@@ -17,6 +17,10 @@
         "Wedeto/Util": "0.9.*",
         "php": ">=7.0.0"
     },
+    "require-dev": {
+        "mikey179/vfsStream": "~1",
+        "phpunit/phpunit": ">=6.0.8"
+    },
     "autoload": {
         "psr-4": {
             "Wedeto\\Application\\": "src/"
