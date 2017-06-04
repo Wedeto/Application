@@ -23,45 +23,70 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\HTTP;
+namespace Wedeto\Application;
 
 use Wedeto\Util\Hook;
+use Wedeto\Util\TypedDictionary;
 use Wedeto\Util\Date;
-use Wedeto\Util\Functions as WF;
 
-use Wedeto\Log\MemLogger;
+use Wedeto\Log\Writer\MemLogWriter;
 
 /**
- * Log all output of the current script to memory, and attach a log to the end
- * of the response
+ * Hook that attaches to the HTTP Responder that collects log lines and
+ * and routing information and attaches that to every request.
  */
-class MemLogHook implements ResponseHookInterface
+class LogAttachHook
 {
     protected $memlog = null;
     protected $dispatcher = null;
 
-    public function __construct(MemLogger $logger, Dispatcher $dispatcher)
+    /**
+     * Set up the Log Attach Hook.
+     * @param MemLogWriter $logger The MemLogWriter instance used to obtain the
+     *                             log
+     * @param Dispatcher $dispatcher The dispatcher instance that will be used
+     *                               to obtain routing information
+     */
+    public function __construct(MemLogWriter $logger, Dispatcher $dispatcher)
     {
         $this->memlog = $logger;
         $this->dispatcher = $dispatcher;
     }
 
+    /**
+     * @return Dispatcher the dispatcher
+     */
     public function getDispatcher()
     {
         return $this->dispatcher;
     }
 
+    /** 
+     * Set the dispatcher instance
+     * @param Dispatcher $dispatcher The dispatcher instance that will be used
+     *                               to obtain routing information
+     * @return LogAttachHook Provides fluent interface
+     */
     public function setDispatcher(Dispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
         return $this;
     }
 
+    /**
+     * @return MemLogWriter The MemLogWriter instance that is used to obtain
+     * the log
+     */
     public function getMemLog()
     {
         return $this->memlog;
     }
 
+    /**
+     * Set the MemLogWriter instance used to obtain the log
+     * @param MemLogWriter $logger The logger
+     * @return LogAttachHook Provides fluent interface
+     */
     public function setMemLog(MemLogger $logger)
     {
         $this->memlog = $logger;
@@ -73,13 +98,13 @@ class MemLogHook implements ResponseHookInterface
      * JSON/XML request Do note that this should only be used for development
      * as the log may expose sensitive information to the client.
      * 
-     * @param array $params Expected to contain 'responder', the Responder object
+     * @param TypedDictionary $params Expected to contain 'responder', the Responder object
      */
-    public function __invoke(array $params)
+    public function __invoke(TypedDictionary $params)
     {
         $responder = $params['responder'];
-        $request = $responder->getRequest();
-        $response = $responder->getResponse();
+        $request = $responder->getResponse();
+        $response = $params['response'];
 
         // Calculate elapsed time
         $now = Date::now();
@@ -127,5 +152,12 @@ class MemLogHook implements ResponseHookInterface
             }
         }
     }
-}
 
+    /**
+     * Attach the hook to the Responder
+     */
+    public function attach()
+    {
+        Hook::subscribe("Wedeto.HTTP.Responder.Respond", $this);
+    }
+}

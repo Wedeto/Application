@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application;
 
 use Wedeto\Util\LoggerAwareStaticTrait;
 use Wedeto\Util\Dictionary;

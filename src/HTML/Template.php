@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform
+namespace Wedeto\Application
 {
     use Throwable;
 
@@ -118,8 +118,8 @@ namespace Wedeto\Platform
 
         /**
          * Set the asset manager used by this object
-         * @param Wedeto\Platform\AssetManager $mgr The asset manager to set
-         * @return Wedeto\Platform\Template Provides fluent interface
+         * @param Wedeto\Application\AssetManager $mgr The asset manager to set
+         * @return Wedeto\Application\Template Provides fluent interface
          */
         public function setAssetManager(AssetManager $mgr)
         {
@@ -138,7 +138,7 @@ namespace Wedeto\Platform
         /**
          * Set the resolver instance used to resolve templates and assets
          * @param Wedeto\Resolve\Resolver The resolver instance
-         * @return Wedeto\Platform\Template Provides fluent interface
+         * @return Wedeto\Application\Template Provides fluent interface
          */
         public function setResolver(Resolver $resolver)
         {
@@ -429,7 +429,7 @@ namespace
 {
     function tpl($name)
     {
-        $tpl = Wedeto\Platform\System::template()->resolve($name);
+        $tpl = Wedeto\Application\System::template()->resolve($name);
         return $tpl;
     }
 
@@ -440,7 +440,7 @@ namespace
 
     function URL($path)
     {
-        $vhost = Wedeto\Platform\System::dispatcher()->getVirtualHost();
+        $vhost = Wedeto\Application\System::dispatcher()->getVirtualHost();
         return $vhost !== null ? $vhost->URL($path) : $path;
     }
 }

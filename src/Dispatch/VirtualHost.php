@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application;
 
 use Wedeto\Util\Functions as WF;
 use Wedeto\HTTP\URL;
@@ -65,8 +65,8 @@ class VirtualHost
 
     /**
      * Set the site where this virtual host belongs to
-     * @param Wedeto\Platform\Site $site The site
-     * @return Wedeto\Platform\VirtualHost Provides fluent interface
+     * @param Wedeto\Application\Site $site The site
+     * @return Wedeto\Application\VirtualHost Provides fluent interface
      */
     public function setSite(Site $site)
     {
@@ -74,7 +74,7 @@ class VirtualHost
     }
 
     /**
-     * @return Wedeto\Platform\Site The site this VirtualHost belongs to
+     * @return Wedeto\Application\Site The site this VirtualHost belongs to
      */
     public function getSite()
     {
@@ -110,7 +110,7 @@ class VirtualHost
     /** 
      * Set the locales supported by this VirtualHost.
      * @param mixed $locale Can be one locale or an array of locales
-     * @return Wedeto\Platform\VirtualHost Provides fluent interface
+     * @return Wedeto\Application\VirtualHost Provides fluent interface
      */
     public function setLocale($locale)
     {
@@ -126,7 +126,7 @@ class VirtualHost
     /** 
      * Configure this VirtualHost to be a redirect to another location
      * @param mixed $hostname A string or a URL object where to redirect to. Can be empty to disable redirecting
-     * @return Wedeto\Platform\VirtualHost Provides fluent interface
+     * @return Wedeto\Application\VirtualHost Provides fluent interface
      */
     public function setRedirect($hostname)
     {
