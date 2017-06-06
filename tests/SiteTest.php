@@ -27,6 +27,10 @@ namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
 
+use Wedeto\Util\Dictionary;
+use Wedeto\HTTP\URL;
+use Wedeto\HTTP\URLException;
+
 /**
  * @covers Wedeto\Application\Site
  * @covers Wedeto\Application\VirtualHost
@@ -74,14 +78,14 @@ final class SiteTest extends TestCase
         $this->assertEquals([$vhost1, $vhost2, $vhost3], $actual);
 
         $actual = $s->checkRedirect('http://foobar.de/foo/bar/baz');
-        $expected = new Http\URL('https://foobar.nl/foo/bar/baz');
+        $expected = new URL('https://foobar.nl/foo/bar/baz');
         $this->assertEquals($expected, $actual);
 
         $actual = $s->checkRedirect('http://foobar.com/foo/bar');
         $this->assertFalse($actual);
 
         $actual = $s->URL('/assets', 'nl');
-        $expected = new Http\URL('https://foobar.nl/assets');
+        $expected = new URL('https://foobar.nl/assets');
         $this->assertEquals($expected, $actual);
 
         $actual = $s->URL('/assets', 'af');
@@ -114,28 +118,28 @@ final class SiteTest extends TestCase
         $this->assertEquals(2, count($shosts));
 
         $actual = $fhosts[0]->getHost();
-        $expected = new Http\URL('https://foobar.de');
+        $expected = new URL('https://foobar.de');
         $this->assertEquals($expected, $actual);
 
         $actual = $fhosts[1]->getHost();
-        $expected = new Http\URL('https://foobar.com');
+        $expected = new URL('https://foobar.com');
         $this->assertEquals($expected, $actual);
 
         $actual = $fhosts[2]->getHost();
-        $expected = new Http\URL('https://foobar.nl');
+        $expected = new URL('https://foobar.nl');
         $this->assertEquals($expected, $actual);
 
         $actual = $shosts[0]->getHost();
-        $expected = new Http\URL('https://example.com');
+        $expected = new URL('https://example.com');
         $this->assertEquals($expected, $actual);
 
         $actual = $shosts[1]->getHost();
-        $expected = new Http\URL('http://example.nl');
+        $expected = new URL('http://example.nl');
         $this->assertEquals($expected, $actual);
 
-        $url = new Http\URL('http://example.nl/foo');
+        $url = new URL('http://example.nl/foo');
         $actual = $shosts[1]->getRedirect($url);
-        $expected = new Http\URL('https://example.com/foo');
+        $expected = new URL('https://example.com/foo');
         $this->assertEquals($expected, $actual);
 
         $this->assertEquals($first, $fhosts[0]->getSite());
@@ -145,13 +149,13 @@ final class SiteTest extends TestCase
         $this->assertEquals($second, $shosts[1]->getSite());
 
         $shosts[1]->setRedirect(null);
-        $url = new Http\URL('http://example.nl/foo');
+        $url = new URL('http://example.nl/foo');
         $actual = $shosts[1]->getRedirect($url);
         $this->assertNull($actual);
 
         $current = $shosts[1]->getHost();
         $actual = $shosts[1]->URL('assets', $current);
-        $expected = new Http\URL('/assets');
+        $expected = new URL('/assets');
         $this->assertEquals($expected, $actual);
     }
 
@@ -177,7 +181,7 @@ final class SiteTest extends TestCase
 
         $this->assertTrue($vhost1->match('www.foobar.com'));
 
-        $this->expectException(Http\URLException::class);
+        $this->expectException(URLException::class);
         $this->expectExceptionMessage('Unsupported scheme: \'garbage\'');
         $vhost1->match('garbage://scheme');
     }

@@ -25,6 +25,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application\Task;
 
+use Wedeto\Application\Module\Manager as ModuleManager;
+
 /**
  * The TaskRunner collects and runs tasks. It is also used by the scheduler to
  * run periodic jobs
@@ -57,7 +59,7 @@ class TaskRunner
         if (self::$init)
             return;
 
-        $modules = Module\Manager::getModules();
+        $modules = ModuleManager::getModules();
         foreach ($modules as $mod)
             $mod->registerTasks();
         self::$init = true;

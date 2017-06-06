@@ -26,6 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
+use Wedeto\Util\Dictionary;
 use Wedeto\HTTP\Request;
 
 /**
@@ -36,12 +37,12 @@ final class FlashMessageTest extends TestCase
     public function setUp()
     {
         $this->request = new MockFlashMessageRequest;
-        System::getInstance()->request = $this->request;
+        Application::getInstance()->request = $this->request;
     }
 
     public function tearDown()
     {
-        System::getInstance()->request = null;
+        Application::getInstance()->request = null;
     }
 
     /**

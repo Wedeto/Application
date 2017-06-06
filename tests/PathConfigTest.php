@@ -27,10 +27,12 @@ namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
 
+use Wedeto\IO\Path;
+
 /**
- * @covers Wedeto\Application\Path
+ * @covers Wedeto\Application\PathConfig
  */
-final class PathTest extends TestCase
+final class PathConfigTest extends TestCase
 {
     private $wedetoroot;
 
@@ -42,19 +44,19 @@ final class PathTest extends TestCase
     public function tearDown()
     {
         $this->wedetoroot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
-        new Path(array('root' => $this->wedetoroot));
+        new PathConfig(array('root' => $this->wedetoroot));
     }
 
     /**
-     * @covers Wedeto\Application\Path::__construct
-     * @covers Wedeto\Application\Path::checkPaths
-     * @covers Wedeto\Application\Path::current
+     * @covers Wedeto\Application\PathConfig::__construct
+     * @covers Wedeto\Application\PathConfig::checkPaths
+     * @covers Wedeto\Application\PathConfig::current
      */
     public function testPath()
     {
         $root = $this->wedetoroot;
 
-        $path = new Path(array('root' => $root));
+        $path = new PathConfig(array('root' => $root));
         $this->assertEquals($root, $path->root);
         $this->assertEquals($root . '/var', $path->var);
         $this->assertEquals($root . '/var/cache', $path->cache);
@@ -67,9 +69,9 @@ final class PathTest extends TestCase
 
         $webroot = $root . '/var/test';
         $assets = $webroot . '/assets';
-        IO\Dir::mkdir($assets);
+        Path::mkdir($assets);
 
-        $path = new Path(array('root' => $root, 'http' => $webroot));
+        $path = new PathConfig(array('root' => $root, 'http' => $webroot));
         $this->assertEquals($root, $path->root);
         $this->assertEquals($root . '/var', $path->var);
         $this->assertEquals($root . '/var/cache', $path->cache);
@@ -82,7 +84,7 @@ final class PathTest extends TestCase
 
         $path->checkPaths();
 
-        $current = Path::current();
+        $current = PathConfig::current();
         $this->assertEquals($current, $path);
 
 
@@ -92,23 +94,23 @@ final class PathTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Application\Path::__construct
+     * @covers Wedeto\Application\PathConfig::__construct
      */
     public function testExceptionRootInvalid()
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("Path root (/tmp/non/existing/dir) does not exist");
-        new Path(array('root' => '/tmp/non/existing/dir'));
+        new PathConfig(array('root' => '/tmp/non/existing/dir'));
     }
 
     /**
-     * @covers Wedeto\Application\Path::__construct
+     * @covers Wedeto\Application\PathConfig::__construct
      */
     public function testExceptionWebrootInvalid()
     {
         $path = $this->wedetoroot;
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("Path http (/tmp/non/existing/dir) does not exist");
-        new Path(array('root' => $path, 'http' => '/tmp/non/existing/dir'));
+        new PathConfig(array('root' => $path, 'http' => '/tmp/non/existing/dir'));
     }
 }

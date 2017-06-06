@@ -46,6 +46,7 @@ final class DispatcherTest extends TestCase
     private $post;
     private $server;
     private $cookie;
+    private $files;
 
     private $config;
 
@@ -74,6 +75,8 @@ final class DispatcherTest extends TestCase
             'HTTP_ACCEPT' => 'text/plain;q=1,text/html;q=0.9'
         );
 
+        $this->files = [];
+
         $this->cookie = array(
             'session_id' => '1234'
         );
@@ -89,7 +92,7 @@ final class DispatcherTest extends TestCase
             )
         );
 
-        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server);
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
 
         $this->config = new Dictionary($config);
         $this->path = Application::path();

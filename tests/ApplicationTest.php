@@ -27,6 +27,8 @@ namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
 
+use Wedeto\Util\Dictionary;
+
 /**
  * @covers Wedeto\Application
  */
@@ -47,7 +49,7 @@ final class ApplicationTest extends TestCase
     public function testNotDouble()
     {
         $config = new Dictionary();
-        $path = Path::current();
+        $path = PathConfig::current();
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("Cannot initialize more than once");

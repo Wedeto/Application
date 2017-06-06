@@ -48,10 +48,7 @@ use Wedeto\HTTP\Error as HTTPError;
 
 use Wedeto\I18n;
 
-/**
- * @codeCoverageIgnore System is already executed before tests run
- */
-class System
+class Application
 {
     private static $instance = null;
 

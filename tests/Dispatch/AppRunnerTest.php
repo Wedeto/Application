@@ -30,6 +30,7 @@ use Wedeto\HTTP\StringResponse;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Error as HttpError;
 use Wedeto\HTML\Template;
+use Wedeto\Application\Application;
 
 use RuntimeException;
 use Psr\Log\LogLevel;
@@ -49,7 +50,7 @@ final class AppRunnerTest extends TestCase
     public function setUp()
     {
         $this->request = new MockAppRunnerRequest();
-        $this->pathconfig = System::path();
+        $this->pathconfig = Application::path();
 
         $this->testpath = $this->pathconfig->var . '/test';
         IO\Dir::mkdir($this->testpath);
@@ -751,7 +752,7 @@ class MockAppRunnerRequest extends Request
     public function __construct()
     {
         $this->url = '/';
-        $this->resolver = System::resolver();
+        $this->resolver = Application::resolver();
         $this->url_args = new Dictionary(["foo", "bar", "baz"]);
         $this->template = new MockAppRunnerTemplate();
     }
