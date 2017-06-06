@@ -8,6 +8,7 @@
         "Wedeto/Auth": "0.9.*",
         "Wedeto/DB": "0.9.*",
         "Wedeto/FileFormats": "0.9.*",
+        "Wedeto/HTML": "0.9.*",
         "Wedeto/HTTP": "0.9.*",
         "Wedeto/I18n": "0.9.*",
         "Wedeto/IO": "0.9.*",
@@ -34,19 +35,5 @@
     ],
     "bin": [
         "bin/wedeto.php"
-    ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/Auth"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/DB"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/I18n"
-        }
     ]
 }

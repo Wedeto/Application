@@ -23,13 +23,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
 use Wedeto\HTTP\Request;
 
 /**
- * @covers Wedeto\Platform\FlashMessage
+ * @covers Wedeto\Application\FlashMessage
  */
 final class FlashMessageTest extends TestCase
 {
@@ -45,13 +45,13 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Platform\FlashMessage::__construct
-     * @covers Wedeto\Platform\FlashMessage::getMessage
-     * @covers Wedeto\Platform\FlashMessage::getType
-     * @covers Wedeto\Platform\FlashMessage::getTypeName
-     * @covers Wedeto\Platform\FlashMessage::hasNext
-     * @covers Wedeto\Platform\FlashMessage::next
-     * @covers Wedeto\Platform\FlashMessage::count
+     * @covers Wedeto\Application\FlashMessage::__construct
+     * @covers Wedeto\Application\FlashMessage::getMessage
+     * @covers Wedeto\Application\FlashMessage::getType
+     * @covers Wedeto\Application\FlashMessage::getTypeName
+     * @covers Wedeto\Application\FlashMessage::hasNext
+     * @covers Wedeto\Application\FlashMessage::next
+     * @covers Wedeto\Application\FlashMessage::count
      */
     public function testFlashMessage()
     {
@@ -122,7 +122,7 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Platform\FlashMessage::count
+     * @covers Wedeto\Application\FlashMessage::count
      */
     public function testFlashMessageCountEmpty()
     {
@@ -131,7 +131,7 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Platform\FlashMessage::__construct
+     * @covers Wedeto\Application\FlashMessage::__construct
      */
     public function testNoSession()
     {
@@ -142,8 +142,8 @@ final class FlashMessageTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Plaform\FlashMessage::hasNext
-     * @covers Wedeto\Platform\FlashMessage::next
+     * @covers Wedeto\Application\FlashMessage::hasNext
+     * @covers Wedeto\Application\FlashMessage::next
      */
     public function testNoNextAvailable()
     {

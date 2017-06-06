@@ -23,15 +23,15 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application\Task;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wedeto\Platform\TaskRunner
- * @covers Wedeto\Platform\Task
+ * @covers Wedeto\Application\Task\TaskRunner
+ * @covers Wedeto\Application\Task\TaskInterface
  */
-final class TaskRunnerTest extends TestCase implements Task
+final class TaskRunnerTest extends TestCase implements TaskInterface
 {
     private static $task_ran = false;
 

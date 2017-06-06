@@ -23,13 +23,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application\Dispatch;
 
 use PHPUnit\Framework\TestCase;
 use Wedeto\Resolve\Resolver;
-use Wedeto\Platform\System;
-use Wedeto\Platform\Path;
-use Wedeto\Platform\Template;
+use Wedeto\Application\Application;
+use Wedeto\Application\PathConfig;
+use Wedeto\HTML\Template;
 use Wedeto\Util\Dictionary;
 
 use Wedeto\HTTP\Request;
@@ -38,7 +38,7 @@ use Wedeto\HTTP\URL;
 use Wedeto\HTTP\Response\RedirectRequest;
 
 /**
- * @covers Wedeto\Platform\Dispatcher
+ * @covers Wedeto\Application\Dispatch\Dispatcher
  */
 final class DispatcherTest extends TestCase
 {
@@ -92,7 +92,7 @@ final class DispatcherTest extends TestCase
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server);
 
         $this->config = new Dictionary($config);
-        $this->path = System::path();
+        $this->path = Application::path();
         $this->resolve = new Resolver($this->path);
     }
 
@@ -212,7 +212,7 @@ final class DispatcherTest extends TestCase
 
     public function testDispatchWithValidApp()
     {
-        $pathconfig = System::path();
+        $pathconfig = Application::path();
         $testpath = $pathconfig->var . '/test';
         \Wedeto\IO\Dir::mkdir($testpath);
         $filename = tempnam($testpath, "wasptest") . ".php";

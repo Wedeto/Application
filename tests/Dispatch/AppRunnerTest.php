@@ -23,17 +23,19 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application\Dispatch;
 
 use PHPUnit\Framework\TestCase;
 use Wedeto\HTTP\StringResponse;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Error as HttpError;
+use Wedeto\HTML\Template;
+
 use RuntimeException;
 use Psr\Log\LogLevel;
 
 /**
- * @covers Wedeto\Platform\AppRunner
+ * @covers Wedeto\Application\Dispatch\AppRunner
  */
 final class AppRunnerTest extends TestCase
 {
@@ -67,8 +69,8 @@ final class AppRunnerTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\Platform\AppRunner::__construct
-     * @covers Wedeto\Platform\AppRunner::execute
+     * @covers Wedeto\Application\Dispatch\AppRunner::__construct
+     * @covers Wedeto\Application\Dispatch\AppRunner::execute
      */
     public function testAppReturnsResponse()
     {
@@ -361,14 +363,14 @@ EOT;
 use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\Util\Dictionary;
 use Wedeto\HTTP\Request;
-use Wedeto\Platform\Template;
+use Wedeto\Application\Dispatch\Template;
 
 class {$classname}
 {
     public function foo(Request \$arg1, Template \$arg2, Dictionary \$arg3)
     {
         \$vals = \$arg3->toArray();
-        if (!(\$arg2 instanceof Wedeto\Platform\Template))
+        if (!(\$arg2 instanceof Wedeto\Application\Dispatch\Template))
             throw new Wedeto\HTTP\Response\Error('No template');
         \$vals[] = \$arg1->url;
         return new StringResponse(implode(",", \$vals), "text/plain");
@@ -435,7 +437,7 @@ EOT;
 
 use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\HTTP\Request;
-use Wedeto\Platform\Template;
+use Wedeto\Application\Dispatch\Template;
 use Wedeto\Util\Dictionary;
 use Wedeto\Resolve\Resolver;
 use Wedeto\Log\Logger;
@@ -697,7 +699,7 @@ use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public function foo(Wedeto\Platform\MockAppRunnerDAO \$arg1, string \$arg2)
+    public function foo(Wedeto\Application\Dispatch\MockAppRunnerDAO \$arg1, string \$arg2)
     {
         return new StringResponse(\$arg1->getName() . \$arg2, "text/plain");
     }
@@ -727,7 +729,7 @@ use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public function foo(string \$arg1, string \$arg2, Wedeto\Platform\MockAppRunnerDAO \$arg3)
+    public function foo(string \$arg1, string \$arg2, Wedeto\Application\Dispatch\MockAppRunnerDAO \$arg3)
     {
         return new StringResponse(\$arg3->getName(), "text/plain");
     }

@@ -23,26 +23,26 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Platform;
+namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wedeto\System
+ * @covers Wedeto\Application
  */
-final class SystemTest extends TestCase
+final class ApplicationTest extends TestCase
 {
     /**
-     * @covers Wedeto\Platform\System::getInstance
+     * @covers Wedeto\Application\Application::getInstance
      */
     public function testInstance()
     {
-        $system = System::getInstance();
-        $this->assertInstanceOf(System::class, $system);
+        $system = Application::getInstance();
+        $this->assertInstanceOf(Application::class, $system);
     }
 
     /**
-     * @covers Wedeto\Platform\System::bootstrap
+     * @covers Wedeto\Application\Application::bootstrap
      */
     public function testNotDouble()
     {
@@ -51,6 +51,6 @@ final class SystemTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("Cannot initialize more than once");
-        System::setup($path, $config);
+        Application::setup($path, $config);
     }
 }
