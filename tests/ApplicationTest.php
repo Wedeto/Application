@@ -30,7 +30,7 @@ use PHPUnit\Framework\TestCase;
 use Wedeto\Util\Dictionary;
 
 /**
- * @covers Wedeto\Application
+ * @covers Wedeto\Application\Application
  */
 final class ApplicationTest extends TestCase
 {
@@ -39,8 +39,11 @@ final class ApplicationTest extends TestCase
      */
     public function testInstance()
     {
-        $system = Application::getInstance();
-        $this->assertInstanceOf(Application::class, $system);
+        $config = new Dictionary();
+        $path = new PathConfig(['core' => dirname(dirname(__FILE__))]);
+
+        $app = Application::setup($path, $config);
+        $this->assertInstanceOf(Application::class, $app);
     }
 
     /**
@@ -49,7 +52,7 @@ final class ApplicationTest extends TestCase
     public function testNotDouble()
     {
         $config = new Dictionary();
-        $path = PathConfig::current();
+        $path = new PathConfig(['core' => dirname(dirname(__FILE__))]);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("Cannot initialize more than once");

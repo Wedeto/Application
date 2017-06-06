@@ -41,12 +41,15 @@ use Wedeto\Log\{Logger, LoggerFactory, FileWriter, MemLogger};
 use Wedeto\Log;
 
 use Wedeto\Resolve\Autoloader;
-use Wedeto\Resolve\Resolver;
+use Wedeto\Resolve\Manager;
 
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Error as HTTPError;
 
 use Wedeto\I18n;
+
+if (!defined('WEDETO_TEST'))
+    define('WEDETO_TEST', 0);
 
 class Application
 {
@@ -67,7 +70,7 @@ class Application
         if (self::$instance !== null)
             throw new RuntimeException("Cannot initialize more than once");
 
-        self::$instance = new System($path, $config);
+        self::$instance = new Application($path, $config);
 
         // Attach the error handler - all PHP Errors should be thrown as Exceptions
         ErrorInterceptor::registerErrorHandler();
@@ -85,6 +88,11 @@ class Application
             throw new RuntimeException("Wedeto has not been initialized yet");
 
         return self::$instance;
+    }
+
+    public static function setInstance(Application $application = null)
+    {
+        self::$application = $application;
     }
 
     private function __construct(PathConfig $path_config, Dictionary $config)
@@ -106,7 +114,7 @@ class Application
         // Set up logging
         ini_set('log_errors', '1');
 
-        $test = WEDETO_TEST === 1 ? "-test" : "";
+        $test = defined('WEDETO_TEST') && WEDETO_TEST === 1;
 
         if (PHP_SAPI === 'cli')
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
@@ -154,7 +162,7 @@ class Application
         if (isset($_SERVER['REQUEST_URI']))
         {
             Log\debug(
-                "Wedeto.System", 
+                "Wedeto.Application", 
                 "*** Starting processing for {0} request to {1}", 
                 [$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']]
             );
@@ -310,15 +318,17 @@ class Application
             return;
 
         // Construct the Wedeto autoloader and resolver
+        $cache = new Cache("resolution");
         $this->autoloader = new Autoloader();
-        $this->resolver = new Resolver();
-        spl_autoload_register(array($autoloader, 'autoload'), true, true);
+        $this->autoloader->setCache($cache);
+        $this->resolver = new Manager($cache);
+        spl_autoload_register(array($this->autoloader, 'autoload'), true, true);
 
-        $cl = self::findComposerAutoloader();
+        $cl = Autoloader::findComposerAutoloader();
         if (!empty($cl))
         {
             $this->autoloader->importComposerAutoloaderConfiguration($cl);
-            $this->resolver->importComposerAutoloaderConfiguration($cl);
+            $this->resolver->autoConfigureFromComposer($cl);
         }
         else
         {
@@ -329,7 +339,7 @@ class Application
             $this->autoloader->registerNS("Wedeto\\", $wedeto_dir, Autoloader::PSR4);
 
             // Find modules containing assets, templates or apps
-            $modules = $this->resolver->findModules($wedeto_dir);
+            $modules = $this->resolver->findModules($wedeto_dir , '/modules', "", 0);
             foreach ($modules as $name => $path)
                 $this->resolver->registerModule($name, $path);
         }
