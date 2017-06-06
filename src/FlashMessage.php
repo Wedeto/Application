@@ -96,7 +96,7 @@ class FlashMessage
 
     private static function getStorage()
     {
-        $session = System::request()->session;
+        $session = Application::session();
         if ($session === null)
             return null;
 

@@ -37,8 +37,8 @@ use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
 use Wedeto\Util\ErrorInterceptor;
 
-use Wedeto\Log\{Logger, LoggerFactory, FileWriter, MemLogger};
-use Wedeto\Log;
+use Wedeto\Log\{Logger, LoggerFactory};
+use Wedeto\Log\Writer\{FileWriter, MemLogWriter};
 
 use Wedeto\Resolve\Autoloader;
 use Wedeto\Resolve\Manager;
@@ -46,7 +46,8 @@ use Wedeto\Resolve\Manager;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Error as HTTPError;
 
-use Wedeto\I18n;
+use Wedeto\I18n\Translate;
+use Wedeto\I18n\Translator\TranslationLogger;
 
 if (!defined('WEDETO_TEST'))
     define('WEDETO_TEST', 0);
@@ -145,7 +146,7 @@ class Application
         $root_logger = Logger::getLogger();
         $root_logger->setLevel(LogLevel::DEBUG);
         $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
-        $root_logger->addLogHandler(new FileWriter($logfile, LogLevel::INFO));
+        $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::INFO));
 
         //
         $this->setupTranslateLog();
@@ -274,7 +275,7 @@ class Application
             $file = $e->path;
             echo "{$e->getMessage()}\n";
             echo "\n";
-            echo Logger::str($e, $html);
+            echo WF::str($e, $html);
         }
         else
         {
@@ -308,8 +309,8 @@ class Application
     private function setupTranslateLog()
     {
         $logger = Logger::getLogger('Wedeto.I18n.Translator.Translator');
-        $handler = new I18n\TranslateLogger($this->path_config->log . '/translate-%s-%s.pot');
-        $logger->addLogHandler($handler);
+        $writer = new TranslationLogger($this->path_config->log . '/translate-%s-%s.pot');
+        $logger->addLogWriter($writer);
     }
 
     private function configureAutoloaderAndResolver()
@@ -327,8 +328,9 @@ class Application
         $cl = Autoloader::findComposerAutoloader();
         if (!empty($cl))
         {
-            $this->autoloader->importComposerAutoloaderConfiguration($cl);
-            $this->resolver->autoConfigureFromComposer($cl);
+            $vendor_dir = Autoloader::findComposerAutoloaderVendorDir($cl);
+            $this->autoloader->importComposerAutoloaderConfiguration($vendor_dir);
+            $this->resolver->autoConfigureFromComposer($vendor_dir);
         }
         else
         {

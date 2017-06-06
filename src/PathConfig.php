@@ -37,10 +37,6 @@ final class PathConfig
     private $log;
 
     private $http;
-    private $assets;
-    private $js;
-    private $css;
-    private $img;
 
     private $path_checked = false;
 
@@ -89,7 +85,6 @@ final class PathConfig
         $this->js = $this->assets . '/js';
         $this->css = $this->assets . '/css';
         $this->img = $this->assets . '/img';
-
     }
 
     public function checkPaths()
@@ -97,7 +92,7 @@ final class PathConfig
         if ($this->path_checked && (!is_defined('WEDETO_TEST') || WEDETO_TEST === 0))
             return;
 
-        foreach (array('root', 'core', 'var', 'modules', 'http', 'config', 'assets') as $type)
+        foreach (array('root', 'var', 'http', 'config') as $type)
         {
             $path = $this->$type;
             if (!file_exists($path) || !is_dir($path))

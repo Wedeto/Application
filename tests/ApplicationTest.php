@@ -40,7 +40,7 @@ final class ApplicationTest extends TestCase
     public function testInstance()
     {
         $config = new Dictionary();
-        $path = new PathConfig(['core' => dirname(dirname(__FILE__))]);
+        $path = new PathConfig(['root' => dirname(dirname(__FILE__))]);
 
         $app = Application::setup($path, $config);
         $this->assertInstanceOf(Application::class, $app);
