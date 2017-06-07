@@ -25,84 +25,143 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application;
 
+use Wedeto\Resolve\Autoloader;
+use Wedeto\Util\Functions as WF;
 use Wedeto\IO\Path;
 use Wedeto\IO\IOException;
 
-final class PathConfig
+class PathConfig
 {
-    private $root;
-    private $config;
-    private $var;
-    private $cache;
-    private $log;
+    /** Path where Composer stores the dependencies - obtained from Composer autoloader */
+    protected $vendor_dir = null;
 
-    private $http;
+    /** Root path. Defaults to the parent directory of the Composer vendor directory */
+    protected $root;
 
-    private $path_checked = false;
+    /** Path where configuration files are stored. Defaults to root/config */
+    protected $config;
 
-    private static $instance = null;
+    /** Path where web server serves the files of the Wedeto application. Defaults to root/webroot */
+    protected $webroot;
 
-    public function __construct(array $paths)
+    /** Path where web server serves the asset files. Defaults to webroot/assets */
+    protected $assets;
+
+    /** Path where Wedeto should have write access to store temporary files. Defaults to root/var */
+    protected $var;
+
+    /** Path where Wedeto should have write access to store cache files. Defaults to var/cache */
+    protected $cache;
+
+    /** Path where Wedeto should have write access to store log files. Defaults to var/log */
+    protected $log;
+
+    /** Path where Wedeto should have write access to store uploaded files. Defaults to root/uploads */
+    protected $uploads;
+
+    /** Whether the current path configuration has been validated */
+    protected $path_checked = false;
+    
+    /** Provides access to a default instance */
+    protected static $instance = null;
+
+    /**
+     * Construct the PathConfig object. Pass in a root path,
+     * or an array of path element => path pairs.
+     *
+     * @param string|array $root The root path or a set of path elements. May
+     *                           be omitted to do auto-configuration. When using
+     *                           composer, this means the root will be set to the
+     *                           parent path of the Composer vendor directory.
+     */
+    public function __construct($root = null)
     {
-        self::$instance = $this;
+        if (is_string($root))
+            $root = ['root' => $root];
 
-        $keys = array_keys($paths);
-        foreach ($keys as $key)
+        if (WF::is_array_like($root))
         {
-            $p = $paths[$key];
-            $rp = realpath($p);
-            if ($rp === false)
-                throw new IOException("Path $key ($p) does not exist");
-            $paths[$key] = $rp;
+            // Validate values
+            foreach ($root as $key => $path)
+            {
+                if (!property_exists($this, $key))
+                    throw new \InvalidArgumentException("Invalid path element: " . $key);
+                if (!is_string($path) || empty($path))
+                    throw new \InvalidArgumentException("Invalid path: " . WF::str($path));
+                if (!file_exists($path))
+                    throw new \InvalidArgumentException("Path '$key' does not exist: " . $path);
+                if (!is_dir($path))
+                    throw new \InvalidArgumentException("Path is not a directory: " . $path);
+            }
+
+            extract($root);
         }
+        elseif (!empty($root))
+            throw new \InvalidArgumentException("Invalid path: " . WF::str($root));
 
-        // Starting point is a root path
-        $this->root = isset($paths['root']) ? $paths['root'] : realpath(dirname(dirname(dirname(__FILE__))));
-
-        // Determine other locations based on root if not specified
-        $this->core = isset($paths['core']) ? $paths['core'] : $this->root . '/core';
-        $this->config = isset($paths['config']) ? $paths['config'] : $this->root . '/config';
-        $this->var = isset($paths['var']) ? $paths['var'] : $this->root . '/var';
-        $this->modules = isset($paths['modules']) ? $paths['modules'] : $this->root . '/modules';
-        $this->log = isset($paths['log']) ? $paths['log'] : $this->var . '/log';
-
-        if (isset($paths['http']))
+        $SEP = DIRECTORY_SEPARATOR;
+        $composer_class = Autoloader::findComposerAutoloader();
+        if (!empty($composer_class))
         {
-            // Check if explicitly configured
-            $this->http = $paths['http'];
-        }
-        elseif (PHP_SAPI !== 'cli' && isset($_SERVER['SCRIPT_FILENAME']))
-        {
-            // We should be able to detect the webroot automatically, based on the location of the index.php
-            $filename = realpath($_SERVER['SCRIPT_FILENAME']);
-            $this->http = dirname($filename);
+            $this->vendor_dir = Path::realpath(Autoloader::findComposerAutoloaderVendorDir($composer_class));
+            $this->root = $root ?? dirname($this->vendor_dir);
         }
         else
-            $this->http = $this->root . '/http';
+        {
+            // @codeCoverageIgnoreStart
+            // PHPUnit is run using Composer
+            $this->root = $root ?? Path::realpath(dirname($_SERVER['SCRIPT_FILENAME']));
+            // @codeCoverageIgnoreEnd
+        }
 
-        $this->cache = $this->var . '/cache';
-        $this->assets = $this->http . '/assets';
-        $this->js = $this->assets . '/js';
-        $this->css = $this->assets . '/css';
-        $this->img = $this->assets . '/img';
+        $cli = PHP_SAPI === 'cli';
+        if ($cli)
+        {
+            $this->webroot = $webroot ?? $this->root . $SEP . 'http';
+        }
+        else
+        {
+            // @codeCoverageIgnoreStart
+            // PHPUnit is run in CLI
+            $this->webroot = $webroot ?? Path::realpath(dirname($_SERVER['SCRIPT_FILENAME']));
+            // @codeCoverageIgnoreEnd
+        }
+
+        $this->config = $config ?? $this->root . $SEP . 'config';
+        $this->var = $var ?? $this->root . $SEP . 'var';
+        $this->uploads = $uploads ?? $this->root . $SEP . 'uploads';
+
+        $this->assets = $assets ?? $this->webroot . $SEP . 'assets';
+
+        $this->log = $log ?? $this->var . $SEP . 'log';
+        $this->cache = $cache ?? $this->var . $SEP . 'cache';
+
+        if (self::$instance === null)
+            self::$instance = $this;
     }
 
+    /**
+     * Validate path configuration.
+     * @return bool True when the path configuration is ok
+     * @throws IOException When a path element does not exist
+     * @throws PermissionException When permissions are incorrect
+     */
     public function checkPaths()
     {
-        if ($this->path_checked && (!is_defined('WEDETO_TEST') || WEDETO_TEST === 0))
-            return;
+        if ($this->path_checked)
+            return true;
 
-        foreach (array('root', 'var', 'http', 'config') as $type)
+        foreach (array('root', 'webroot', 'config') as $type)
         {
             $path = $this->$type;
             if (!file_exists($path) || !is_dir($path))
-                throw new IOException("Path $type (" . $path . ") does not exist");
+                throw new IOException("Path $type does not exist: " . $path);
 
             if (!is_readable($path))
                 throw new PermissionError($path, "Path '$type' cannot be read");
         }
         
-        foreach (array('var', 'cache', 'log') as $write_dir)
+        foreach (array('var', 'cache', 'log', 'uploads') as $write_dir)
         {
             $path = $this->$write_dir;
             Path::mkdir($path);
@@ -114,26 +173,61 @@ final class PathConfig
                 Path::makeWritable($path);
         }
         $this->path_checked = true;
+        return true;
     }
-
-    public static function current()
+    
+    /** 
+     * Return the default PathConfig instance.
+     * @return PathConfig The default PathConfig element
+     * @throws RuntimeException When no default is available
+     */
+    public static function getInstance()
     {
         if (self::$instance === null) throw new \RuntimeException("No path config available");
 
         return self::$instance;
     }
 
-    public static function setCurrent(Path $instance)
+    /**
+     * Set the default instance of the Path Configuration
+     * @param Path $instance The PathConfig instance to set
+     */
+    public static function setInstance(PathConfig $instance = null)
     {
-        if (!defined('WEDETO_TEST') || WEDETO_TEST !== 1)
-            throw new \RuntimeException("Cannot change active path instance");
         self::$instance = $instance;
     }
 
+    /**
+     * Get any of the path elements - magic method
+     *
+     * @param string $field The path to get
+     * @return string The path to the requested path element
+     */
     public function __get($field)
     {
-        if (property_exists($this, $field))
-            return $this->$field;
-        throw new \InvalidArgumentException("Invalid path: $field");
+        if (!$this->path_checked)
+            $this->checkPaths();
+
+        if (!property_exists($this, $field))
+            throw new \InvalidArgumentException("Invalid path: $field");
+
+        return $this->$field;
+    }
+
+    /**
+     * Set any of the path elements - magic method
+     *
+     * @param string $field The path to set
+     * @param string $value The path for this path element
+     */
+    public function __set($field, $value)
+    {
+        if (!is_string($value))
+            throw new \InvalidArgumentException("Invalid path: " . WF::str($value));
+
+        if (!property_exists($this, $field))
+            throw new \InvalidArgumentException("Invalid path element: $field");
+
+        $this->$field = $value;
     }
 }

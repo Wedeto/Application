@@ -26,8 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
 
 use Wedeto\IO\Path;
+use Wedeto\IO\IOException;
 
 /**
  * @covers Wedeto\Application\PathConfig
@@ -38,19 +42,26 @@ final class PathConfigTest extends TestCase
 
     public function setUp()
     {
-        $this->wedetoroot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
+        $this->wedetoroot = vfsStream::url('tpldir');
+
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
+
+        //$this->wedetoroot = dirname(dirname(realpath(__FILE__)));
+        PathConfig::setInstance();
     }
 
     public function tearDown()
     {
-        $this->wedetoroot = dirname(dirname(dirname(dirname(realpath(__FILE__)))));
-        new PathConfig(array('root' => $this->wedetoroot));
+        PathConfig::setInstance();
     }
 
     /**
      * @covers Wedeto\Application\PathConfig::__construct
      * @covers Wedeto\Application\PathConfig::checkPaths
-     * @covers Wedeto\Application\PathConfig::current
+     * @covers Wedeto\Application\PathConfig::getInstance
      */
     public function testPath()
     {
@@ -61,31 +72,26 @@ final class PathConfigTest extends TestCase
         $this->assertEquals($root . '/var', $path->var);
         $this->assertEquals($root . '/var/cache', $path->cache);
 
-        $this->assertEquals($root . '/http', $path->http);
+        $this->assertEquals($root . '/http', $path->webroot);
         $this->assertEquals($root . '/http/assets', $path->assets);
-        $this->assertEquals($root . '/http/assets/js', $path->js);
-        $this->assertEquals($root . '/http/assets/css', $path->css);
-        $this->assertEquals($root . '/http/assets/img', $path->img);
 
         $webroot = $root . '/var/test';
         $assets = $webroot . '/assets';
         Path::mkdir($assets);
 
-        $path = new PathConfig(array('root' => $root, 'http' => $webroot));
+        $path = new PathConfig(array('root' => $root, 'webroot' => $webroot));
         $this->assertEquals($root, $path->root);
         $this->assertEquals($root . '/var', $path->var);
         $this->assertEquals($root . '/var/cache', $path->cache);
 
-        $this->assertEquals($webroot, $path->http);
+        $this->assertEquals($webroot, $path->webroot);
         $this->assertEquals($assets, $path->assets);
-        $this->assertEquals($assets . '/js', $path->js);
-        $this->assertEquals($assets . '/css', $path->css);
-        $this->assertEquals($assets . '/img', $path->img);
 
         $path->checkPaths();
 
-        $current = PathConfig::current();
-        $this->assertEquals($current, $path);
+        PathConfig::setInstance($path);
+        $current = PathConfig::getInstance();
+        $this->assertSame($current, $path);
 
 
         $this->expectException(\InvalidArgumentException::class);
@@ -98,8 +104,8 @@ final class PathConfigTest extends TestCase
      */
     public function testExceptionRootInvalid()
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Path root (/tmp/non/existing/dir) does not exist");
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Path 'root' does not exist: /tmp/non/existing/dir");
         new PathConfig(array('root' => '/tmp/non/existing/dir'));
     }
 
@@ -109,8 +115,94 @@ final class PathConfigTest extends TestCase
     public function testExceptionWebrootInvalid()
     {
         $path = $this->wedetoroot;
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Path http (/tmp/non/existing/dir) does not exist");
-        new PathConfig(array('root' => $path, 'http' => '/tmp/non/existing/dir'));
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Path 'webroot' does not exist: /tmp/non/existing/dir");
+        new PathConfig(array('root' => $path, 'webroot' => '/tmp/non/existing/dir'));
+    }
+
+    public function testProvideOnlyRoot()
+    {
+        $path = $this->wedetoroot;
+        $pc = new PathConfig($path);
+
+        $SEP = DIRECTORY_SEPARATOR;
+        $this->assertEquals($path, $pc->root);
+        $this->assertEquals($path . $SEP . 'config', $pc->config);
+        $this->assertEquals($path . $SEP . 'http', $pc->webroot);
+        $this->assertEquals($path . $SEP . 'uploads', $pc->uploads);
+        $this->assertEquals($path . $SEP . 'http' . $SEP . 'assets', $pc->assets);
+        $this->assertEquals($path . $SEP . 'var', $pc->var);
+        $this->assertEquals($path . $SEP . 'var' . $SEP . 'log', $pc->log);
+        $this->assertEquals($path . $SEP . 'var' . $SEP . 'cache', $pc->cache);
+    }
+
+    public function testProvideInvalidRoot()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid path: 3");
+        new PathConfig(3);
+    }
+
+    public function testChangePaths()
+    {
+        $pc = new PathConfig($this->wedetoroot);
+        
+        $tgt_path = $this->wedetoroot . DIRECTORY_SEPARATOR . 'foo' . DIRECTORY_SEPARATOR . 'var';
+        $pc->var = $tgt_path;
+        $this->assertEquals($tgt_path, $pc->var);
+        $this->assertTrue(is_dir($tgt_path));
+    }
+
+    public function testChangeInvalidPathElementThrowsException()
+    {
+        $pc = new PathConfig($this->wedetoroot);
+        
+        $tgt_path = $this->wedetoroot . DIRECTORY_SEPARATOR . 'foo' . DIRECTORY_SEPARATOR . 'var';
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid path element: foo"); 
+        $pc->foo = $tgt_path;
+    }
+
+    public function testChangePathToInvalidValueThrowsException()
+    {
+        $pc = new PathConfig($this->wedetoroot);
+        
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid path: 3"); 
+        $pc->foo = 3;
+    }
+
+    public function testSetInvalidPathElementInConstructorThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid path element: foo");
+        $pc = new Pathconfig(['foo' => 'bar']);
+    }
+
+    public function testSetInvalidPathInConstructorThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid path: 3");
+        $pc = new Pathconfig(['root' => 3]);
+    }
+
+    public function testConstructWithMissingUncreatableVarDirectory()
+    {
+        chmod($this->wedetoroot, 0400);
+        $pc = new PathConfig($this->wedetoroot);
+
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage('is not a directory');
+        $pc->checkPaths();
+    }
+
+    public function testConstructWithMissingConfigDirectory()
+    {
+        rmdir($this->wedetoroot . '/config');
+        $pc = new PathConfig($this->wedetoroot);
+
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage('Path config does not exist');
+        $pc->checkPaths();
     }
 }
