@@ -26,6 +26,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application;
 
 use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
 
 use Wedeto\Util\Dictionary;
 
@@ -34,28 +37,27 @@ use Wedeto\Util\Dictionary;
  */
 final class ApplicationTest extends TestCase
 {
+    public function setUp()
+    {
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
+        $this->wedetoroot = vfsStream::url('tpldir');
+
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
+
+        PathConfig::setInstance();
+        $this->pathconfig = new PathConfig($this->wedetoroot);
+    }
+
     /**
      * @covers Wedeto\Application\Application::getInstance
      */
     public function testInstance()
     {
         $config = new Dictionary();
-        $path = new PathConfig(['root' => dirname(dirname(__FILE__))]);
 
-        $app = Application::setup($path, $config);
+        $app = Application::setup($this->pathconfig, $config);
         $this->assertInstanceOf(Application::class, $app);
-    }
-
-    /**
-     * @covers Wedeto\Application\Application::bootstrap
-     */
-    public function testNotDouble()
-    {
-        $config = new Dictionary();
-        $path = new PathConfig(['core' => dirname(dirname(__FILE__))]);
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Cannot initialize more than once");
-        Application::setup($path, $config);
     }
 }
