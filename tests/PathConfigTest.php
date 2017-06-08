@@ -68,7 +68,9 @@ final class PathConfigTest extends TestCase
         $root = $this->wedetoroot;
 
         $path = new PathConfig(array('root' => $root));
+
         $this->assertEquals($root, $path->root);
+
         $this->assertEquals($root . '/var', $path->var);
         $this->assertEquals($root . '/var/cache', $path->cache);
 

@@ -42,21 +42,20 @@ class Manager
     /** 
      * Find and initialize installed modules in the module path
      *
-     * @param $module_path string Where to find the modules
      * @param ResolveManager $resolver The resolver that find modules
      */
-    public static function setup(string $module_path, ResolveManager $resolver)
+    public static function setup(ResolveManager $manager)
     {
         if (self::$initialized)
             return;
 
         self::getLogger();
-        $modules = $resolver->findModules($module_path, "", 0);
+        $modules = $manager->getModules();
 
         foreach ($modules as $mod_name => $path)
         {
             self::$logger->debug("Found module {0} in path {1}", [$mod_name, $path]);
-            $resolver->registerModule($mod_name, $path);
+            $manager->registerModule($mod_name, $path, 0);
             self::$modules[$mod_name] = $path;
 
             // Create the module object, using the module implementation if available

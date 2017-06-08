@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Application;
+namespace Wedeto\Application\Dispatch;
 
 use Throwable;
 use DateTime;
@@ -32,12 +32,13 @@ use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\MemLogger;
 
-use Wedeto\Resolve\Resolver;
+use Wedeto\Resolve\Manager as ResolveManager;
 
 use Wedeto\Util\Hook;
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Functions as WF;
 
+use Wedeto\HTTP\Accept;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
 use Wedeto\HTTP\Response\{Response, DataResponse, StringResponse};
@@ -45,7 +46,10 @@ use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\StatusCode;
 use Wedeto\HTTP\URL;
 
-use Wedeto\IO\MimeTypes;
+use Wedeto\HTML\Template;
+use Wedeto\HTML\AssetManager;
+
+use Wedeto\IO\FileType;
 
 use Wedeto\FileFormats\WriterFactory;
 
@@ -83,7 +87,16 @@ class Dispatcher
     /** The request being served */
     protected $request;
 
-    public function __construct(Request $request, Resolver $resolver, Dictionary $config)
+    /** The resolved route */
+    protected $route;
+
+    /** The resolved app */
+    protected $app;
+
+    /** The suffix of the resolved route - file extension */
+    protected $suffix;
+
+    public function __construct(Request $request, ResolveManager $resolver, Dictionary $config)
     {
         $this->request = $request;
         $this->resolver = $resolver;
@@ -191,8 +204,8 @@ class Dispatcher
     {
         if ($this->template === null)
         {
-            $this->template = new Template($this->resolver);
-            $asset_manager = new AssetManager($this->vhost, $this->resolver);
+            $asset_manager = new AssetManager($this->resolver->getResolver('assets'));
+            $this->template = new Template($this->resolver->getResolver('template'), $asset_manager);
             Hook::subscribe('Wedeto.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
             $this->template
                 ->setAssetManager($asset_manager)
@@ -372,15 +385,18 @@ class Dispatcher
         // Resolve the application to start
         $path = $this->vhost->getPath($this->request->url);
 
-        $resolved = $this->resolver->app($path);
+        $resolved = $this->resolver->resolve("app", $path);
 
         if ($resolved !== null)
         {
             if ($resolved['ext'])
             {
-                $mime = MimeTypes::getMimeFromExtension($resolved['ext']);
+                $mime = new FileType($resolved['ext'], "");
                 if (!empty($mime))
-                    $this->accept[$mime] = 1.5;
+                {
+                    $str = $mime->getMimeType() . ";q=1.5," . (string)$this->request->accept;
+                    $this->request->setAccept(new Accept($str));
+                }
                 $this->suffix = $resolved['ext'];
             }
             $this->route = $resolved['route'];
@@ -503,5 +519,10 @@ class Dispatcher
         if ($best_idx === null)
             return null;
         return $vhosts[$best_idx];
+    }
+
+    public function __get(string $key)
+    {
+        return property_exists($this, $key) ? $this->key : null;
     }
 }

@@ -26,6 +26,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application\Task;
 
 use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
+
+use Wedeto\Util\Dictionary;
+use Wedeto\Application\PathConfig;
+use Wedeto\Application\Application;
 
 /**
  * @covers Wedeto\Application\Task\TaskRunner
@@ -34,30 +41,48 @@ use PHPUnit\Framework\TestCase;
 final class TaskRunnerTest extends TestCase implements TaskInterface
 {
     private static $task_ran = false;
+    protected $app;
+    protected $pathconfig;
+    protected $config;
+
+    public function setUp()
+    {
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('taskdir'));
+        $this->wedetoroot = vfsStream::url('taskdir');
+
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
+
+        $this->pathconfig = new PathConfig($this->wedetoroot);
+        $this->config = new Dictionary;
+        $this->app = Application::setup($this->pathconfig, $this->config);
+    }
 
     public function testTaskRunner()
     {
-        TaskRunner::registerTask('Wedeto:TaskRunnerTest', 'Run test tasks');
+        $tr = new TaskRunner($this->app);
+
+        $taskname = str_replace('\\', ':', static::class);
+        $tr->registerTask($taskname, 'Run test tasks');
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::listTasks($fh);
+        $tr->listTasks($fh);
         fseek($fh, 0);
         $data = fread($fh, 10000);
         fclose($fh);
 
         // Do it again
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::listTasks($fh);
+        $tr->listTasks($fh);
         fseek($fh, 0);
         $data2 = fread($fh, 10000);
         fclose($fh);
 
         $this->assertEquals($data, $data2);
 
-        //var_dump($data);
-
         $this->assertFalse(self::$task_ran);
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::run('Wedeto:TaskRunnerTest', $fh);
+        $this->assertTrue($tr->run($taskname, $fh));
         fseek($fh, 0);
         $data3 = fread($fh, 10000);
         fclose($fh);
@@ -65,14 +90,14 @@ final class TaskRunnerTest extends TestCase implements TaskInterface
         $this->assertEmpty($data3);
 
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::run('Wedeto:Path', $fh);
+        $this->assertFalse($tr->run(PathConfig::class, $fh));
         fseek($fh, 0);
         $data3 = fread($fh, 10000);
         fclose($fh);
-        $this->assertEquals($data3, "Error: invalid task: Wedeto\\Path\n");
+        $this->assertContains("Error: invalid task: " . PathConfig::class, $data3);
 
         $fh = fopen('php://memory', 'rw');
-        TaskRunner::run('Wedeto:NonExistingTask', $fh);
+        $this->assertFalse($tr->run('Wedeto:NonExistingTask', $fh));
         fseek($fh, 0);
         $data3 = fread($fh, 10000);
         fclose($fh);
@@ -80,12 +105,12 @@ final class TaskRunnerTest extends TestCase implements TaskInterface
 
         $fh = fopen('php://memory', 'rw');
         $this->assertTrue(self::$task_ran);
-        TaskRunner::run('Wedeto:TaskRunnerTest', $fh);
+        $this->assertFalse($tr->run($taskname, $fh));
         fseek($fh, 0);
         $exc = fread($fh, 10000);
         fclose($fh);
 
-        $msg = "Error: error while running task: Wedeto\TaskRunnerTest";
+        $msg = "Error: error while running task: " . static::class;
 		$this->assertEquals($msg, substr($exc, 0, strlen($msg)));
     }
 

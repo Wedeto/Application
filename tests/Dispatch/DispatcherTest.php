@@ -26,6 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application\Dispatch;
 
 use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
+
+use Wedeto\IO\Path;
+
 use Wedeto\Resolve\Resolver;
 use Wedeto\Application\Application;
 use Wedeto\Application\PathConfig;
@@ -35,28 +41,44 @@ use Wedeto\Util\Dictionary;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
 use Wedeto\HTTP\URL;
+use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\Response\RedirectRequest;
+use Wedeto\HTTP\Response\StringResponse;
 
 /**
  * @covers Wedeto\Application\Dispatch\Dispatcher
  */
 final class DispatcherTest extends TestCase
 {
-    private $get;
-    private $post;
-    private $server;
-    private $cookie;
-    private $files;
+    protected $app;
+    protected $pathconfig;
+    protected $config;
 
-    private $config;
+    protected $get;
+    protected $post;
+    protected $server;
+    protected $cookie;
+    protected $files;
 
-    private $request;
-
-    private $path;
-    private $resolver;
+    protected $request;
+    protected $resolver;
 
     public function setUp()
     {
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
+        $this->wedetoroot = vfsStream::url('tpldir');
+
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'language');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
+
+        $this->pathconfig = new PathConfig($this->wedetoroot);
+        $this->config = new Dictionary();
+
+        $this->app = Application::setup($this->pathconfig, $this->config);
+        $this->resolver = $this->app->resolver;
+
         $this->get = array(
             'foo' => 'bar'
         );
@@ -95,15 +117,18 @@ final class DispatcherTest extends TestCase
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
 
         $this->config = new Dictionary($config);
-        $this->path = Application::path();
-        $this->resolve = new Resolver($this->path);
+        $this->resolve = $this->app->resolver;
     }
 
     public function testRouting()
     {
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
         $dispatch->resolveApp();
-        $this->assertEquals('/', $dispatcher->getRoute());
+        $this->assertEquals('/', $dispatch->getRoute());
+
+        $resolve = new MockRequestResolver();
+        $this->resolver->setResolver('app', $resolve);
+        $resolve->return_value = array('path' => '/assets.php', 'route' => '/assets', 'ext' => null, 'module' => 'test', 'remainder' => []);
 
         $this->server['REQUEST_URI'] = '/assets';
         $dispatch->resolveApp();
@@ -118,13 +143,13 @@ final class DispatcherTest extends TestCase
 
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
         $dispatch->resolveApp();
-        $this->assertNull($dispatcher->route);
-        $this->assertNull($dispatcher->app);
+        $this->assertNull($dispatch->route);
+        $this->assertNull($dispatch->app);
 
         $this->server['REQUEST_URI'] = '/';
-        $dispatcher->resolveApp();
-        $this->assertNull($dispatcher->route);
-        $this->assertNull($dispatcher->app);
+        $dispatch->resolveApp();
+        $this->assertNull($dispatch->route);
+        $this->assertNull($dispatch->app);
     }
 
     public function testRoutingInvalidHostIgnorePolicy()
@@ -133,15 +158,21 @@ final class DispatcherTest extends TestCase
         $this->server['SERVER_NAME'] = 'www.example.nl';
         $this->server['REQUEST_URI'] = '/assets';
 
+        $resolve = new MockRequestResolver();
+        $this->resolver->setResolver('app', $resolve);
+        $resolve->return_value = array('path' => '/assets.php', 'route' => '/assets', 'ext' => null, 'module' => 'test', 'remainder' => []);
+
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+        echo "---FOOOOOOOOOOOOOOOOOOOOOOOo\n";
+        var_dump($this->request);
         $dispatch->resolveApp();
-        $this->assertEquals($dispatch->route, '/assets');
+        echo "---FOOOOOOOOOOOOOOOOOOOOOOOo\n";
+        $this->assertEquals('/assets', $dispatch->route);
     }
 
     /**
      * @covers Wedeto\HTTP\Request::__construct
-     * @covers Wedeto\HTTP\Request::findVirtualHost
-     * @covers Wedeto\HTTP\Request::handleUnknownHost
      */
     public function testRoutingInvalidHostErrorPolicy()
     {
@@ -152,7 +183,7 @@ final class DispatcherTest extends TestCase
 
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
 
-        $this->expectException(Error::class);
+        $this->expectException(HTTPError::class);
         $this->expectExceptionCode(404);
         $this->expectExceptionMessage('Not found');
         $dispatch->resolveApp();
@@ -160,8 +191,6 @@ final class DispatcherTest extends TestCase
 
     /**
      * @covers Wedeto\HTTP\Request::__construct
-     * @covers Wedeto\HTTP\Request::findVirtualHost
-     * @covers Wedeto\HTTP\Request::handleUnknownHost
      */
     public function testRoutingRedirectHost()
     {
@@ -184,8 +213,7 @@ final class DispatcherTest extends TestCase
     }
 
     /**
-     * @covers Wedeto\HTTP\Request::findBestMatching
-     * @covers Wedeto\HTTP\Request::handleUnknownHost
+     * @covers Wedeto\Application\Dispatch\Dispatcher::findBestMatching
      */
     public function testNoSiteConfig()
     {
@@ -196,7 +224,7 @@ final class DispatcherTest extends TestCase
 
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
         $dispatch->resolveApp();
-        $this->assertEquals($this->get, $dispatcher->get->getAll());
+        $this->assertEquals($this->get, $this->request->get->getAll());
     }
 
     public function testGetTemplate()
@@ -204,21 +232,21 @@ final class DispatcherTest extends TestCase
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
 
         $tpl = $dispatch->getTemplate();
-        $this->assertInstanceOf(\Wedeto\Template::class, $tpl);
+        $this->assertInstanceOf(Template::class, $tpl);
 
-        $mocker = $this->prophesize(\Wedeto\Template::class);
+        $mocker = $this->prophesize(Template::class);
         $mock = $mocker->reveal();
 
-        $this->assertEquals($dispatcher, $dispatcher->setTemplate($mock));
-        $this->assertEquals($mock, $dispatcher->getTemplate());
+        $this->assertSame($dispatch, $dispatch->setTemplate($mock));
+        $this->assertEquals($mock, $dispatch->getTemplate());
     }
 
     public function testDispatchWithValidApp()
     {
-        $pathconfig = Application::path();
+        $pathconfig = Application::pathConfig();
         $testpath = $pathconfig->var . '/test';
-        \Wedeto\IO\Dir::mkdir($testpath);
-        $filename = tempnam($testpath, "wasptest") . ".php";
+        Path::mkdir($testpath);
+        $filename = $testpath . 'wasptest-validapp.php';
         $classname = "cl_" . str_replace(".", "", basename($filename));
 
         $phpcode = <<<EOT
@@ -228,18 +256,12 @@ EOT;
 
         $this->expectException(StringResponse::class);
         $this->expectExceptionCode(200);
-        try
-        {
-            file_put_contents($filename, $phpcode);
-            $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
-            $dispatch->app = $filename;
-            $dispatch->route = '/';
-            $request->dispatch();
-        }
-        finally
-        {
-            \Wedeto\IO\Dir::rmtree($testpath);
-        }
+
+        file_put_contents($filename, $phpcode);
+
+        $this->request->url = '/' . basename($filename, '.php');
+        $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+        $request->dispatch();
     }
 
     public function testHandleUnknownHost()
@@ -270,14 +292,14 @@ EOT;
 
     public function testResolveExtension()
     {
-        $req = new Request($this->get, $this->post, $this->cookie, $this->server, $this->config, $this->path, $this->resolve);
+        $req = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $resolve = new MockRequestResolver();
-        $dispatch = new Dispatcher($this->request, $resolve, $this->config);
+        $this->resolver->setResolver('app', $resolve);
+        $dispatch = new Dispatcher($this->request, $this->app->resolver, $this->config);
 
         $resolve->return_value = array('path' => '/foo/bar.php', 'route' => '/foo', 'ext' => '.json', 'module' => 'test', 'remainder' => []);
         
         $dispatch->resolveApp();
-        $this->assertEquals(1.5, $dispatch->isAccepted('application/json'));
         $this->assertEquals('.json', $dispatch->suffix);
         $this->assertEquals('/foo', $dispatch->route);
         $this->assertEquals('/foo/bar.php', $dispatch->app);
@@ -292,7 +314,7 @@ class MockRequestResolver extends \Wedeto\Resolve\Resolver
     public function __construct()
     {}
 
-    public function app(string $path, bool $retry = true)
+    public function resolve(string $path, bool $retry = true)
     {
         return $this->return_value;
     }

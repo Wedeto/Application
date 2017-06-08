@@ -25,6 +25,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application\Task;
 
+use Wedeto\Util\Hook;
+use Wedeto\Application\CLI\CLI;
+use Wedeto\Application\Application;
 use Wedeto\Application\Module\Manager as ModuleManager;
 
 /**
@@ -34,19 +37,24 @@ use Wedeto\Application\Module\Manager as ModuleManager;
 class TaskRunner
 {
     /** The list of available tasks */
-    private static $task_list = array();
+    protected $task_list = array();
 
     /** If the tasks were already located */
-    private static $init = false;
+    protected $init = false;
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+    }
 
     /**
      * Add a task to the list of registered tasks 
      * @param $task string The class name of the task
      * @param $description string The description of the task
      */
-    public static function registerTask(string $task, string $description)
+    public function registerTask(string $task, string $description)
     {
-        self::$task_list[$task] = $description;
+        $this->task_list[$task] = $description;
     }
 
     /** 
@@ -54,25 +62,29 @@ class TaskRunner
      * all modules that have been registered, giving them the opportunity to register
      * their tasks.
      */
-    private static function findTasks()
+    private function findTasks()
     {
-        if (self::$init)
+        if ($this->init)
             return;
 
-        $modules = ModuleManager::getModules();
+        $resolver = $this->app->resolver;
+        $modules = $resolver->getModules();
         foreach ($modules as $mod)
             $mod->registerTasks();
-        self::$init = true;
+
+        // Provide a way to register tasks using a hook
+        Hook::execute("Wedeto.Application.Task.TaskRunner.findTasks", ['taskrunner' => $this]);
+        $this->init = true;
     }
 
     /** 
      * List the registered tasks
      * @param $ostr resource The output stream to write to. Defaults to STDOUT
      */
-    public static function listTasks($ostr = STDOUT)
+    public function listTasks($ostr = STDOUT)
     {
-        self::findTasks();
-        if (count(self::$task_list) === 0)
+        $this->findTasks();
+        if (count($this->task_list) === 0)
         {
 			// @codeCoverageIgnoreStart
             fprintf($ostr, "No tasks available\n");
@@ -82,7 +94,7 @@ class TaskRunner
         {
             fprintf($ostr, "Listing available tasks: \n");
 
-            foreach (self::$task_list as $task => $desc)
+            foreach ($this->task_list as $task => $desc)
             {
                 $task = str_replace('\\', ':', $task);
                 fprintf($ostr, "- %-30s", $task);
@@ -95,10 +107,12 @@ class TaskRunner
     /**
      * Run the specified task.
      *
-     * @param $task string The task to run - classname. It may use : rather
+     * @param string $task The task to run - classname. It may use : rather
      *                     than \ as a namespace separator
+     * @param resource $ostr The stream to send output to
+     * @return bool True on success, false on failure
      */
-    public static function run(string $task, $ostr = STDERR)
+    public function run(string $task, $ostr = STDERR)
     {
         // CLI uses : because \ is used as escape character, so that
         // awkward syntax is required.
@@ -112,7 +126,7 @@ class TaskRunner
 
         try
         {
-            if (!is_subclass_of($task, Task::class))
+            if (!is_subclass_of($task, TaskInterface::class))
             {
                 fprintf($ostr, "Error: invalid task: {$task}\n");
                 return false;
@@ -130,9 +144,6 @@ class TaskRunner
             fprintf($ostr, $e->getTraceAsString() . "\n");
             return false;
         }
+        return true;
     }
 }
-
-// @codeCoverageIgnoreStart
-TaskRunner::registerTask("Wedeto.DB.Migrator", "Setup database tables");
-// @codeCoverageIgnoreEnd

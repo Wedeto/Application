@@ -29,20 +29,26 @@ use PHPUnit\Framework\TestCase;
 use Wedeto\Util\Dictionary;
 use Wedeto\HTTP\Request;
 
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
+
 /**
  * @covers Wedeto\Application\FlashMessage
  */
 final class FlashMessageTest extends TestCase
 {
+    protected $storage;
+
     public function setUp()
     {
-        $this->request = new MockFlashMessageRequest;
-        Application::getInstance()->request = $this->request;
+        $this->storage = new Dictionary;
+        FlashMessage::setStorage($this->storage);
     }
 
     public function tearDown()
     {
-        Application::getInstance()->request = null;
+        FlashMessage::setStorage();
     }
 
     /**
@@ -56,9 +62,8 @@ final class FlashMessageTest extends TestCase
      */
     public function testFlashMessage()
     {
-        // Makre sure there are no flash messages in the queue
-        while (FlashMessage::hasNext())
-            FlashMessage::next();
+        // Make sure there are no flash messages in the queue
+        $this->assertEquals(0, FlashMessage::count());
 
         $msgs = array(
             "Message 1" => FlashMessage::ERROR,
@@ -86,27 +91,28 @@ final class FlashMessageTest extends TestCase
             $this->assertEquals($fm->getDate()->getTimestamp(), $fms[$cnt]->getDate()->getTimestamp());
             if ($cnt === 0)
             {
-                $this->assertEquals($fm->getMessage(), "Message 1");
-                $this->assertEquals($fm->getType(), FlashMessage::ERROR);
-                $this->assertEquals($fm->getTypeName(), "ERROR");
+                $this->assertEquals("Message 1", $fm->getMessage());
+                $this->assertEquals(FlashMessage::ERROR, $fm->getType());
+                $this->assertEquals("ERROR", $fm->getTypeName());
             }
             elseif ($cnt === 1)
             {
-                $this->assertEquals($fm->getMessage(), "Message 2");
-                $this->assertEquals($fm->getType(), FlashMessage::WARNING);
-                $this->assertEquals($fm->getTypeName(), "WARNING");
+                $this->assertEquals("Message 2", $fm->getMessage());
+                $this->assertEquals(FlashMessage::WARNING, $fm->getType());
+                $this->assertEquals(FlashMessage::WARN, $fm->getType());
+                $this->assertEquals("WARNING", $fm->getTypeName());
             }
             elseif ($cnt === 2)
             {
-                $this->assertEquals($fm->getMessage(), "Message 3");
-                $this->assertEquals($fm->getType(), FlashMessage::INFO);
-                $this->assertEquals($fm->getTypeName(), "INFO");
+                $this->assertEquals("Message 3", $fm->getMessage());
+                $this->assertEquals(FlashMessage::INFO, $fm->getType());
+                $this->assertEquals("INFO", $fm->getTypeName());
             }
             elseif ($cnt === 3)
             {
-                $this->assertEquals($fm->getMessage(), "Message 4");
-                $this->assertEquals($fm->getType(), FlashMessage::SUCCESS);
-                $this->assertEquals($fm->getTypeName(), "SUCCESS");
+                $this->assertEquals("Message 4", $fm->getMessage());
+                $this->assertEquals(FlashMessage::SUCCESS, $fm->getType());
+                $this->assertEquals("SUCCESS", $fm->getTypeName());
             }
 
             $t = $fm->getDate();
@@ -127,8 +133,13 @@ final class FlashMessageTest extends TestCase
      */
     public function testFlashMessageCountEmpty()
     {
-        unset($this->request->session['WEDETO_FM']);
-        $this->assertEquals(FlashMessage::count(), 0);
+        $this->assertEquals(0, FlashMessage::count());
+
+        $fm = new FlashMessage("FOO");
+        $this->assertEquals(1, FlashMessage::count());
+
+        unset($this->storage['WEDETO_FM']);
+        $this->assertEquals(0, FlashMessage::count());
     }
 
     /**
@@ -136,7 +147,7 @@ final class FlashMessageTest extends TestCase
      */
     public function testNoSession()
     {
-        $this->request->session = null;
+        FlashMessage::setStorage();
 
         $this->expectException(\RuntimeException::class);
         $fm = new FlashMessage('error');
@@ -148,23 +159,14 @@ final class FlashMessageTest extends TestCase
      */
     public function testNoNextAvailable()
     {
-        while (FlashMessage::hasNext())
-            FlashMessage::next();
+        $this->assertEquals(FlashMessage::count(), 0);
 
         $this->assertNull(FlashMessage::next());
     }
 
     public function testNoMessages()
     {
-        $this->request->session = null;
+        FlashMessage::setStorage();
         $this->assertEquals(0, FlashMessage::count());
-    }
-}
-
-class MockFlashMessageRequest extends Request
-{
-    public function __construct()
-    {
-        $this->session = new Dictionary();
     }
 }

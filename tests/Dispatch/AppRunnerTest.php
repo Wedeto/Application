@@ -26,11 +26,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application\Dispatch;
 
 use PHPUnit\Framework\TestCase;
-use Wedeto\HTTP\StringResponse;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
+
+use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\HTTP\Request;
-use Wedeto\HTTP\Error as HttpError;
+use Wedeto\HTTP\Response\Error as HttpError;
 use Wedeto\HTML\Template;
 use Wedeto\Application\Application;
+use Wedeto\Application\PathConfig;
+use Wedeto\Util\Dictionary;
+use Wedeto\IO\Path;
+use Wedeto\Log\Logger;
+use Wedeto\Log\Writer\MemLogWriter;
 
 use RuntimeException;
 use Psr\Log\LogLevel;
@@ -40,8 +49,12 @@ use Psr\Log\LogLevel;
  */
 final class AppRunnerTest extends TestCase
 {
-    private $request;
+    private $app;
     private $pathconfig;
+    private $config;
+
+    private $request;
+    private $dispatch;
     private $testpath;
     private $filename;
     private $classname;
@@ -49,17 +62,31 @@ final class AppRunnerTest extends TestCase
 
     public function setUp()
     {
-        $this->request = new MockAppRunnerRequest();
-        $this->pathconfig = Application::path();
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
+        $this->wedetoroot = vfsStream::url('tpldir');
+
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'language');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
+
+        $this->pathconfig = new PathConfig($this->wedetoroot);
+        $this->config = new Dictionary();
+
+        $this->app = Application::setup($this->pathconfig, $this->config);
+
+        $this->request = $this->app->request;
+        $this->dispatch = $this->app->dispatcher;
 
         $this->testpath = $this->pathconfig->var . '/test';
-        IO\Dir::mkdir($this->testpath);
+        Path::mkdir($this->testpath);
         $this->filename = tempnam($this->testpath, "wedetotest") . ".php";
         $this->classname = "cl_" . str_replace(".", "", basename($this->filename));
 
-        $logger = Debug\Logger::getLogger(AppRunner::class);
-        $this->devlogger = new Debug\DevLogger(LogLevel::DEBUG);
-        $logger->addLogHandler($this->devlogger);
+        $logger = Logger::getLogger(AppRunner::class);
+        $this->devlogger = new MemLogWriter(LogLevel::DEBUG);
+        $logger->addLogWriter($this->devlogger);
+        AppRunner::setLogger($logger);
     }
 
     public function tearDown()
@@ -84,7 +111,7 @@ return new StringResponse("Mock", "text/plain");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         $this->assertInstanceOf(AppRunner::class, $apprunner);
 
         $this->expectException(StringResponse::class);
@@ -102,7 +129,7 @@ throw new StringResponse("Mock", "text/plain");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         $this->assertInstanceOf(AppRunner::class, $apprunner);
 
         $this->expectException(StringResponse::class);
@@ -122,7 +149,7 @@ throw new StringResponse("Mock", "text/plain");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -151,7 +178,7 @@ use Wedeto\HTTP\Response\StringResponse;
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -176,7 +203,7 @@ for (\$i = 0; \$i < 10; ++\$i)
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("App did not produce any response");
@@ -192,7 +219,7 @@ throw new RuntimeException("Foobarred");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Foobarred");
@@ -222,7 +249,7 @@ return new {$classname}();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -257,7 +284,7 @@ return new {$classname}();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -289,7 +316,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -321,7 +348,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing integer as argument 2");
@@ -348,7 +375,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing integer as argument 1");
@@ -382,7 +409,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -418,7 +445,7 @@ EOT;
         $this->request->suffix = '.txt';
         $this->request->url_args[0] = 'foo.txt';
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -479,7 +506,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
 
         try
         {
@@ -513,7 +540,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Dictionary must be last parameter");
@@ -540,7 +567,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         try
         {
@@ -572,7 +599,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Unknown controller: foo");
@@ -598,7 +625,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - expecting argument 3");
@@ -625,7 +652,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         try
         {
@@ -657,7 +684,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing string as argument 0");
@@ -684,7 +711,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid parameter type: float");
@@ -710,7 +737,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         try
         {
             $apprunner->execute();
@@ -740,7 +767,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->request, $this->filename);
+        $apprunner = new AppRunner($this->dispatch, $this->filename);
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing identifier as argument 2");
         $apprunner->execute();

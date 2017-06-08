@@ -23,17 +23,22 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Application;
+namespace Wedeto\Application\Dispatch;
 
 use Wedeto\DB\DB;
 use Wedeto\DB\DAO;
+
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\LoggerAwareStaticTrait;
+
 use Wedeto\Log\Logger;
+
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Response\Response;
 use Wedeto\HTTP\Error as HTTPError;
 use Wedeto\HTTP\StatusCode;
+
+use Wedeto\Application\Application;
 
 use ReflectionMethod;
 use Throwable;
@@ -97,7 +102,7 @@ class AppRunner
      */
     public function execute()
     {
-        $tr = System::translate();
+        $tr = Application::i18n();
 
         try
         {

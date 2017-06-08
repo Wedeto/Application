@@ -32,7 +32,6 @@ use Psr\Log\LogLevel;
 
 use Wedeto\IO\Path;
 
-
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
 use Wedeto\Util\ErrorInterceptor;
@@ -41,12 +40,15 @@ use Wedeto\Log\{Logger, LoggerFactory};
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter};
 
 use Wedeto\Resolve\Autoloader;
-use Wedeto\Resolve\Manager;
+use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Router;
+
+use Wedeto\Application\Dispatch\Dispatcher;
 
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Error as HTTPError;
 
-use Wedeto\I18n\Translate;
+use Wedeto\I18n\I18n;
 use Wedeto\I18n\Translator\TranslationLogger;
 
 if (!defined('WEDETO_TEST'))
@@ -56,20 +58,20 @@ class Application
 {
     private static $instance = null;
 
-    private $autoloader = null;
-    private $bootstrapped = false;
-    private $path_config;
-    private $config;
-    private $request;
-    private $resolver;
-    private $dispatcher;
-    private $translate;
-    private $template;
+    protected $autoloader = null;
+    protected $bootstrapped = false;
+    protected $path_config;
+    protected $config;
+    protected $request;
+    protected $resolver;
+    protected $dispatcher;
+    protected $i18n;
+    protected $template;
 
     public static function setup(PathConfig $path, Dictionary $config)
     {
-        if (self::$instance !== null)
-            throw new RuntimeException("Cannot initialize more than once");
+        //if (self::$instance !== null)
+        //    throw new RuntimeException("Cannot initialize more than once");
 
         self::$instance = new Application($path, $config);
 
@@ -183,7 +185,10 @@ class Application
         Cache::setHook($this->config->dget('cache', 'expiry', 60));
 
         // Find installed modules and initialize them
-        Module\Manager::setup($this->path_config->modules, $this->get('resolver'));
+        Module\Manager::setup($this->resolver);
+
+        // Prepare the HTTP Request Object
+        $this->request = Request::createFromGlobals();
 
         // Do not run again
         $this->bootstrapped = true;
@@ -209,31 +214,20 @@ class Application
             case "pathConfig":
                 return $this->path_config;
             case "request":
-                if ($this->request === null)
-                {
-                    $this->request = new Request(
-                        $_GET,
-                        $_POST,
-                        $_COOKIE,
-                        $_SERVER
-                    );
-                }
                 return $this->request;
             case "resolver":
-                if ($this->resolver === null)
-                    $this->resolver = new Resolver($this->path_config->core);
                 return $this->resolver;
-            case "translate":
-                if ($this->translate === null)
+            case "i18n":
+                if ($this->i18n === null)
                 {
-                    $this->translate = new I18n\Translate;
-                    $this->translate->registerTextDomain('core', $this->path_config->core . '/language');
+                    $this->i18n = new I18n;
+                    $this->i18n->registerTextDomain('core', $this->path_config->root . '/language');
                 }
-                return $this->translate;
+                return $this->i18n;
             case "dispatcher":
                 if ($this->dispatcher === null)
                 {
-                    $this->dispatcher = new Dispatcher($this->get('request'), $this->get('resolver'), $this->config);
+                    $this->dispatcher = new Dispatcher($this->get('request'), $this->resolver, $this->config);
                     $this->dispatcher->configureSites($this->config);
                     $this->dispatcher->determineVirtualHost();
                 }
@@ -322,7 +316,13 @@ class Application
         $cache = new Cache("resolution");
         $this->autoloader = new Autoloader();
         $this->autoloader->setCache($cache);
-        $this->resolver = new Manager($cache);
+        $this->resolver = new ResolveManager($cache);
+        $this->resolver
+            ->addResolverType('template', 'template', '.php')
+            ->addResolverType('assets', 'assets')
+            ->addResolverType('app', 'app')
+            ->setResolver("app", new Router("router"));
+
         spl_autoload_register(array($this->autoloader, 'autoload'), true, true);
 
         $cl = Autoloader::findComposerAutoloader();
