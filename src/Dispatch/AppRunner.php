@@ -25,23 +25,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application\Dispatch;
 
-use Wedeto\DB\DB;
 use Wedeto\DB\DAO;
 
+use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Dictionary;
+use Wedeto\Util\Type;
 use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\Logger;
 
-use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Response\Response;
-use Wedeto\HTTP\Error as HTTPError;
+use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\StatusCode;
-
-use Wedeto\Application\Application;
 
 use ReflectionMethod;
 use Throwable;
+use RuntimeException;
 
 /**
  * Run / include an application and make sure it produces response.
@@ -52,58 +51,87 @@ class AppRunner
 {
     use LoggerAwareStaticTrait;
 
-    /** The request being handled */
-    private $request;
+    /** The variables to make available in the app */
+    protected $variables = [];
 
-    /** The dispatcher instance */
-    private $dispatcher;
+    /** The arguments to the script */
+    protected $arguments;
 
     /** The application to execute */
-    private $app;
+    protected $app;
 
     /** The initial output buffer level */
-    private $output_buffer_level;
+    protected $output_buffer_level;
 
     /**
      * Create the AppRunner with the request and the app path
-     * @param Wedeto\HTTP\Request $request The request being answered
      * @param string $app The path to the appplication to run
+     * @param Dictionary $arguments The arguments to the app
      */
-    public function __construct(Dispatcher $dispatcher, string $app)
+    public function __construct(string $app, $arguments = null)
     {
         self::getLogger();
-        $this->request = $dispatcher->getRequest();
-        $this->dispatcher = $dispatcher;
         $this->app = $app;
+
+        if (!empty($arguments))
+        {
+            if (!($arguments instanceof Dictionary))
+                $arguments = new Dictionary($arguments);
+            $this->arguments = $arguments;
+        }
+        else
+            $this->arguments = new Dictionary;
     }
 
-    private function logScriptOutput()
+    /**
+     * Assign a variable to make available to the app.
+     *
+     * Depending on the type of controller, the variables are assigned in
+     * various ways.  For a plain script, the variables are available directly
+     * as their name. When the script contains a class, the variables may be
+     * assigned to public properties of that class with the same name.
+     * 
+     * Additionally, they may be assigned to parameters to the controller
+     * method, but only if class and name match exactly.
+     *
+     * @param string $name The name of the variable
+     * @param string $value The value to assign
+     */
+    public function setVariable(string $name, $value)
     {
-        $output_buffers = array();
-        $ob_cnt = 0;
-        while (ob_get_level() > $this->output_buffer_level)
-        {
-            $output = trim(ob_get_contents());
-            ++$ob_cnt;
-            ob_end_clean();
-            if (!empty($output))
-            {
-                $lines = explode("\n", $output);
-                foreach ($lines as $n => $line)
-                    self::$logger->debug("Script output: {0}/{1}: {2}", [$ob_cnt, $n + 1, $line]);
-            }
-        }
+        $this->variables[$name] = $value;
+    }
+
+    /**
+     * @return mixed A set variable, or null if it isn't set
+     */
+    public function getVariable(string $name)
+    {
+        return $this->variables[$name] ?? null;
+    }
+    
+    /**
+     * Set the argument Dictionary. Parameters for controller methods
+     * may be filled using these values, in which case they will be removed
+     * from the dictionary. The remaining contents will be assigned to 
+     * a variable called $arguments, automatically. This takes precedence
+     * over AppRunner#setVariable.
+     *
+     * @param Dictionary $arguments The arguments to set
+     * @return AppRunner Provides fluent interface
+     */
+    public function setArguments(Dictionary $arguments)
+    {
+        $this->arguments = $arguments; 
     }
 
 
     /**
      * Run the app and make produce a response.
-     * @throws Wedeto\HTTP\Response
+     * @throws Wedeto\HTTP\Response\Response
      */
     public function execute()
     {
-        $tr = Application::i18n();
-
         try
         {
             // No output should be produced by apps directly, so buffer
@@ -126,8 +154,8 @@ class AppRunner
             self::$logger->debug("While executing controller: {0}", [$this->app]);
             $desc = StatusCode::description($response->getCode());
             self::$logger->info(
-                "{0} {1} - {2}",
-                [$response->getCode(), $desc, $this->request->url]
+                "{0} {1}",
+                [$response->getCode(), $desc]
             );
             throw $response;
         }
@@ -135,10 +163,13 @@ class AppRunner
         {
             self::$logger->debug("While executing controller: {0}", [$this->app]);
             self::$logger->notice(
-                "Unexpected exception of type {0} thrown while processing request to URL: {1}", 
-                [get_class($e), $this->request->url]
+                "Unexpected exception of type {0} thrown while processing request to: {1}", 
+                [get_class($e), $this->app]
             );
-            throw $e;
+
+            echo "EXCEPTION: " . WF::str($e) . "\n\n\n";
+
+            throw new RuntimeException("Unexpected exception of type " . get_class($e) . " thrown while processing " . $this->app, 0, $e);
         }
         finally
         {
@@ -147,41 +178,21 @@ class AppRunner
     }
 
     /**
-     * A wrapper to execute / include the selected route. This puts the app in a
-     * private scope, with access to the most commonly used variables:
-     * $request The request object
-      
-     * $db A database connection
-     * $url The URL that was requested
-     * $get The GET parameters sent to the script
-     * $post The POST parameters sent to the script
-     * $url_args The URL arguments sent to the script (remained of the URL after the selected route)
+     * A wrapper to execute / include the selected route.  It puts the
+     * app in a private scope, which access to a set of predefined variables.
      *
      * @param string $path The file to execute
      * @return mixed The response produced by the script, if any
      */
-    private function doExecute()
+    protected function doExecute()
     {
         // Prepare some variables that come in handy in apps
-        $request = $this->request;
-        $resolver = $this->dispatcher->getResolver();
-        $tpl = $template = $this->dispatcher->getTemplate();
-        $config = $this->dispatcher->getConfig();
-        $url = $request->url;
+        extract($this->variables);
+    
+        // Set the arguments
+        $arguments = $this->arguments;
 
-        try
-        {
-            $db = DB::getDefault();
-        }
-        catch (\RuntimeException $e)
-        {
-            // Running without database
-            $db = null;
-        }
-
-        $get = $request->get;
-        $post = $request->post;
-        $url_args = $this->dispatcher->getURLArgs();
+        // Get the app to execute
         $path = $this->app;
 
         self::$logger->debug("Including {0}", [$path]);
@@ -191,13 +202,10 @@ class AppRunner
     }
 
     /**
-     * Get a list of public variables of the object, and see if they
-     * match any common variables:
-     * - $template
-     * - $request -> The HTTP Request
-     * - $resolve -> The resolver object
-     * - $url_args -> The remaining URL arguments
-     * - $logger -> Create a logger instance
+     * Get a list of public variables of the object, and set them to any variable assigned
+     * using AppRunner#setVariable. A variable called 'logger' will be filled with a logger
+     * instance of the class. If a method called 'setLogger' exists it will also be called
+     * with this instance.
      *
      * @param object $object The object to fill
      */
@@ -206,20 +214,20 @@ class AppRunner
         // Inject some properties when they're public
         $vars = array_keys(get_object_vars($object));
 
-        if (in_array('template', $vars))
-            $object->template = $this->dispatcher->getTemplate();
+        foreach ($this->variables as $name => $value)
+        {
+            if (in_array($name, $vars))
+                $object->$name = $value;
+        }
 
-        if (in_array('request', $vars))
-            $object->request = $this->request;
-
-        if (in_array('resolve', $vars))
-            $object->resolve = $this->dispatcher->getResolver();
-
-        if (in_array('url_args', $vars))
-            $object->url_args = $this->request->url_args;
+        if (in_array('arguments', $vars))
+            $object->arguments = $this->arguments;
 
         if (in_array('logger', $vars))
             $object->logger = Logger::getLogger(get_class($object));
+
+        if (method_exists($object, 'setLogger'))
+            $object->setLogger(Logger::getLogger(get_class($object)));
     }
     
     /**
@@ -232,7 +240,7 @@ class AppRunner
     protected function findController($object)
     {
         // Get the next URL argument
-        $urlargs = $this->request->url_args;
+        $urlargs = $this->arguments;
         $arg = $urlargs->shift();
 
         // Store it as controller name
@@ -273,6 +281,14 @@ class AppRunner
      * of Wedeto\DB\DAO. In the latter case, the object will be instantiated
      * using the parameter as identifier, that will be passed to the
      * DAO::get method.
+     *
+     * It is also possible to set variables, using AppRunner#setVariable.
+     * Variables set this way will be assigned to corresponding parameters of the
+     * method. These parameters must match in type and name.
+     * 
+     * Finally, all remaining arguments can be passed to a parameter called
+     * $arguments with type Dictionary, or, a Dictionary parameter that is the
+     * last parameter.
      */
     protected function reflect($object)
     {
@@ -292,7 +308,10 @@ class AppRunner
         // Iterate over the parameters and assign a value to them
         $args = array();
         $arg_cnt = 0;
-        $urlargs = $this->request->url_args;
+        $urlargs = $this->arguments;
+        $vars = $this->variables;
+        $vars['arguments'] = $this->variables;
+
         foreach ($parameters as $cnt => $param)
         {
             $tp = $param->getType();
@@ -307,6 +326,20 @@ class AppRunner
             }
 
             $tp = (string)$tp;
+
+            // Check if a variable by the correct name was set
+            $name = $param->getName();
+            if (isset($vars[$name]))
+            {
+                $val = $vars[$name];
+                if ((is_object($val) && is_a($val, $tp)) || (gettype($val) === $tp))
+                {
+                    $args[] = $val;
+                    continue;
+                }
+            }
+
+            // Arguments may be passed in by having a Dictionary parameter as the last parameter
             if ($tp === Dictionary::class)
             {
                 if ($cnt !== (count($parameters) - 1))
@@ -316,22 +349,10 @@ class AppRunner
                 break;
             }
 
-            if ($tp === Request::class)
-            {
-                $args[] = $this->request;
-                continue;
-            }
-
-            if ($tp === Template::class)
-            {
-                $args[] = $this->dispatcher->getTemplate();
-                continue;
-            }
-            
             ++$arg_cnt;
             if ($tp === "int")
             {
-                if (!$urlargs->has(0, Dictionary::TYPE_INT))
+                if (!$urlargs->has(0, Type::INT))
                     throw new HTTPError(400, "Invalid arguments - missing integer as argument $cnt");
                 $args[] = (int)$urlargs->shift();
                 continue;
@@ -339,7 +360,7 @@ class AppRunner
 
             if ($tp === "string")
             {
-                if (!$urlargs->has(0, Dictionary::TYPE_STRING))
+                if (!$urlargs->has(0, Type::STRING))
                     throw new HTTPError(400, "Invalid arguments - missing string as argument $cnt");
                 $args[]  = (string)$urlargs->shift();
                 continue;
@@ -350,7 +371,7 @@ class AppRunner
                 if (!$urlargs->has(0))
                     throw new HTTPError(400, "Invalid arguments - missing identifier as argument $cnt");
                 $object_id = $urlargs->shift();    
-                $obj = call_user_func(array($tp, "get"), $object_id);
+                $obj = $tp::get($object_id);
                 $args[] = $obj;
                 continue;
             }
@@ -359,5 +380,26 @@ class AppRunner
         }
 
         return call_user_func_array([$object, $controller], $args);
+    }
+
+    /**
+     * Log all output of the script to the logger.
+     */
+    private function logScriptOutput()
+    {
+        $output_buffers = array();
+        $ob_cnt = 0;
+        while (ob_get_level() > $this->output_buffer_level)
+        {
+            $output = trim(ob_get_contents());
+            ++$ob_cnt;
+            ob_end_clean();
+            if (!empty($output))
+            {
+                $lines = explode("\n", $output);
+                foreach ($lines as $n => $line)
+                    self::$logger->debug("Script output: {0}/{1}: {2}", [$ob_cnt, $n + 1, $line]);
+            }
+        }
     }
 }

@@ -33,11 +33,17 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Response\Error as HttpError;
+
 use Wedeto\HTML\Template;
+
 use Wedeto\Application\Application;
 use Wedeto\Application\PathConfig;
+
 use Wedeto\Util\Dictionary;
-use Wedeto\IO\Path;
+use Wedeto\Util\Functions as WF;
+
+use Wedeto\Resolve\Resolver;
+
 use Wedeto\Log\Logger;
 use Wedeto\Log\Writer\MemLogWriter;
 
@@ -64,24 +70,11 @@ final class AppRunnerTest extends TestCase
     {
         vfsStreamWrapper::register();
         vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
-        $this->wedetoroot = vfsStream::url('tpldir');
-
-        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
-        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'language');
-        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
-
-        $this->pathconfig = new PathConfig($this->wedetoroot);
-        $this->config = new Dictionary();
-
-        $this->app = Application::setup($this->pathconfig, $this->config);
-
-        $this->request = $this->app->request;
-        $this->dispatch = $this->app->dispatcher;
-
-        $this->testpath = $this->pathconfig->var . '/test';
-        Path::mkdir($this->testpath);
-        $this->filename = tempnam($this->testpath, "wedetotest") . ".php";
+        $this->testpath = vfsStream::url('tpldir');
+        $this->filename = $this->testpath . '/wedetotest_' . (string)microtime(true) . ".php";
         $this->classname = "cl_" . str_replace(".", "", basename($this->filename));
+
+        $this->resolver = new Resolver('foo');
 
         $logger = Logger::getLogger(AppRunner::class);
         $this->devlogger = new MemLogWriter(LogLevel::DEBUG);
@@ -91,9 +84,8 @@ final class AppRunnerTest extends TestCase
 
     public function tearDown()
     {
-        IO\Dir::rmtree($this->testpath);
-        $logger = Debug\Logger::getLogger(AppRunner::class);
-        $logger->removeLogHandlers();
+        $logger = Logger::getLogger(AppRunner::class);
+        $logger->removeLogWriters();
     }
 
     /**
@@ -111,7 +103,7 @@ return new StringResponse("Mock", "text/plain");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename);
         $this->assertInstanceOf(AppRunner::class, $apprunner);
 
         $this->expectException(StringResponse::class);
@@ -129,7 +121,7 @@ throw new StringResponse("Mock", "text/plain");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename);
         $this->assertInstanceOf(AppRunner::class, $apprunner);
 
         $this->expectException(StringResponse::class);
@@ -149,7 +141,7 @@ throw new StringResponse("Mock", "text/plain");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename);
 
         try
         {
@@ -178,7 +170,8 @@ use Wedeto\HTTP\Response\StringResponse;
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename);
+        $apprunner->setVariable('tpl', new MockAppRunnerTemplate);
 
         try
         {
@@ -203,7 +196,7 @@ for (\$i = 0; \$i < 10; ++\$i)
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename);
 
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("App did not produce any response");
@@ -219,7 +212,7 @@ throw new RuntimeException("Foobarred");
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Foobarred");
@@ -236,11 +229,11 @@ use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public \$url_args;
+    public \$arguments;
 
     public function foo()
     {
-        \$remain = \$this->url_args->getAll();
+        \$remain = \$this->arguments->getAll();
         return new StringResponse(implode(",", \$remain), "text/plain");
     }
 }
@@ -249,7 +242,7 @@ return new {$classname}();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
 
         try
         {
@@ -271,11 +264,11 @@ use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public \$url_args;
+    public \$arguments;
 
     public function index()
     {
-        \$remain = \$this->url_args->getAll();
+        \$remain = \$this->arguments->getAll();
         return new StringResponse(implode(",", \$remain), "text/plain");
     }
 }
@@ -284,7 +277,7 @@ return new {$classname}();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, ['foo', 'bar', 'baz']);
 
         try
         {
@@ -316,7 +309,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
 
         try
         {
@@ -348,7 +341,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
 
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing integer as argument 2");
@@ -375,7 +368,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
 
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing integer as argument 1");
@@ -391,14 +384,14 @@ EOT;
 use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\Util\Dictionary;
 use Wedeto\HTTP\Request;
-use Wedeto\Application\Dispatch\Template;
+use Wedeto\HTML\Template;
 
 class {$classname}
 {
     public function foo(Request \$arg1, Template \$arg2, Dictionary \$arg3)
     {
         \$vals = \$arg3->toArray();
-        if (!(\$arg2 instanceof Wedeto\Application\Dispatch\Template))
+        if (!(\$arg2 instanceof Wedeto\HTML\Template))
             throw new Wedeto\HTTP\Response\Error('No template');
         \$vals[] = \$arg1->url;
         return new StringResponse(implode(",", \$vals), "text/plain");
@@ -409,7 +402,9 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, ['foo', 'bar', 'baz']);
+        $apprunner->setVariable('arg1', Request::createFromGlobals());
+        $apprunner->setVariable('arg2', new MockAppRunnerTemplate);
 
         try
         {
@@ -443,9 +438,9 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
         $this->request->suffix = '.txt';
-        $this->request->url_args[0] = 'foo.txt';
+        $this->request->arguments[0] = 'foo.txt';
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
 
         try
         {
@@ -465,7 +460,7 @@ EOT;
 
 use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\HTTP\Request;
-use Wedeto\Application\Dispatch\Template;
+use Wedeto\HTML\Template;
 use Wedeto\Util\Dictionary;
 use Wedeto\Resolve\Resolver;
 use Wedeto\Log\Logger;
@@ -475,7 +470,7 @@ class {$classname}
     public \$template;
     public \$request;
     public \$resolve;
-    public \$url_args;
+    public \$arguments;
     public \$logger;
 
     public function foo(Request \$arg1, Template \$arg2, Dictionary \$arg3)
@@ -492,7 +487,7 @@ class {$classname}
         else
             throw new \RuntimeException('Invalid resolve: ' . Wedeto\\Util\\functions::str(\$this->resolve));
 
-        if (\$this->url_args instanceof Dictionary)
+        if (\$this->arguments instanceof Dictionary)
             \$response[] = "Dictionary";
         else
             throw new \RuntimeException('Invalid url args');
@@ -506,7 +501,11 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
+        $apprunner
+            ->setVariable('template', new Template($this->resolver))
+            ->setVariable('request', Request::createFromGlobals())
+            ->setVariable('resolver', $this->resolver);
 
         try
         {
@@ -540,7 +539,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Dictionary must be last parameter");
@@ -567,7 +566,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         try
         {
@@ -599,7 +598,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Unknown controller: foo");
@@ -625,7 +624,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - expecting argument 3");
@@ -634,7 +633,7 @@ EOT;
 
     public function testAppReturnsObjectWithIntAndStringParameters()
     {
-        $this->request->url_args[1] = 3;
+        $this->request->arguments[1] = 3;
         $classname = $this->classname;
         $phpcode = <<<EOT
 <?php
@@ -652,7 +651,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         try
         {
@@ -667,7 +666,7 @@ EOT;
     public function testAppReturnsObjectWithStringAndStringParameters()
     {
         $classname = $this->classname;
-        $this->request->url_args[1] = 3;
+        $this->request->arguments[1] = 3;
         $phpcode = <<<EOT
 <?php
 use Wedeto\HTTP\Response\StringResponse;
@@ -684,7 +683,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing string as argument 0");
@@ -694,7 +693,7 @@ EOT;
     public function testAppReturnsObjectWithInvalidParameters()
     {
         $classname = $this->classname;
-        $this->request->url_args[1] = 3;
+        $this->request->arguments[1] = 3;
         $phpcode = <<<EOT
 <?php
 use Wedeto\HTTP\Response\StringResponse;
@@ -711,7 +710,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid parameter type: float");
@@ -737,7 +736,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, ['foo', 'bar', 'baz']);
         try
         {
             $apprunner->execute();
@@ -767,21 +766,10 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->dispatch, $this->filename);
+        $apprunner = new AppRunner($this->filename, ['foo', 'bar', 'baz']);
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing identifier as argument 2");
         $apprunner->execute();
-    }
-}
-
-class MockAppRunnerRequest extends Request
-{
-    public function __construct()
-    {
-        $this->url = '/';
-        $this->resolver = Application::resolver();
-        $this->url_args = new Dictionary(["foo", "bar", "baz"]);
-        $this->template = new MockAppRunnerTemplate();
     }
 }
 
