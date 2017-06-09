@@ -35,8 +35,11 @@ use Wedeto\IO\Path;
 use Wedeto\Resolve\Resolver;
 use Wedeto\Application\Application;
 use Wedeto\Application\PathConfig;
+
 use Wedeto\HTML\Template;
+
 use Wedeto\Util\Dictionary;
+use Wedeto\Util\Functions as WF;
 
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
@@ -138,6 +141,7 @@ final class DispatcherTest extends TestCase
     public function testRoutingInvalid()
     {
         $resolve = new MockRequestResolver();
+        $this->resolver->setResolver('app', $resolve);
         $this->server['SERVER_NAME'] = 'www.example.com';
         $this->server['REQUEST_URI'] = '/foo';
 
@@ -164,10 +168,7 @@ final class DispatcherTest extends TestCase
 
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
-        echo "---FOOOOOOOOOOOOOOOOOOOOOOOo\n";
-        var_dump($this->request);
         $dispatch->resolveApp();
-        echo "---FOOOOOOOOOOOOOOOOOOOOOOOo\n";
         $this->assertEquals('/assets', $dispatch->route);
     }
 
@@ -206,6 +207,7 @@ final class DispatcherTest extends TestCase
                 'language' => array('en'),
                 'redirect' => array(1 => 'http://www.example.com/')
             );
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
 
         $this->expectException(RedirectRequest::class);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
@@ -259,9 +261,10 @@ EOT;
 
         file_put_contents($filename, $phpcode);
 
-        $this->request->url = '/' . basename($filename, '.php');
+        $this->server['REQUEST_URI'] = '/' . basename($filename, '.php');
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
-        $request->dispatch();
+        $dispatch->dispatch();
     }
 
     public function testHandleUnknownHost()

@@ -54,6 +54,9 @@ class AppRunner
     /** The variables to make available in the app */
     protected $variables = [];
 
+    /** The instances to make available in the app */
+    protected $instances = [];
+
     /** The arguments to the script */
     protected $arguments;
 
@@ -92,14 +95,21 @@ class AppRunner
      * assigned to public properties of that class with the same name.
      * 
      * Additionally, they may be assigned to parameters to the controller
-     * method, but only if class and name match exactly.
+     * method. When $as_instance is set to true, an equal class name
+     * is sufficient to perform the matching. When $as_instance is set to false,
+     * class and name must be equal. This only works for objects.
      *
      * @param string $name The name of the variable
      * @param string $value The value to assign
+     * @param bool $as_instance To allow referencing this variable by class
+     * @return AppRunner Provides fluent interface
      */
-    public function setVariable(string $name, $value)
+    public function setVariable(string $name, $value, bool $as_instance = true)
     {
         $this->variables[$name] = $value;
+        if (is_object($value))
+            $this->instances[get_class($value)] = $value;
+        return $this;
     }
 
     /**
@@ -163,13 +173,11 @@ class AppRunner
         {
             self::$logger->debug("While executing controller: {0}", [$this->app]);
             self::$logger->notice(
-                "Unexpected exception of type {0} thrown while processing request to: {1}", 
-                [get_class($e), $this->app]
+                "Unexpected exception of type {0} thrown while processing request: {1}", 
+                [get_class($e), $e]
             );
 
-            echo "EXCEPTION: " . WF::str($e) . "\n\n\n";
-
-            throw new RuntimeException("Unexpected exception of type " . get_class($e) . " thrown while processing " . $this->app, 0, $e);
+            throw $e;
         }
         finally
         {
@@ -347,6 +355,12 @@ class AppRunner
 
                 $args[] = $urlargs;
                 break;
+            }
+
+            if (class_exists($tp) && isset($this->instances[$tp]))
+            {
+                $args[] = $this->instances[$tp];
+                continue;
             }
 
             ++$arg_cnt;

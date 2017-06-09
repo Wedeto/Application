@@ -41,7 +41,7 @@ use Wedeto\Util\Functions as WF;
 use Wedeto\HTTP\Accept;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
-use Wedeto\HTTP\Response\{Response, DataResponse, StringResponse};
+use Wedeto\HTTP\Response\{Response, DataResponse, StringResponse, RedirectRequest};
 use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\StatusCode;
 use Wedeto\HTTP\URL;
@@ -96,6 +96,13 @@ class Dispatcher
     /** The suffix of the resolved route - file extension */
     protected $suffix;
 
+    /**
+     * Create the dispatcher. 
+     *
+     * @param Request $request The request to dispatch
+     * @param ResolveManager $resolver The resolve manager able to resolve assets, templates and routes
+     * @param Dictionary $config The configuration used for setting up Site and VirtualHost instances
+     */
     public function __construct(Request $request, ResolveManager $resolver, Dictionary $config)
     {
         $this->request = $request;
@@ -103,11 +110,19 @@ class Dispatcher
         $this->setConfig($config);
     }
 
+    /**
+     * @return Dictionary The configuration used
+     */
     public function getConfig()
     {
         return $this->config;
     }
 
+    /**
+     * Set the configuration dictionary used for config
+     * @param Dictionary $config The configuration
+     * @return Dispatcher Provides fluent interface
+     */
     public function setConfig(Dictionary $config)
     {
         $this->config = $config;
@@ -115,17 +130,31 @@ class Dispatcher
         return $this;
     }
 
+    /**
+     * Configure the sites based on the provided configuration
+     *
+     * @return Dispatcher Provides fluent interface
+     */
     public function configureSites()
     {
         $this->setSites(Site::setupSites($this->config->getSection('site')));
         return $this;
     }
 
+    /**
+     * @return array The list of sites
+     */
     public function getSites()
     {
         return $this->sites;
     }
 
+    /**
+     * Set the list of available sites
+     *
+     * @param array $sites The list of sites
+     * @return Dispatcher Provides fluent interface
+     */
     public function setSites(array $sites)
     {
         $this->sites = array();
@@ -134,18 +163,32 @@ class Dispatcher
         return $this;
     }
 
+    /**
+     * Add a Site to the dispatcher configuration.
+     * @param Site $site The site to add
+     * @return Dispatcher Provides fluent interface
+     */
     public function addSite(Site $site)
     {
         $this->sites[] = $site;
         return $this;
     }
 
+    /**
+     * Set the VirtualHost for this request
+     *
+     * @param VirtualHost $vhost The VirtualHost matching the request
+     * @return Dispatcher Provides fluent interface
+     */
     public function setVirtualHost(VirtualHost $vhost)
     {
         $this->vhost = $vhost;
         return $this;
     }
 
+    /**
+     * @return VirtualHost the virtual host matching the request
+     */
     public function getVirtualHost()
     {
         if ($this->vhost === null)
@@ -153,14 +196,21 @@ class Dispatcher
         return $this->vhost;
     }
 
-    public function getURLArgs()
+    /**
+     * @return Dictionary the arguments passed to the script
+     */
+    public function getArguments()
     {
-        return $this->url_args;
+        return $this->arguments;
     }
 
-    public function setURLArgs(Dictionary $url_args)
+    /**
+     * Set the arguments passed to the script
+     * @param Dictionary $arguments The arguments to the script
+     */
+    public function setArguments(Dictionary $arguments)
     {
-        $this->url_args = $url_args;
+        $this->arguments = $arguments;
         return $this;
     }
 
@@ -172,6 +222,11 @@ class Dispatcher
         return $this->request;
     }
 
+    /**
+     * Set the request being handled
+     * @param Request $request The request instance
+     * @return Dispatcher Provides fluent interface
+     */
     public function setRequest(Request $request)
     {
         $this->request = $request;
@@ -200,6 +255,9 @@ class Dispatcher
         return $this;
     }
 
+    /**
+     * @return Template The template instance
+     */
     public function getTemplate()
     {
         if ($this->template === null)
@@ -217,16 +275,28 @@ class Dispatcher
         return $this->template;
     }
 
+    /**
+     * Set the template instance to have apps use.
+     * @param Template $template The template to use
+     * @return Dispatcher Provides fluent interface
+     */
     public function setTemplate(Template $template)
     {
         $this->template = $template;
+        return $this;
     }
 
+    /**
+     * @return string The path to the app to execute
+     */
     public function getApp()
     {
         return $this->app;
     }
 
+    /**
+     * @return string The resolved route
+     */
     public function getRoute()
     {
         return $this->route;
@@ -293,7 +363,7 @@ class Dispatcher
 
         array_unshift($mime_types, 'text/plain');
         array_unshift($mime_types, 'text/html');
-        $preferred_type = $this->request->getBestResponseType($mime_types);
+        $preferred_type = $this->request->accept->getBestResponseType($mime_types);
 
         if ($preferred_type === 'text/html')
         {
@@ -349,7 +419,7 @@ class Dispatcher
             
             // Handle according to the outcome
             if ($result === null)
-                throw new Error(404, "Not found: " . $this->url);
+                throw new HTTPError(404, "Not found: " . $this->url);
 
             if ($result instanceof URL)
                 throw new RedirectRequest($result, 301);
@@ -521,8 +591,13 @@ class Dispatcher
         return $vhosts[$best_idx];
     }
 
+    /**
+     * Return a value
+     * @param string $key The name of the variable
+     * @return mixed The value, or null if not existent
+     */
     public function __get(string $key)
     {
-        return property_exists($this, $key) ? $this->key : null;
+        return property_exists($this, $key) ? $this->$key : null;
     }
 }

@@ -207,7 +207,6 @@ EOT;
     {
         $phpcode = <<<EOT
 <?php
-
 throw new RuntimeException("Foobarred");
 EOT;
         file_put_contents($this->filename, $phpcode);
@@ -393,7 +392,7 @@ class {$classname}
         \$vals = \$arg3->toArray();
         if (!(\$arg2 instanceof Wedeto\HTML\Template))
             throw new Wedeto\HTTP\Response\Error('No template');
-        \$vals[] = \$arg1->url;
+        \$vals[] = get_class(\$arg1);
         return new StringResponse(implode(",", \$vals), "text/plain");
     }
 }
@@ -412,43 +411,7 @@ EOT;
         }
         catch (StringResponse $e)
         {
-            $this->assertEquals('bar,baz,/', $e->getOutput('text/plain'));
-        }
-    }
-
-    public function testAppReturnsObjectWithResponseTypeSuffix()
-    {
-        $classname = $this->classname;
-        $phpcode = <<<EOT
-<?php
-
-use Wedeto\HTTP\Response\StringResponse;
-
-class {$classname}
-{
-    public \$request;
-
-    public function foo()
-    {
-        return new StringResponse('foobar' . \$this->request->suffix, "text/plain");
-    }
-}
-
-return new $classname();
-EOT;
-        file_put_contents($this->filename, $phpcode);
-        $this->request->suffix = '.txt';
-        $this->request->arguments[0] = 'foo.txt';
-
-        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
-
-        try
-        {
-            $apprunner->execute();
-        }
-        catch (StringResponse $e)
-        {
-            $this->assertEquals('foobar.txt', $e->getOutput('text/plain'));
+            $this->assertEquals('bar,baz,' . Request::class, $e->getOutput('text/plain'));
         }
     }
 
@@ -505,7 +468,7 @@ EOT;
         $apprunner
             ->setVariable('template', new Template($this->resolver))
             ->setVariable('request', Request::createFromGlobals())
-            ->setVariable('resolver', $this->resolver);
+            ->setVariable('resolve', $this->resolver);
 
         try
         {
@@ -651,7 +614,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', '3', 'baz']));
         
         try
         {
@@ -683,7 +646,7 @@ return new $classname();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->filename, new Dictionary(['foo', 'bar', 'baz']));
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo']));
         
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing string as argument 0");
