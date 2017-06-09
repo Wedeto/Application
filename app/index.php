@@ -24,10 +24,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 use Wedeto\Template;
-use Wedeto\Http\Error as HttpError;
+use Wedeto\HTTP\Response\Error as HTTPError;
 
-if ($url_args->count())
-    throw new HttpError(404, "The page " . $request->url . " could not be found");
+if ($arguments->count())
+    throw new HTTPError(404, "The page " . $request->url . " could not be found");
 
 $template->setTemplate('index');
 $template->render();

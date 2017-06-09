@@ -70,7 +70,7 @@ class Dispatcher
     protected $config;
 
     /** The arguments after the selected route */
-    protected $url_args;
+    protected $arguments;
 
     /** The configured sites */
     protected $sites = array();
@@ -315,7 +315,7 @@ class Dispatcher
             if ($this->route === null)
                 throw new HTTPError(404, 'Could not resolve ' . $this->url);
 
-            $app = new AppRunner($this, $this->app);
+            $app = new AppRunner($this->app, $this->arguments);
             $app->execute();
         }
         catch (Throwable $e)
@@ -471,13 +471,13 @@ class Dispatcher
             }
             $this->route = $resolved['route'];
             $this->app = $resolved['path'];
-            $this->url_args = new Dictionary($resolved['remainder']);
+            $this->arguments = new Dictionary($resolved['remainder']);
         }
         else
         {
             $this->route = null;
             $this->app = null;
-            $this->url_args = new Dictionary();
+            $this->arguments = new Dictionary();
         }
     }
 
