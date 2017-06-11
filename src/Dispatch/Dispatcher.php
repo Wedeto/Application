@@ -53,6 +53,8 @@ use Wedeto\IO\FileType;
 
 use Wedeto\FileFormats\WriterFactory;
 
+use Wedeto\Application\Application;
+
 /**
  * Dispatcher dispatches a HTTP Request to the correct route.
  *
@@ -96,6 +98,9 @@ class Dispatcher
     /** The suffix of the resolved route - file extension */
     protected $suffix;
 
+    /** The variables to pass to the app */
+    protected $variables = [];
+
     /**
      * Create the dispatcher. 
      *
@@ -103,11 +108,29 @@ class Dispatcher
      * @param ResolveManager $resolver The resolve manager able to resolve assets, templates and routes
      * @param Dictionary $config The configuration used for setting up Site and VirtualHost instances
      */
-    public function __construct(Request $request, ResolveManager $resolver, Dictionary $config)
+    public function __construct(Request $request, ResolveManager $resolver, $config = [])
     {
-        $this->request = $request;
-        $this->resolver = $resolver;
+        if (!($config instanceof Dictionary))
+            $config = new Dictionary($config);
+
+        $this->setRequest($request);
+        $this->setResolveManager($resolver);
         $this->setConfig($config);
+    }
+
+    /**
+     * Create a new dispatcher using an application object
+     * @param Application $app The Application object from which to get the required variables
+     * @return Dispatcher The dispatcher instance
+     */
+    public static function createFromApplication(Application $app)
+    {
+        $dispatch = new static($app->request, $app->resolver, $app->config);
+        $dispatch->setVariable('app', $app);
+        $dispatch->setVariable('path_config', $app->pathConfig);
+        $dispatch->setVariable('i18n', $app->i18n);
+        $dispatch->setVariable('db', $app->db);
+        return $dispatch;
     }
 
     /**
@@ -127,6 +150,7 @@ class Dispatcher
     {
         $this->config = $config;
         $this->configureSites();
+        $this->setVariable('config', $config);
         return $this;
     }
 
@@ -183,6 +207,7 @@ class Dispatcher
     public function setVirtualHost(VirtualHost $vhost)
     {
         $this->vhost = $vhost;
+        $this->setVariable('vhost', $vhost);
         return $this;
     }
 
@@ -233,7 +258,28 @@ class Dispatcher
         $this->app = null;
         $this->vhost = null;
         $this->route = null;
+        $this->setVariable('request', $request);
         return $this;
+    }
+
+    /**
+     * Set the value for a variable
+     * @param string $name The name of the variable
+     * @param object $value The value to reference to
+     * @return Dispatch Provides fluent interface
+     */
+    public function setVariable(string $name, $value)
+    {
+        $this->variables[$name] = $value;
+        return $this;
+    }
+
+    /** 
+     * @return mixed The value for the variable
+     */
+    public function getVariable(string $name)
+    {
+        return $this->variable[$name];
     }
 
     /**
@@ -249,9 +295,10 @@ class Dispatcher
      * @param Wedeto\Resolve\Resolver The resolver
      * @return Wedeto\HTTP\Request Provides fluent interface
      */
-    public function setResolver(Resolver $resolver)
+    public function setResolveManager(ResolveManager $resolver)
     {
         $this->resolver = $resolver;
+        $this->setVariable('resolver', $resolver);
         return $this;
     }
 
@@ -263,13 +310,15 @@ class Dispatcher
         if ($this->template === null)
         {
             $asset_manager = new AssetManager($this->resolver->getResolver('assets'));
-            $this->template = new Template($this->resolver->getResolver('template'), $asset_manager);
+            $template = new Template($this->resolver->getResolver('template'), $asset_manager);
             Hook::subscribe('Wedeto.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
-            $this->template
+            $template
                 ->setAssetManager($asset_manager)
                 ->assign('request', $this->request)
                 ->assign('config', $this->config)
-                ->assign('dev', true);//$this->config->dget('site', 'dev'));
+                ->assign('dev', true);
+
+            $this->setTemplate($template);
         }
 
         return $this->template;
@@ -283,6 +332,8 @@ class Dispatcher
     public function setTemplate(Template $template)
     {
         $this->template = $template;
+        $this->setVariable('template', $template);
+        $this->setVariable('tpl', $template);
         return $this;
     }
 
@@ -293,6 +344,31 @@ class Dispatcher
     {
         return $this->app;
     }
+
+    /**
+     * @return Application The application for which the request is dispatched. Null if none available
+     */
+    public function getApplication()
+    {
+        if (!array_key_exists('app', $this->variables['app']))
+        {
+            $app = Application::hasInstance() ? Application::getInstance() : null;
+            $this->variables['app'] = $app;
+        }
+        return $this->variables['app'];
+    }
+
+    /**
+     * Set the application instance
+     * @param Application $app The Application instance
+     * @return Dispatcher Provides fluent interface
+     */
+    public function setApplication(Application $app)
+    {
+        $this->variables['app'] = $app;
+        return $this;
+    }
+
 
     /**
      * @return string The resolved route
@@ -310,12 +386,16 @@ class Dispatcher
         try
         {
             $this->resolveApp();
+
             $this->request->startSession($this->vhost->getHost(), $this->config);
 
             if ($this->route === null)
                 throw new HTTPError(404, 'Could not resolve ' . $this->url);
 
             $app = new AppRunner($this->app, $this->arguments);
+            $app->setVariables($this->variables);
+            $app->setVariable('dispatcher', $this);
+
             $app->execute();
         }
         catch (Throwable $e)

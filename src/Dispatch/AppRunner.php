@@ -113,6 +113,20 @@ class AppRunner
     }
 
     /**
+     * Set multiple variables. A wrapper around AppRunner#setVariable to loop
+     * over an array.
+     * @param array|Traversable $variables The variables to set
+     * @param bool $as_instance To allow referincing this variable by class
+     * @return AppRunner Provides fluent interface
+     */
+    public function setVariables($variables, bool $as_instance = true)
+    {
+        foreach ($variables as $key => $var)
+            $this->setVariable($key, $var, $as_instance);
+        return $this;
+    }
+
+    /**
      * @return mixed A set variable, or null if it isn't set
      */
     public function getVariable(string $name)

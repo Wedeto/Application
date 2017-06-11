@@ -264,6 +264,7 @@ EOT;
         $this->server['REQUEST_URI'] = '/' . basename($filename, '.php');
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+        $l = Dispatcher::getLogger();
         $dispatch->dispatch();
     }
 
