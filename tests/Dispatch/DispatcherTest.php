@@ -44,6 +44,7 @@ use Wedeto\Util\Functions as WF;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
 use Wedeto\HTTP\URL;
+use Wedeto\HTTP\Response\Response;
 use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\Response\RedirectRequest;
 use Wedeto\HTTP\Response\StringResponse;
@@ -246,9 +247,9 @@ final class DispatcherTest extends TestCase
     public function testDispatchWithValidApp()
     {
         $pathconfig = Application::pathConfig();
-        $testpath = $pathconfig->var . '/test';
+        $testpath = $pathconfig->root . '/app';
         Path::mkdir($testpath);
-        $filename = $testpath . 'wasptest-validapp.php';
+        $filename = $testpath . '/wasptest-validapp.php';
         $classname = "cl_" . str_replace(".", "", basename($filename));
 
         $phpcode = <<<EOT
@@ -256,16 +257,19 @@ final class DispatcherTest extends TestCase
 throw new Wedeto\HTTP\Response\StringResponse('foo');
 EOT;
 
-        $this->expectException(StringResponse::class);
-        $this->expectExceptionCode(200);
-
         file_put_contents($filename, $phpcode);
+
+        $this->resolver->registerModule('test', $this->wedetoroot, 0);
 
         $this->server['REQUEST_URI'] = '/' . basename($filename, '.php');
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
         $l = Dispatcher::getLogger();
-        $dispatch->dispatch();
+        $response = $dispatch->dispatch();
+
+        $this->assertInstanceOf(StringResponse::class, $response);
+        $this->assertEquals(200, $response->getCode());
+        $this->assertEquals('foo', $response->getOutput());
     }
 
     public function testHandleUnknownHost()

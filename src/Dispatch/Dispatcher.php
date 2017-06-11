@@ -380,9 +380,12 @@ class Dispatcher
 
     /**
      * Run the selected application
+     * 
+     * @return Response The response of the executed script
      */
     public function dispatch()
     {
+        $response = null;
         try
         {
             $this->resolveApp();
@@ -406,27 +409,9 @@ class Dispatcher
             if ($e instanceof HTTPError)
                 $this->prepareErrorResponse($e);
 
-            $rb = new Responder($this->request);
-
-            if ($this->config->get('dev'))
-            {
-                $memlogger = MemLogger::getInstance();
-                if ($memlogger)
-                {
-                    $loghook = new MemLogHook($memlogger, $this);
-                    Hook::subscribe(
-                        "Wedeto.HTTP.Responder.Respond", 
-                        new MemLogHook($memlogger, $this),
-                        Hook::RUN_LAST
-                    );
-                }
-            }
-            $session_cookie = $this->request->session !== null ? $this->request->session->getCookie() : null;
-            if ($session_cookie)
-                $rb->addCookie($session_cookie);
-            $rb->setResponse($e);
-            $rb->respond();
+            $response = $e;
         }
+        return $response;
     }
 
     /** 

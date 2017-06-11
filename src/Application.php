@@ -346,4 +346,28 @@ class Application
                 $this->resolver->registerModule($name, $path);
         }
     }
+
+    public function handleWebRequest()
+    {
+        $rb = new Responder($this->request);
+
+        if ($this->config->get('dev'))
+        {
+            $memlogger = MemLogger::getInstance();
+            if ($memlogger)
+            {
+                $loghook = new MemLogHook($memlogger, $this);
+                Hook::subscribe(
+                    "Wedeto.HTTP.Responder.Respond", 
+                    new MemLogHook($memlogger, $this),
+                    Hook::RUN_LAST
+                );
+            }
+        }
+        $session_cookie = $this->request->session !== null ? $this->request->session->getCookie() : null;
+        if ($session_cookie)
+            $rb->addCookie($session_cookie);
+        $rb->setResponse($e);
+        $rb->respond();
+    }
 }
