@@ -439,12 +439,13 @@ class Dispatcher
         }
         elseif ($preferred_type !== 'text/plain')
         {
+            $ex = $error->getPrevious() ?: $error;
             $status = $error->getStatusCode();
             $status_msg = isset(StatusCode::$CODES[$status]) ? StatusCode::$CODES[$status] : "Internal Server Error";
-            $exception_str = WF::str($this);
+            $exception_str = WF::str($ex);
             $exception_list = explode("\n", $exception_str);
             $data = array(
-                'message' => $this->getMessage(),
+                'message' => $ex->getMessage(),
                 'status_code' => $status,
                 'exception' => $exception_list,
                 'status' => $status_msg

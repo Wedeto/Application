@@ -23,8 +23,6 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-$type = $this->request->chooseResponse(array("text/html", "text/plain"));
-
 $error_code = 500;
 if ($exception instanceof Wedeto\HTTP\Response\Error)
     $error_code = (int)$exception->getCode();
@@ -51,7 +49,7 @@ switch ($error_code)
         break;
 }
 
-if ($dev || $cli)
+if ($dev)
 {
     $error_description .= 
         "\n\nDescription: " . $exception->getMessage() . "\n" 
@@ -65,11 +63,6 @@ elseif (method_exists($exception, 'getUserMessage'))
 }
 
 $type_name = str_replace("/", "_" ,$type) . ".php";
-
-$path = $request->getResolver()->template($type_name);
-if ($path !== null)
-    require $path;
-else
-    require tpl('error/text_html');
+require tpl('error/text_html');
 
 ?>

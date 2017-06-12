@@ -75,6 +75,8 @@ final class DispatcherTest extends TestCase
     public function setUp()
     {
         Logger::resetGlobalState();
+        Template::setInstance();
+
         vfsStreamWrapper::register();
         $d = 'dispatchdir' . (++self::$it);
         vfsStreamWrapper::setRoot(new vfsStreamDirectory($d));
@@ -367,6 +369,7 @@ PHP;
 
     public function testBadControllerThrowsException()
     {
+        $this->config['site']['dev'] = true;
         $pathconfig = Application::pathConfig();
         $testpath = $pathconfig->root . '/app';
         Path::mkdir($testpath);
@@ -393,7 +396,19 @@ PHP;
         $this->assertInstanceOf(HTTPError::class, $response);
         $sub = $response->getResponse();
         $this->assertInstanceOf(StringResponse::class, $sub);
-        $this->assertContains('foobar', $sub->getOutput('text/plain'));
+        $this->assertContains('LogicException [0] boo', $sub->getOutput('text/html'));
+
+        $this->server['HTTP_ACCEPT'] = 'application/json';
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
+        $dispatch->setRequest($this->request);
+        $response = $dispatch->dispatch();
+
+        $this->assertInstanceOf(HTTPError::class, $response);
+        $sub = $response->getResponse();
+        $this->assertInstanceOf(DataResponse::class, $sub);
+        $data = $sub->getData();
+        $this->assertEquals('boo', $data['message']);
+        $this->assertEquals('Internal Server Error', $data['status']);
     }
 
     public function testNoSiteConfig()
