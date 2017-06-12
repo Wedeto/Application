@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Application;
+namespace Wedeto\Application\Dispatch;
 
 use PHPUnit\Framework\TestCase;
 
@@ -32,8 +32,8 @@ use Wedeto\HTTP\URL;
 use Wedeto\HTTP\URLException;
 
 /**
- * @covers Wedeto\Application\Site
- * @covers Wedeto\Application\VirtualHost
+ * @covers Wedeto\Application\Dispatch\Site
+ * @covers Wedeto\Application\Dispatch\VirtualHost
  */
 final class SiteTest extends TestCase
 {

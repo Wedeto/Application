@@ -67,6 +67,7 @@ class Application
     protected $dispatcher;
     protected $i18n;
     protected $template;
+    protected $module_manager;
 
     public static function setup(PathConfig $path, Dictionary $config)
     {
@@ -217,6 +218,10 @@ class Application
                 return $this->request;
             case "resolver":
                 return $this->resolver;
+            case "moduleManager":
+                if ($this->module_manager === null)
+                    $this->module_manager = new Module\Manager($this->resolver);
+                return $this->module_manager;
             case "i18n":
                 if ($this->i18n === null)
                 {

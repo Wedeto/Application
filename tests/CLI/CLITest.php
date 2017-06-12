@@ -23,12 +23,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace Wedeto\Application;
+namespace Wedeto\Application\CLI;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Wedeto\Application\CLI
+ * @covers Wedeto\Application\CLI\CLI
  */
 class CLITest extends TestCase
 {
@@ -38,8 +38,6 @@ class CLITest extends TestCase
      * $argv or $_SERVER['argv'] has no effect. Therefore, the
      * output of getopt // CLI::parse cannot be reliably unit tested.
      *
-     * @covers Wedeto\Application\CLI::__construct
-     * @covers Wedeto\Application\CLI::formatText
      */
     public function testFormatText()
     {
@@ -57,12 +55,6 @@ class CLITest extends TestCase
         $this->assertEquals($ostr, "12345 \n  67890 \n  12345 \n  67890 \n  12345 \n  67890 \n  12345 \n  67890 \n");
     }
 
-    /**
-     * @covers Wedeto\Application\CLI::__construct
-     * @covers Wedeto\Application\CLI::addOption
-     * @covers Wedeto\Application\CLI::getOptString
-     * @covers Wedeto\Application\CLI::mapOptions
-     */
     public function testGetOptString()
     {
         $cli = new CLI();

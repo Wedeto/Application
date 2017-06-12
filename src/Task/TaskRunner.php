@@ -67,7 +67,7 @@ class TaskRunner
         if ($this->init)
             return;
 
-        $resolver = $this->app->resolver;
+        $resolver = $this->app->moduleManager;
         $modules = $resolver->getModules();
         foreach ($modules as $mod)
             $mod->registerTasks();

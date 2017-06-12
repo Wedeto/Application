@@ -32,6 +32,8 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Wedeto\Util\Dictionary;
 
+use Wedeto\Log\Logger;
+
 /**
  * @covers Wedeto\Application\Application
  */
@@ -39,15 +41,21 @@ final class ApplicationTest extends TestCase
 {
     public function setUp()
     {
+        Logger::resetGlobalState(); 
         vfsStreamWrapper::register();
-        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
-        $this->wedetoroot = vfsStream::url('tpldir');
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('appdir'));
+        $this->wedetoroot = vfsStream::url('appdir');
 
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
 
         PathConfig::setInstance();
         $this->pathconfig = new PathConfig($this->wedetoroot);
+    }
+
+    public function tearDown()
+    {
+        Logger::resetGlobalState(); 
     }
 
     /**

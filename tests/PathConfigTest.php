@@ -43,8 +43,8 @@ final class PathConfigTest extends TestCase
     public function setUp()
     {
         vfsStreamWrapper::register();
-        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
-        $this->wedetoroot = vfsStream::url('tpldir');
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('pathdir'));
+        $this->wedetoroot = vfsStream::url('pathdir');
 
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');

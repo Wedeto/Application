@@ -69,8 +69,8 @@ final class AppRunnerTest extends TestCase
     public function setUp()
     {
         vfsStreamWrapper::register();
-        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
-        $this->testpath = vfsStream::url('tpldir');
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('apprunnerdir'));
+        $this->testpath = vfsStream::url('apprunnerdir');
         $this->filename = $this->testpath . '/wedetotest_' . (string)microtime(true) . ".php";
         $this->classname = "cl_" . str_replace(".", "", basename($this->filename));
 

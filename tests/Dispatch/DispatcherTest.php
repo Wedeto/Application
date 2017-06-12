@@ -49,6 +49,8 @@ use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\Response\RedirectRequest;
 use Wedeto\HTTP\Response\StringResponse;
 
+use Wedeto\Log\Logger;
+
 /**
  * @covers Wedeto\Application\Dispatch\Dispatcher
  */
@@ -69,13 +71,16 @@ final class DispatcherTest extends TestCase
 
     public function setUp()
     {
+        Logger::resetGlobalState();
         vfsStreamWrapper::register();
-        vfsStreamWrapper::setRoot(new vfsStreamDirectory('tpldir'));
-        $this->wedetoroot = vfsStream::url('tpldir');
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('dispatchdir'));
+        $this->wedetoroot = vfsStream::url('dispatchdir');
 
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'language');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var/log');
 
         $this->pathconfig = new PathConfig($this->wedetoroot);
         $this->config = new Dictionary();
@@ -122,6 +127,11 @@ final class DispatcherTest extends TestCase
 
         $this->config = new Dictionary($config);
         $this->resolve = $this->app->resolver;
+    }
+
+    public function tearDown()
+    {
+        Logger::resetGlobalState();
     }
 
     public function testRouting()
