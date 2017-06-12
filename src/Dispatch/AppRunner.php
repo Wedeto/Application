@@ -147,12 +147,13 @@ class AppRunner
     public function setArguments(Dictionary $arguments)
     {
         $this->arguments = $arguments; 
+        return $this;
     }
 
 
     /**
      * Run the app and make produce a response.
-     * @throws Wedeto\HTTP\Response\Response
+     * @throws Wedeto\HTTP\Response\Response or another exception thrown by the controller
      */
     public function execute()
     {

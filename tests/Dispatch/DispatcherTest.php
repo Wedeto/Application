@@ -48,6 +48,7 @@ use Wedeto\HTTP\Response\Response;
 use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\Response\RedirectRequest;
 use Wedeto\HTTP\Response\StringResponse;
+use Wedeto\HTTP\Response\DataResponse;
 
 use Wedeto\Log\Logger;
 
@@ -56,6 +57,8 @@ use Wedeto\Log\Logger;
  */
 final class DispatcherTest extends TestCase
 {
+    protected static $it = 0;
+
     protected $app;
     protected $pathconfig;
     protected $config;
@@ -73,8 +76,9 @@ final class DispatcherTest extends TestCase
     {
         Logger::resetGlobalState();
         vfsStreamWrapper::register();
-        vfsStreamWrapper::setRoot(new vfsStreamDirectory('dispatchdir'));
-        $this->wedetoroot = vfsStream::url('dispatchdir');
+        $d = 'dispatchdir' . (++self::$it);
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory($d));
+        $this->wedetoroot = vfsStream::url($d);
 
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'language');
@@ -140,6 +144,11 @@ final class DispatcherTest extends TestCase
         $dispatch->resolveApp();
         $this->assertEquals('/', $dispatch->getRoute());
 
+        $vhost = $dispatch->getVirtualHost();
+        $this->assertInstanceOf(VirtualHost::class, $vhost);
+        $expected_url = new URL('https://www.example.com');
+        $this->assertEquals($expected_url, $vhost->getHost());
+
         $resolve = new MockRequestResolver();
         $this->resolver->setResolver('app', $resolve);
         $resolve->return_value = array('path' => '/assets.php', 'route' => '/assets', 'ext' => null, 'module' => 'test', 'remainder' => []);
@@ -157,6 +166,12 @@ final class DispatcherTest extends TestCase
         $this->server['REQUEST_URI'] = '/foo';
 
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+
+        $vhost = $dispatch->getVirtualHost();
+        $this->assertInstanceOf(VirtualHost::class, $vhost);
+        $expected_url = new URL('https://www.example.com');
+        $this->assertEquals($expected_url, $vhost->getHost());
+
         $dispatch->resolveApp();
         $this->assertNull($dispatch->route);
         $this->assertNull($dispatch->app);
@@ -167,11 +182,85 @@ final class DispatcherTest extends TestCase
         $this->assertNull($dispatch->app);
     }
 
+    public function testIntegrationWithApp()
+    {
+        $root = $this->wedetoroot;
+        $appdir = $this->wedetoroot . '/app';
+        mkdir($appdir);
+        $filename = $appdir . '/test-integration.php';
+
+        $controller = <<<PHP
+<?php
+throw new Wedeto\HTTP\Response\DataResponse([
+    'template' => \$tpl,
+    'tpl' => \$tpl,
+    'request' => \$request,
+    'app' => \$app,
+    'config' => \$config,
+    'path_config' => \$path_config,
+    'db' => \$db,
+    'arguments' => \$arguments
+]);
+PHP;
+
+        file_put_contents($filename, $controller);
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/test-integration/foo/bar';
+
+        $pc = new PathConfig($this->wedetoroot);
+        $c = new Dictionary;
+        $app = Application::setup($pc, $c);
+        $dispatch = Dispatcher::createFromApplication($app);
+        $res = $app->resolver;
+        $res->registerModule('test', $this->wedetoroot, 0);
+
+        $req = $app->request;
+        $this->assertSame($req, $dispatch->getRequest());
+        $url = $req->url;
+        $response = $dispatch->dispatch();
+        $this->assertInstanceOf(DataResponse::class, $response);
+
+        $data = $response->getData();
+
+        $tpl = $app->template;
+        $req = $app->request;
+        $res = $app->resolver;
+        $i18n = $app->i18n;
+        $db = $app->db;
+        $args = $dispatch->getArguments();
+
+        $this->assertEquals($filename, $dispatch->getApp());
+
+        $this->assertSame($pc, $data['path_config']);
+        $this->assertSame($tpl, $data['template']);
+        $this->assertSame($tpl, $data['tpl']);
+        $this->assertSame($req, $data['request']);
+        $this->assertSame($app, $data['app']);
+        $this->assertSame($c, $data['config']);
+        $this->assertSame($db, $data['db']);
+        $this->assertEquals($args, $data['arguments']);
+
+        $this->assertSame($pc, $dispatch->getVariable('path_config'));
+        $this->assertSame($tpl, $dispatch->getVariable('template'));
+        $this->assertSame($tpl, $dispatch->getVariable('tpl'));
+        $this->assertSame($req, $dispatch->getVariable('request'));
+        $this->assertSame($app, $dispatch->getVariable('app'));
+        $this->assertSame($c, $dispatch->getVariable('config'));
+        $this->assertSame($db, $dispatch->getVariable('db'));
+
+        $this->assertSame($res, $dispatch->getResolver());
+        $this->assertSame($req, $dispatch->getRequest());
+        $this->assertSame($tpl, $dispatch->getTemplate());
+        $this->assertSame($app, $dispatch->getApplication());
+    }
+
     public function testRoutingInvalidHostIgnorePolicy()
     {
         $this->server['REQUEST_SCHEME'] = 'https';
         $this->server['SERVER_NAME'] = 'www.example.nl';
         $this->server['REQUEST_URI'] = '/assets';
+        $this->config = [];
 
         $resolve = new MockRequestResolver();
         $this->resolver->setResolver('app', $resolve);
@@ -179,13 +268,11 @@ final class DispatcherTest extends TestCase
 
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+        $this->assertInstanceOf(Dictionary::class, $dispatch->getConfig());
         $dispatch->resolveApp();
         $this->assertEquals('/assets', $dispatch->route);
     }
 
-    /**
-     * @covers Wedeto\HTTP\Request::__construct
-     */
     public function testRoutingInvalidHostErrorPolicy()
     {
         $this->server['REQUEST_SCHEME'] = 'https';
@@ -194,6 +281,7 @@ final class DispatcherTest extends TestCase
         $this->config['site']['unknown_host_policy'] = 'ERROR';
 
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+        $this->assertSame($this->config, $dispatch->getConfig());
 
         $this->expectException(HTTPError::class);
         $this->expectExceptionCode(404);
@@ -201,9 +289,6 @@ final class DispatcherTest extends TestCase
         $dispatch->resolveApp();
     }
 
-    /**
-     * @covers Wedeto\HTTP\Request::__construct
-     */
     public function testRoutingRedirectHost()
     {
         $this->server['REQUEST_SCHEME'] = 'http';
@@ -222,12 +307,95 @@ final class DispatcherTest extends TestCase
 
         $this->expectException(RedirectRequest::class);
         $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+
+        $sites = $dispatch->getSites();
+        $this->assertTrue(is_array($sites));
+        $this->assertEquals(1, count($sites));
+        $this->assertInstanceOf(Site::class, $sites[0]);
         $dispatch->resolveApp();
     }
 
-    /**
-     * @covers Wedeto\Application\Dispatch\Dispatcher::findBestMatching
-     */
+    public function testRoutingRedirectHostWithUnknownDomain()
+    {
+        $this->server['REQUEST_SCHEME'] = 'http';
+        $this->server['SERVER_NAME'] = 'www.foo.bar';
+        $this->server['REQUEST_URI'] = '/assets';
+        $this->config['site'] = 
+            array(
+                'url' => array(
+                    'http://www.example.com',
+                    'http://www.example.nl'
+                ),
+                'language' => array('en'),
+                'unknown_host_policy' => 'REDIRECT',
+                'redirect' => array(1 => 'http://www.example.com/')
+            );
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
+
+        $this->expectException(RedirectRequest::class);
+        $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+
+        $sites = $dispatch->getSites();
+        $this->assertTrue(is_array($sites));
+        $this->assertEquals(1, count($sites));
+        $this->assertInstanceOf(Site::class, $sites[0]);
+
+        $dispatch->resolveApp();
+    }
+
+    public function testRoutingFailsThrowsException()
+    {
+        $pathconfig = Application::pathConfig();
+        $testpath = $pathconfig->root . '/app';
+        Path::mkdir($testpath);
+        Path::mkdir($testpath . '/foo');
+
+        $filename = $testpath . '/foo/baz.php';
+        file_put_contents($filename, '<?php echo \'foo\'; ?>');
+
+        $this->resolver->registerModule('test', $this->wedetoroot, 0);
+        $this->server['REQUEST_SCHEME'] = 'http';
+        $this->server['REQUEST_URI'] = '/foo/bar';
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
+
+        $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+
+        $response = $dispatch->dispatch();
+        $this->assertInstanceOf(HTTPError::class, $response);
+        $this->assertContains('Could not resolve', $response->getMessage());
+    }
+
+    public function testBadControllerThrowsException()
+    {
+        $pathconfig = Application::pathConfig();
+        $testpath = $pathconfig->root . '/app';
+        Path::mkdir($testpath);
+        $filename = $testpath . '/baz.php';
+        file_put_contents($filename, '<?php throw new LogicException("boo");');
+
+        $this->resolver->registerModule('test', $this->wedetoroot, 0);
+        $this->server['REQUEST_SCHEME'] = 'http';
+        $this->server['REQUEST_URI'] = '/baz';
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
+
+        $dispatch = new Dispatcher($this->request, $this->resolver, $this->config);
+
+        $response = $dispatch->dispatch();
+        $this->assertInstanceOf(HTTPError::class, $response);
+        $this->assertContains('Exception of type LogicException thrown', $response->getMessage());
+
+        // Validate some other types
+        $this->server['HTTP_ACCEPT'] = 'text/html';
+        $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);
+        $dispatch->setRequest($this->request);
+        $response = $dispatch->dispatch();
+
+        $this->assertInstanceOf(HTTPError::class, $response);
+        $sub = $response->getResponse();
+        $this->assertInstanceOf(StringResponse::class, $sub);
+        $this->assertContains('foobar', $sub->getOutput('text/plain'));
+    }
+
     public function testNoSiteConfig()
     {
         $this->server['REQUEST_SCHEME'] = 'https';

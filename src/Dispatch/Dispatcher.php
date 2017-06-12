@@ -126,10 +126,7 @@ class Dispatcher
     public static function createFromApplication(Application $app)
     {
         $dispatch = new static($app->request, $app->resolver, $app->config);
-        $dispatch->setVariable('app', $app);
-        $dispatch->setVariable('path_config', $app->pathConfig);
-        $dispatch->setVariable('i18n', $app->i18n);
-        $dispatch->setVariable('db', $app->db);
+        $dispatch->setApplication($app);
         return $dispatch;
     }
 
@@ -230,16 +227,6 @@ class Dispatcher
     }
 
     /**
-     * Set the arguments passed to the script
-     * @param Dictionary $arguments The arguments to the script
-     */
-    public function setArguments(Dictionary $arguments)
-    {
-        $this->arguments = $arguments;
-        return $this;
-    }
-
-    /**
      * @return Wedeto\HTTP\Request the request being served
      */
     public function getRequest()
@@ -279,7 +266,7 @@ class Dispatcher
      */
     public function getVariable(string $name)
     {
-        return $this->variable[$name];
+        return $this->variables[$name];
     }
 
     /**
@@ -365,7 +352,12 @@ class Dispatcher
      */
     public function setApplication(Application $app)
     {
-        $this->variables['app'] = $app;
+        $this
+            ->setTemplate($app->template)
+            ->setVariable('app', $app)
+            ->setVariable('path_config', $app->pathConfig)
+            ->setVariable('i18n', $app->i18n)
+            ->setVariable('db', $app->db);
         return $this;
     }
 
@@ -404,7 +396,7 @@ class Dispatcher
         catch (Throwable $e)
         {
             if (!($e instanceof Response))
-                $e = new HTTPError(500, "Exception thrown", null, $e);
+                $e = new HTTPError(500, "Exception of type " . get_class($e) . " thrown: " . $e->getMessage(), null, $e);
 
             if ($e instanceof HTTPError)
                 $this->prepareErrorResponse($e);
@@ -468,6 +460,7 @@ class Dispatcher
      * Find out which VirtualHost was targeted and redirect if configuration
      * requests so.
      *
+     * @return Dispatcher Provides fluent interface
      * @throws Throwable Various exceptions depending on the configuration - 
      *                   Error(404) when the configuration says to prohibit use of
      *                   unknown hosts, RedirectRequest when a redirect to a different
@@ -506,7 +499,8 @@ class Dispatcher
             if ($target)
                 throw new RedirectRequest($target, 301);
         }
-        $this->vhost = $vhost;
+        $this->setVirtualHost($vhost);
+        return $this;
     }
 
     /** 

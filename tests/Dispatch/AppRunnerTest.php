@@ -171,7 +171,10 @@ EOT;
         file_put_contents($this->filename, $phpcode);
 
         $apprunner = new AppRunner($this->filename);
-        $apprunner->setVariable('tpl', new MockAppRunnerTemplate);
+        $tpl = new MockAppRunnerTemplate;
+        $this->assertSame($apprunner, $apprunner->setVariables(['tpl' => $tpl]));
+
+        $this->assertSame($tpl, $apprunner->getVariable('tpl'));
 
         try
         {
@@ -253,6 +256,41 @@ EOT;
         }
     }
 
+    public function testAppReturnsObjectSuffixStripped()
+    {
+        $classname = $this->classname;
+        $phpcode = <<<EOT
+<?php
+
+use Wedeto\HTTP\Response\StringResponse;
+
+class {$classname}
+{
+    public \$arguments;
+
+    public function foo()
+    {
+        \$remain = \$this->arguments->getAll();
+        return new StringResponse(implode(",", \$remain), "text/plain");
+    }
+}
+
+return new {$classname}();
+EOT;
+        file_put_contents($this->filename, $phpcode);
+
+        $apprunner = new AppRunner($this->filename, new Dictionary(['foo.bar', 'bar', 'baz']));
+
+        try
+        {
+            $apprunner->execute();
+        }
+        catch (StringResponse $e)
+        {
+            $this->assertEquals("bar,baz", $e->getOutput('text/plain'));
+        }
+    }
+
     public function testAppReturnsObjectWithIndex()
     {
         $classname = $this->classname;
@@ -276,7 +314,8 @@ return new {$classname}();
 EOT;
         file_put_contents($this->filename, $phpcode);
 
-        $apprunner = new AppRunner($this->filename, ['foo', 'bar', 'baz']);
+        $apprunner = new AppRunner($this->filename);
+        $this->assertSame($apprunner, $apprunner->setArguments(new Dictionary(['foo', 'bar', 'baz'])));
 
         try
         {
@@ -402,8 +441,13 @@ EOT;
         file_put_contents($this->filename, $phpcode);
 
         $apprunner = new AppRunner($this->filename, ['foo', 'bar', 'baz']);
-        $apprunner->setVariable('arg1', Request::createFromGlobals());
-        $apprunner->setVariable('arg2', new MockAppRunnerTemplate);
+        $req = Request::createFromGlobals();
+        $tpl = new MockAppRunnerTemplate;
+        $this->assertSame($apprunner, $apprunner->setVariable('arg1', $req));
+        $this->assertSame($apprunner, $apprunner->setVariable('arg2', $tpl));
+
+        $this->assertSame($req, $apprunner->getVariable('arg1'));
+        $this->assertSame($tpl, $apprunner->getVariable('arg2'));
 
         try
         {
@@ -733,6 +777,48 @@ EOT;
         $this->expectException(HttpError::class);
         $this->expectExceptionMessage("Invalid arguments - missing identifier as argument 2");
         $apprunner->execute();
+    }
+
+    public function testAppContainsObjectWithSetLoggerMethod()
+    {
+        $classname = $this->classname;
+        $phpcode = <<<EOT
+<?php
+use Wedeto\HTTP\Response\StringResponse;
+
+class {$classname}
+{
+    private \$log = null;
+    public \$logger = null;
+
+    public function foo()
+    {
+        \$op_str = \$this->log === null ? 'false' : 'true';
+        \$op_str .= ',' . (\$this->logger === null ? 'false' : 'true');
+        \$op_str .= ',' . (\$this->logger === \$this->log ? 'true' : 'false');
+
+        return new StringResponse(\$op_str, 'text/plain');
+    }
+    
+    public function setLogger(\$log)
+    {
+        \$this->log = \$log;
+    }
+}
+
+return new $classname();
+EOT;
+        file_put_contents($this->filename, $phpcode);
+
+        $apprunner = new AppRunner($this->filename, ['foo']);
+        try
+        {
+            $apprunner->execute();
+        }
+        catch (StringResponse $e)
+        {
+            $this->assertEquals('true,true,true', $e->getOutput('text/plain'));
+        }
     }
 }
 

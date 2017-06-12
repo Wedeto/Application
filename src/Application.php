@@ -35,6 +35,7 @@ use Wedeto\IO\Path;
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
 use Wedeto\Util\ErrorInterceptor;
+use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\{Logger, LoggerFactory};
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter};
@@ -56,21 +57,26 @@ if (!defined('WEDETO_TEST'))
 
 class Application
 {
+    use LoggerAwareStaticTrait;
+
     private static $instance = null;
 
     protected $autoloader = null;
     protected $bootstrapped = false;
-    protected $path_config;
+
     protected $config;
-    protected $request;
-    protected $resolver;
+    protected $db;
     protected $dispatcher;
     protected $i18n;
-    protected $template;
     protected $module_manager;
+    protected $path_config;
+    protected $resolver;
+    protected $request;
+    protected $template;
 
     public static function setup(PathConfig $path, Dictionary $config)
     {
+        self::getLogger();
         //if (self::$instance !== null)
         //    throw new RuntimeException("Cannot initialize more than once");
 
@@ -165,8 +171,7 @@ class Application
         // Log beginning of request handling
         if (isset($_SERVER['REQUEST_URI']))
         {
-            Log\debug(
-                "Wedeto.Application", 
+            self::$logger->debug(
                 "*** Starting processing for {0} request to {1}", 
                 [$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']]
             );
@@ -222,6 +227,8 @@ class Application
                 if ($this->module_manager === null)
                     $this->module_manager = new Module\Manager($this->resolver);
                 return $this->module_manager;
+            case "db":
+                return $this->db;
             case "i18n":
                 if ($this->i18n === null)
                 {

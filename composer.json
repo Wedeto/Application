@@ -14,7 +14,7 @@
         "Wedeto/IO": "^0.9.4",
         "Wedeto/Log": "^0.9.5",
         "Wedeto/Mail": "0.9.*",
-        "Wedeto/Resolve": "^0.9.1",
+        "Wedeto/Resolve": "^0.9.3",
         "Wedeto/Util": "^0.9.4",
         "php": ">=7.0.0"
     },
