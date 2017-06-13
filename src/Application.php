@@ -34,6 +34,7 @@ use Wedeto\IO\Path;
 
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
+use Wedeto\Util\Hook;
 use Wedeto\Util\ErrorInterceptor;
 use Wedeto\Util\LoggerAwareStaticTrait;
 
@@ -51,6 +52,8 @@ use Wedeto\HTTP\Error as HTTPError;
 
 use Wedeto\I18n\I18n;
 use Wedeto\I18n\Translator\TranslationLogger;
+
+use Wedeto\HTTP\Responder;
 
 // @codeCoverageIgnoreStart
 if (!defined('WEDETO_TEST'))
@@ -230,16 +233,12 @@ class Application
                 if ($this->i18n === null)
                 {
                     $this->i18n = new I18n;
-                    $this->i18n->registerTextDomain('core', $this->path_config->root . '/language');
+                    //$this->i18n->registerTextDomain('core', $this->path_config->root . '/language');
                 }
                 return $this->i18n;
             case "dispatcher":
                 if ($this->dispatcher === null)
-                {
-                    $this->dispatcher = new Dispatcher($this->get('request'), $this->resolver, $this->config);
-                    $this->dispatcher->configureSites($this->config);
-                    $this->dispatcher->determineVirtualHost();
-                }
+                    $this->dispatcher = Dispatcher::createFromApplication($this);
                 return $this->dispatcher;
             case "template":
                 if ($this->template === null)
@@ -363,7 +362,7 @@ class Application
      */
     public function handleWebRequest()
     {
-        $rb = new Responder($this->request);
+        $responder = new Responder($this->request);
 
         if ($this->config->get('dev'))
         {
@@ -378,11 +377,16 @@ class Application
                 );
             }
         }
+
+        $dispatcher = $this->get('dispatcher');
+        $asset_manager = $dispatcher->getTemplate()->getAssetManager();
+        $response = $dispatcher->dispatch();
+        $responder->setResponse($response);
         $session_cookie = $this->request->session !== null ? $this->request->session->getCookie() : null;
         if ($session_cookie)
-            $rb->addCookie($session_cookie);
-        $rb->setResponse($e);
-        $rb->respond();
+            $responder->addCookie($session_cookie);
+
+        $responder->respond();
     }
 
     /**

@@ -28,7 +28,7 @@ use Wedeto\HTTP\CachePolicy;
 use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\Response\FileResponse;
 
-$path = implode("/", $url_args->getAll());
+$path = implode("/", $arguments->getAll());
 
 $qpos = strpos($path, "?");
 $query = null;
@@ -60,7 +60,7 @@ $ext = null;
 if ($extpos !== false)
     $ext = strtolower(substr($path, $extpos + 1));
 
-$full_path = $resolver->asset($path);
+$full_path = $resolver->resolve('assets', $path);
 
 if ($full_path)
 {

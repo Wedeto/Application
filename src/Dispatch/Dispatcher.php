@@ -116,6 +116,7 @@ class Dispatcher
         $this->setRequest($request);
         $this->setResolveManager($resolver);
         $this->setConfig($config);
+        $this->getTemplate();
     }
 
     /**
@@ -353,7 +354,6 @@ class Dispatcher
     public function setApplication(Application $app)
     {
         $this
-            ->setTemplate($app->template)
             ->setVariable('app', $app)
             ->setVariable('path_config', $app->pathConfig)
             ->setVariable('i18n', $app->i18n)
