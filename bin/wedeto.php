@@ -1,27 +1,40 @@
 <?php
 
-use Wedeto\Platform\CLI;
-use Wedeto\Platform\TaskRunner;
+use Wedeto\Application\Application;
+use Wedeto\Application\PathConfig;
+use Wedeto\Application\CLI\CLI;
+use Wedeto\Application\Task\TaskRunner;
 use Wedeto\Util\Dictionary;
-use Wedeto\IO\Resolve;
 
-require_once "../bootstrap/init.php";
+$my_dir = dirname(__FILE__);
+$parent_dir = dirname($my_dir);
 
-$a = new CLI;
-$a->addOption("r", "run", "action", "Run the specified task");
-$a->addOption("s", "list", false, "List the available tasks");
-$opts = $a->parse($_SERVER['argv']);
-
-if (isset($opts['help']))
-    $a->syntax("");
-
-if ($opts->has('list'))
+if (!class_exists(Application::class))
 {
-    TaskRunner::listTasks();
-    exit();
+    if (file_exists($parent_dir . '/autoload.php'))
+        require_once $parent_dir . '/autoload.php';
+    elseif (file_exists($parent_dir . '/vendor/autoload.php'))
+        require_once $parent_dir . '/vendor/autoload.php';
+    else
+        throw new \RuntimeException("Cannot load autoloader");
+
+    if (!class_exists(Application::class))
+        throw new \RuntimeException("Cannot load application");
 }
 
-if (!$opts->has('run'))
-    $a->syntax("Please specify the action to run");
+$pathconfig = new PathConfig;
+$ini_file = $pathconfig->config . '/main.ini';
 
-TaskRunner::run($opts->get('run'));
+if (file_exists($ini_file))
+{
+    $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
+    $config = new Dictionary($config);
+}
+else
+{
+    $config = new Dictionary;
+}
+
+$app = Application::setup($pathconfig, $config);
+
+$app->handleCLIRequest();

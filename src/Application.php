@@ -52,8 +52,10 @@ use Wedeto\HTTP\Error as HTTPError;
 use Wedeto\I18n\I18n;
 use Wedeto\I18n\Translator\TranslationLogger;
 
+// @codeCoverageIgnoreStart
 if (!defined('WEDETO_TEST'))
     define('WEDETO_TEST', 0);
+// @codeCoverageIgnoreEnd
 
 class Application
 {
@@ -62,7 +64,6 @@ class Application
     private static $instance = null;
 
     protected $autoloader = null;
-    protected $bootstrapped = false;
 
     protected $config;
     protected $db;
@@ -76,7 +77,7 @@ class Application
 
     public static function setup(PathConfig $path, Dictionary $config)
     {
-        self::getLogger();
+        self::setLogger(Logger::getLogger(static::class));
         //if (self::$instance !== null)
         //    throw new RuntimeException("Cannot initialize more than once");
 
@@ -102,7 +103,7 @@ class Application
 
     public static function setInstance(Application $application = null)
     {
-        self::$application = $application;
+        self::$instance = $application;
     }
 
     private function __construct(PathConfig $path_config, Dictionary $config)
@@ -112,11 +113,8 @@ class Application
         $this->bootstrap();
     }
 
-    public function bootstrap()
+    protected function bootstrap()
     {
-        if ($this->bootstrapped)
-            throw new RuntimeException("Cannot bootstrap more than once");
-
         // Set character set
         ini_set('default_charset', 'UTF-8');
         mb_internal_encoding('UTF-8');
@@ -164,8 +162,8 @@ class Application
         // Attach the dev logger when dev-mode is enabled
         if ($this->config->get('site', 'dev'))
         {
-            $devlogger = new MemLogger(LogLevel::DEBUG);
-            $root_logger->addLogHandler($devlogger);
+            $devlogger = new MemLogWriter(LogLevel::DEBUG);
+            $root_logger->addLogWriter($devlogger);
         }
 
         // Log beginning of request handling
@@ -183,7 +181,11 @@ class Application
             $limit = (int)$this->config->dget('cli', 'memory_limit', 1024);
             ini_set('memory_limit', $limit . 'M');
             ini_set('max_execution_time', 0);
+
+            ini_set('display_errors', 1);
         }
+        else
+            ini_set('display_errors', 0);
 
 
         // Save the cache if configured so
@@ -191,13 +193,10 @@ class Application
         Cache::setHook($this->config->dget('cache', 'expiry', 60));
 
         // Find installed modules and initialize them
-        Module\Manager::setup($this->resolver);
+        $this->module_manager = new Module\Manager($this->resolver);
 
         // Prepare the HTTP Request Object
         $this->request = Request::createFromGlobals();
-
-        // Do not run again
-        $this->bootstrapped = true;
     }
     
     public static function __callStatic($func, $arguments)
@@ -224,8 +223,6 @@ class Application
             case "resolver":
                 return $this->resolver;
             case "moduleManager":
-                if ($this->module_manager === null)
-                    $this->module_manager = new Module\Manager($this->resolver);
                 return $this->module_manager;
             case "db":
                 return $this->db;
@@ -333,6 +330,7 @@ class Application
             ->addResolverType('template', 'template', '.php')
             ->addResolverType('assets', 'assets')
             ->addResolverType('app', 'app')
+            ->addResolverType('code', 'src')
             ->setResolver("app", new Router("router"));
 
         spl_autoload_register(array($this->autoloader, 'autoload'), true, true);
@@ -359,6 +357,10 @@ class Application
         }
     }
 
+    /**
+     * Handle an incoming web request: parse it, route it, execute the controller and
+     * send the response back.
+     */
     public function handleWebRequest()
     {
         $rb = new Responder($this->request);
@@ -381,5 +383,31 @@ class Application
             $rb->addCookie($session_cookie);
         $rb->setResponse($e);
         $rb->respond();
+    }
+
+    /**
+     * Handle a CLI request: parse the command line options and send it off to the task runner
+     */
+    public function handleCLIRequest()
+    {
+        $cli = new CLI\CLI;
+        $cli->addOption("r", "run", "action", "Run the specified task");
+        $cli->addOption("s", "list", false, "List the available tasks");
+        $opts = $cli->parse($_SERVER['argv']);
+
+        if (isset($opts['help']))
+            $cli->syntax("");
+
+        $taskrunner = new Task\TaskRunner($this);
+        if ($opts->has('list'))
+        {
+            $taskrunner->listTasks();
+            exit();
+        }
+
+        if (!$opts->has('run'))
+            $cli->syntax("Please specify the action to run");
+
+        $taskrunner->run($opts->get('run'));
     }
 }

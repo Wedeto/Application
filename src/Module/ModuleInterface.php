@@ -31,13 +31,16 @@ namespace Wedeto\Application\Module;
  * <ModuleName>\Module will be loaded when it exists, and if it implements
  * this interface, it will be instantiated.
  */
-interface Module
+interface ModuleInterface
 {
     /**
-     * Store the name and path of the module, and run any
-     * required initialization code.
+     * Store the name and path of the module, and run any required
+     * initialization code.
+     *
+     * @param string $name The name of the module
+     * @param string $path The path to the module
      */
-    public function __construct($name, $path);
+    public function __construct(string $name, string $path);
 
     /**
      * Called in order to allow the module to register tasks for the scheduler

@@ -36,42 +36,53 @@ class Manager
 {
     use LoggerAwareStaticTrait;
 
-    private static $initialized = false;
-    private static $modules = array();
+    protected $modules = array();
 
     /** 
      * Find and initialize installed modules in the module path
      *
      * @param ResolveManager $resolver The resolver that find modules
      */
-    public static function setup(ResolveManager $manager)
+    public function __construct(ResolveManager $manager)
     {
-        if (self::$initialized)
-            return;
-
         self::getLogger();
         $modules = $manager->getModules();
 
         foreach ($modules as $mod_name => $path)
         {
             self::$logger->debug("Found module {0} in path {1}", [$mod_name, $path]);
-            $manager->registerModule($mod_name, $path, 0);
-            self::$modules[$mod_name] = $path;
 
             // Create the module object, using the module implementation if available
             $load_class = BasicModule::class;
-            $mod_class = $mod_name . '\\Module';
-            if (class_exists($mod_class))
+
+            $init = $path . '/src/initModule.php';
+
+            $module_instance = null;
+            if (file_exists($init))
             {
-                if (is_subclass_of($mod_class, Module::class))
-                    $load_class = $mod_class;
-                else
-                    self::$logger->warn('Module {0} has class {1} but it does not implement {2}', [$mod_name, $mod_class, Module::class]);
+                $result = include $init;
+                if ($result instanceof ModuleInterface)
+                {
+                    $module_instance = $result;
+                }
+                elseif (is_string($result) && class_exists($result))
+                {
+                    $module_instance = new $result($mod_name, $path);
+                }
+                elseif (!empty($result) && $result !== 1)
+                {
+                    self::getLogger()->warning(
+                        'Module {0} has init file {1} which returns a value that is not a ModuleInterface instance: {2}', 
+                        [$mod_name, $init, $result]
+                    );
+                }
             }
 
-            self::$modules[$mod_name] = new $load_class($mod_name, $path);
+            if ($module_instance === null)
+                $module_instance = new BasicModule($mod_name, $path);
+
+            $this->modules[$mod_name] = $module_instance;
         }
-        self::$initialized = true;
     }
 
     /**
@@ -79,11 +90,8 @@ class Manager
      *
      * @return array A list of Wedeto\Module objects
      */
-    public static function getModules()
+    public function getModules()
     {
-        if (!self::$initialized)
-            throw new \RuntimeException("You need to initialize the module manager before using it");
-
-        return array_values(self::$modules);
+        return $this->modules;
     }
 }

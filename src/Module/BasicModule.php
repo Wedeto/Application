@@ -26,16 +26,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application\Module;
 
 /**
- * The BasicModule implements the Module interface and will be used
- * as a fallback class for the module manager when the module does not
- * implement its own module class.
+ * The BasicModule implements ModuleInterface and will be used as a fallback
+ * class for the module manager when the module does not implement its own
+ * module class.
  */
-class BasicModule implements Module
+class BasicModule implements ModuleInterface
 {
     protected $name;
     protected $path;
 
-    public function __construct($name, $path)
+    /**
+     * @inheritDoc
+     */
+    public function __construct(string $name, string $path)
     {
         $this->name = $name;
         $this->path = $path;
