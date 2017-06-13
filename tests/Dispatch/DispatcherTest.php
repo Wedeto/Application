@@ -225,7 +225,7 @@ PHP;
 
         $data = $response->getData();
 
-        $tpl = $app->template;
+        $tpl = $dispatch->getTemplate();
         $req = $app->request;
         $res = $app->resolver;
         $i18n = $app->i18n;

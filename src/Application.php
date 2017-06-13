@@ -31,10 +31,12 @@ use InvalidArgumentException;
 use Psr\Log\LogLevel;
 
 use Wedeto\IO\Path;
+use Wedeto\IO\PermissionError;
 
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
 use Wedeto\Util\Hook;
+use Wedeto\Util\Functions as WF;
 use Wedeto\Util\ErrorInterceptor;
 use Wedeto\Util\LoggerAwareStaticTrait;
 
@@ -78,12 +80,9 @@ class Application
     protected $request;
     protected $template;
 
-    public static function setup(PathConfig $path, Dictionary $config)
+    public static function setup(PathConfig $path, Dictionary $config = null)
     {
         self::setLogger(Logger::getLogger(static::class));
-        //if (self::$instance !== null)
-        //    throw new RuntimeException("Cannot initialize more than once");
-
         self::$instance = new Application($path, $config);
 
         // Attach the error handler - all PHP Errors should be thrown as Exceptions
@@ -109,10 +108,10 @@ class Application
         self::$instance = $application;
     }
 
-    private function __construct(PathConfig $path_config, Dictionary $config)
+    private function __construct(PathConfig $path_config, Dictionary $config = null)
     {
         $this->path_config = $path_config;
-        $this->config = $config;
+        $this->config = $config ?? new Dictionary;
         $this->bootstrap();
     }
 
@@ -127,6 +126,16 @@ class Application
 
         $test = defined('WEDETO_TEST') && WEDETO_TEST === 1;
 
+        // Make sure permissions are adequate
+        try
+        {
+            $this->path_config->checkPaths();
+        }
+        catch (PermissionError $e)
+        {
+            return $this->showPermissionError($e);
+        }
+
         if (PHP_SAPI === 'cli')
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
         else
@@ -138,14 +147,16 @@ class Application
         // Set default permissions for files and directories
         $this->setCreatePermissions();
 
-        // Make sure permissions are adequate
-        try
+        // Load configuration
+        $ini_file = $this->path_config->config . '/main.ini';
+        if (file_exists($ini_file))
         {
-            $this->path_config->checkPaths();
-        }
-        catch (PermissionError $e)
-        {
-            return $this->showPermissionError($e);
+            $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
+            if ($config !== false)
+            {
+                $ini_config = new Dictionary($config);
+                $this->config->merge($ini_config);
+            }
         }
 
         // Autoloader requires manual logger setup to avoid depending on external files
@@ -264,7 +275,7 @@ class Application
 
     private function showPermissionError(PermissionError $e)
     {
-        $dev = $this->config->get('site', 'dev');
+        $dev = $this->config->dget('site', 'dev', true);
 
         if (PHP_SAPI !== "CLI")
         {
@@ -277,7 +288,7 @@ class Application
             $file = $e->path;
             echo "{$e->getMessage()}\n";
             echo "\n";
-            echo WF::str($e, $html);
+            echo WF::str($e, false);
         }
         else
         {

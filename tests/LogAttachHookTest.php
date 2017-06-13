@@ -53,6 +53,10 @@ class LogAttachHookTest extends TestCase
         $root->addLogWriter($this->memlogger);
 
         $this->resolver = new ResolveManager();
+        $this->resolver
+            ->addResolverType('assets', 'assets')
+            ->addResolverType('template', 'template');
+
         $req = Request::createFromGlobals();
         $this->dispatcher = new Dispatcher($req, $this->resolver);
         $this->lahook = new LogAttachHook($this->memlogger, $this->dispatcher);
