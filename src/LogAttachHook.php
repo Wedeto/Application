@@ -26,8 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application;
 
 use Wedeto\Util\Hook;
-use Wedeto\Util\TypedDictionary;
+use Wedeto\Util\Dictionary;
 use Wedeto\Util\Date;
+
+use Wedeto\HTTP\Response\{StringResponse, DataResponse};
+
+use Wedeto\Application\Dispatch\Dispatcher;
 
 use Wedeto\Log\Writer\MemLogWriter;
 
@@ -49,8 +53,7 @@ class LogAttachHook
      */
     public function __construct(MemLogWriter $logger, Dispatcher $dispatcher)
     {
-        $this->memlog = $logger;
-        $this->dispatcher = $dispatcher;
+        $this->setDispatcher($dispatcher)->setMemLogWriter($logger);
     }
 
     /**
@@ -77,7 +80,7 @@ class LogAttachHook
      * @return MemLogWriter The MemLogWriter instance that is used to obtain
      * the log
      */
-    public function getMemLog()
+    public function getMemLogWriter()
     {
         return $this->memlog;
     }
@@ -87,7 +90,7 @@ class LogAttachHook
      * @param MemLogWriter $logger The logger
      * @return LogAttachHook Provides fluent interface
      */
-    public function setMemLog(MemLogger $logger)
+    public function setMemLogWriter(MemLogWriter $logger)
     {
         $this->memlog = $logger;
         return $this;
@@ -98,13 +101,13 @@ class LogAttachHook
      * JSON/XML request Do note that this should only be used for development
      * as the log may expose sensitive information to the client.
      * 
-     * @param TypedDictionary $params Expected to contain 'responder', the Responder object
+     * @param Dictionary $params Expected to contain 'responder', the Responder object
      */
-    public function __invoke(TypedDictionary $params)
+    public function __invoke(Dictionary $params)
     {
         $responder = $params['responder'];
-        $request = $responder->getResponse();
-        $response = $params['response'];
+        $request = $responder->getRequest();
+        $response = $responder->getResponse();
 
         // Calculate elapsed time
         $now = Date::now();
@@ -113,9 +116,10 @@ class LogAttachHook
 
         // Add log
         $log = $this->memlog->getLog();
+        $str = \Wedeto\Util\Functions::str($response);
         if ($response instanceof DataResponse)
         {
-            $response->getDictionary()->set('devlog', $log);
+            $response->getData()->set('devlog', $log);
         }
         elseif ($response instanceof StringResponse)
         {
@@ -124,11 +128,11 @@ class LogAttachHook
 
             if (in_array('text/html', $mime))
             {
-                fprintf($buf, "\n<!-- DEVELOPMENT LOG-->\n");
+                fprintf($buf, "\n<!-- DEVELOPMENT LOG -->\n");
                 fprintf($buf, "<!-- Executed in: %s s -->\n", $duration);
-                fprintf($buf, "<!-- Route resolved: %s -->\n", $this->dispather->getRoute());
+                fprintf($buf, "<!-- Route resolved: %s -->\n", $this->dispatcher->getRoute());
                 fprintf($buf, "<!-- App executed: %s -->\n", $this->dispatcher->getApp());
-                $width = strlen((string)count($this->log)) + 1;
+                $width = strlen((string)count($log)) + 1;
                 foreach ($log as $no => $line)
                     fprintf($buf, "<!-- %0" . $width . "d: %s -->\n", $no, htmlentities($line));
 
@@ -140,9 +144,9 @@ class LogAttachHook
             if (in_array('text/plain', $mime))
             {
                 fprintf($buf, "\n// DEVELOPMENT LOG\n");
-                fprintf($buf, "// Executed in: %s\n", $duration);
+                fprintf($buf, "// Executed in: %s s\n", $duration);
                 fprintf($buf, "// Route resolved: %s\n", $this->dispatcher->getRoute());
-                fprintf($buf, "// App executed: %s>\n", $this->dispatcher->getApp());
+                fprintf($buf, "// App executed: %s\n", $this->dispatcher->getApp());
                 foreach ($log as $no => $line)
                     fprintf($buf, "// %05d: %s\n", $no, $line);
 
