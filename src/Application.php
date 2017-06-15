@@ -58,6 +58,8 @@ use Wedeto\I18n\Translator\TranslationLogger;
 
 use Wedeto\HTTP\Responder;
 
+use Wedeto\DB\DB;
+
 // @codeCoverageIgnoreStart
 if (!defined('WEDETO_TEST'))
     define('WEDETO_TEST', 0);
