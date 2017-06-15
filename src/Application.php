@@ -35,6 +35,7 @@ use Wedeto\IO\PermissionError;
 
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
+use Wedeto\Util\Type;
 use Wedeto\Util\Hook;
 use Wedeto\Util\Functions as WF;
 use Wedeto\Util\ErrorInterceptor;

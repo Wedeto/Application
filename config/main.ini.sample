@@ -29,10 +29,14 @@ url_en = "example.com;example.net"
 url_nl = "example.nl"
 
 [path]
-template = ""
-app = ""
-assets = ""
-uploads = ""
+;root = ""
+;config = ""
+;webroot = ""
+;assets = ""
+;var = ""
+;cache = ""
+;log = ""
+;uploads = ""
 
 [image]
 max_dimension = 1600
