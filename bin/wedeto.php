@@ -6,16 +6,42 @@ use Wedeto\Application\CLI\CLI;
 use Wedeto\Application\Task\TaskRunner;
 use Wedeto\Util\Dictionary;
 
-$my_dir = dirname(__FILE__);
+$my_dir = dirname(getcwd() . DIRECTORY_SEPARATOR . $_SERVER['argv'][0]);
 $parent_dir = dirname($my_dir);
 
 if (!class_exists(Application::class))
 {
-    if (file_exists($parent_dir . '/autoload.php'))
-        require_once $parent_dir . '/autoload.php';
-    elseif (file_exists($parent_dir . '/vendor/autoload.php'))
-        require_once $parent_dir . '/vendor/autoload.php';
-    else
+    $paths = [
+        $my_dir,
+        $parent_dir,
+        $parent_dir . '/vendor'
+    ];
+
+    while (true)
+    {
+        $parent_dir = dirname($parent_dir);
+        $name = basename($parent_dir);
+
+        if (empty($name))
+            break;
+
+        if ($name === 'vendor')
+            $paths[] = $parent_dir;
+    }
+
+    $found_autoloader = false;
+    foreach ($paths as $path)
+    {
+        $file = $path . DIRECTORY_SEPARATOR . 'autoload.php';
+        echo $file . "\n";
+        if (file_exists($file))
+        {
+            require_once $file;
+            $found_autoloader = true;
+        }
+    }
+
+    if (!$found_autoloader)
         throw new \RuntimeException("Cannot load autoloader");
 
     if (!class_exists(Application::class))
