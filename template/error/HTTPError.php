@@ -62,7 +62,6 @@ elseif (method_exists($exception, 'getUserMessage'))
         $error_description .= "\n\nDescription: " . $user_message;
 }
 
-$type_name = str_replace("/", "_" ,$type) . ".php";
-require tpl('error/text_html');
+require tpl('error/HTMLErrorTemplate');
 
 ?>

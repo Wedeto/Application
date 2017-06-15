@@ -155,7 +155,7 @@ class Application
             if ($config !== false)
             {
                 $ini_config = new Dictionary($config);
-                $this->config->merge($ini_config);
+                $this->config->addAll($ini_config);
             }
         }
 
