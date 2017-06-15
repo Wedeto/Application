@@ -230,6 +230,16 @@ class Application
         return $this->get($parameter);
     }
 
+    public function getDB()
+    {
+        if ($this->db === null)
+        {
+            if ($this->config->has('sql', Type::ARRAY))
+                $this->db = DB::get($this->config);
+        }
+        return $this->db;
+    }
+
     public function get($parameter)
     {
         switch ($parameter)
@@ -245,7 +255,7 @@ class Application
             case "moduleManager":
                 return $this->module_manager;
             case "db":
-                return $this->db;
+                return $this->getDB();
             case "i18n":
                 if ($this->i18n === null)
                 {
