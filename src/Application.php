@@ -277,7 +277,7 @@ class Application
     {
         $dev = $this->config->dget('site', 'dev', true);
 
-        if (PHP_SAPI !== "CLI")
+        if (PHP_SAPI !== "cli")
         {
             http_response_code(500);
             header("Content-type: text/plain");
