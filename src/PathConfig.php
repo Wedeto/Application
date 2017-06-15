@@ -205,9 +205,6 @@ class PathConfig
      */
     public function __get($field)
     {
-        if (!$this->path_checked)
-            $this->checkPaths();
-
         if (!property_exists($this, $field))
             throw new \InvalidArgumentException("Invalid path: $field");
 

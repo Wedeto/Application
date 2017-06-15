@@ -126,6 +126,23 @@ class Application
 
         $test = defined('WEDETO_TEST') && WEDETO_TEST === 1;
 
+        // Load configuration
+        $ini_file = $this->path_config->config . '/main.ini';
+        if (file_exists($ini_file))
+        {
+            $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
+            if ($config !== false)
+            {
+                $ini_config = new Dictionary($config);
+                $this->config->addAll($ini_config);
+                if ($ini_config->has('path', Type::ARRAY))
+                {
+                    foreach ($ini_config->get('path') as $element => $path)
+                        $this->path_config->$element = $path;
+                }
+            }
+        }
+
         // Make sure permissions are adequate
         try
         {
@@ -146,18 +163,6 @@ class Application
 
         // Set default permissions for files and directories
         $this->setCreatePermissions();
-
-        // Load configuration
-        $ini_file = $this->path_config->config . '/main.ini';
-        if (file_exists($ini_file))
-        {
-            $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
-            if ($config !== false)
-            {
-                $ini_config = new Dictionary($config);
-                $this->config->addAll($ini_config);
-            }
-        }
 
         // Autoloader requires manual logger setup to avoid depending on external files
         LoggerFactory::setLoggerFactory(new LoggerFactory());

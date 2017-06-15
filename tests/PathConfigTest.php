@@ -152,6 +152,7 @@ final class PathConfigTest extends TestCase
         $tgt_path = $this->wedetoroot . DIRECTORY_SEPARATOR . 'foo' . DIRECTORY_SEPARATOR . 'var';
         $pc->var = $tgt_path;
         $this->assertEquals($tgt_path, $pc->var);
+        $pc->checkPaths();
         $this->assertTrue(is_dir($tgt_path));
     }
 
