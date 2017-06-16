@@ -37,7 +37,7 @@
         "exclude": ["/tests","/phpunit.xml"]
     },
     "bin": [
-        "bin/wedeto.php"
+        "bin/wedeto.php",
         "bin/setup.php"
     ]
 }
