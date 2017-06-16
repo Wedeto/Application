@@ -38,5 +38,6 @@
     },
     "bin": [
         "bin/wedeto.php"
+        "bin/setup.php"
     ]
 }

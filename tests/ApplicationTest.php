@@ -86,7 +86,7 @@ class ApplicationTest extends TestCase
     {
         $config = new Dictionary();
 
-        $app = Application::setup($this->pathconfig, $config);
+        $app = new Application($this->pathconfig, $config);
         $this->assertInstanceOf(Application::class, $app);
 
         $this->assertTrue(Application::hasInstance());
@@ -134,7 +134,7 @@ class ApplicationTest extends TestCase
             ]
         ]);
 
-        $app = Application::setup($this->pathconfig, $config);
+        $app = new Application($this->pathconfig, $config);
         $this->assertEquals($grn, Path::getDefaultFileGroup());
         $this->assertEquals(0666, Path::getDefaultFileMode());
         $this->assertEquals(0777, Path::getDefaultDirMode());
@@ -156,7 +156,7 @@ class ApplicationTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/foo';
 
         $config = new Dictionary(['site' => ['dev' => false]]);
-        $app = Application::setup($this->pathconfig, $config);
+        $app = new Application($this->pathconfig, $config);
 
         $log = Logger::getLogger();
         $writers = $log->getLogWriters();
@@ -176,7 +176,7 @@ class ApplicationTest extends TestCase
 
         Logger::resetGlobalState();
         $config = new Dictionary(['site' => ['dev' => true]]);
-        $app = Application::setup($this->pathconfig, $config);
+        $app = new Application($this->pathconfig, $config);
 
         $log = Logger::getLogger();
         $writers = $log->getLogWriters();

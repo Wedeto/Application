@@ -123,6 +123,3 @@ class ANSI
 }
 
 ANSI::$enabled = ANSI::isTerminal();
-var_Dump(ANSI::$enabled);
-var_dump(ANSI::isTerminal());
-echo "ENABLED STATE: " . ANSI::$enabled ? "true" : "false";

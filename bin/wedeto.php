@@ -9,6 +9,7 @@ use Wedeto\Util\Dictionary;
 $my_dir = dirname(getcwd() . DIRECTORY_SEPARATOR . $_SERVER['argv'][0]);
 $parent_dir = dirname($my_dir);
 
+// Attempt to automatically find the autoloader file
 if (!class_exists(Application::class))
 {
     $paths = [
@@ -48,19 +49,6 @@ if (!class_exists(Application::class))
         throw new \RuntimeException("Cannot load application");
 }
 
-$pathconfig = new PathConfig;
-$ini_file = $pathconfig->config . '/main.ini';
-
-if (file_exists($ini_file))
-{
-    $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
-    $config = new Dictionary($config);
-}
-else
-{
-    $config = new Dictionary;
-}
-
-$app = Application::setup($pathconfig, $config);
-
+// Launch the Application
+$app = new Application();
 $app->handleCLIRequest();
