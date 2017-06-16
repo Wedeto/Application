@@ -120,6 +120,11 @@ class ANSI
     {
         return self::$enabled ? self::CLEARLINE : '';
     }
+
+    public static function reset()
+    {
+        return self::$enabled ? self::RESET : '';
+    }
 }
 
 ANSI::$enabled = ANSI::isTerminal();
