@@ -83,16 +83,6 @@ class Application
     protected $request;
     protected $template;
 
-    public static function setup(PathConfig $path, Dictionary $config = null)
-    {
-        self::setLogger(Logger::getLogger(static::class));
-        self::$instance = new Application($path, $config);
-
-        // Attach the error handler - all PHP Errors should be thrown as Exceptions
-        ErrorInterceptor::registerErrorHandler();
-        return self::$instance;
-    }
-
     public static function hasInstance()
     {
         return self::$instance !== null;
@@ -111,15 +101,21 @@ class Application
         self::$instance = $application;
     }
 
-    private function __construct(PathConfig $path_config, Dictionary $config = null)
+    public function __construct(PathConfig $path_config = null, Dictionary $config = null)
     {
-        $this->path_config = $path_config;
+        self::setLogger(Logger::getLogger(static::class));
+        self::$instance = $this;
+
+        $this->path_config = $path_config ?? new PathConfig;
         $this->config = $config ?? new Dictionary;
         $this->bootstrap();
     }
 
     protected function bootstrap()
     {
+        // Attach the error handler - all PHP Errors should be thrown as Exceptions
+        ErrorInterceptor::registerErrorHandler();
+
         // Set character set
         ini_set('default_charset', 'UTF-8');
         mb_internal_encoding('UTF-8');

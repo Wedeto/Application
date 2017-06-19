@@ -56,7 +56,7 @@ final class TaskRunnerTest extends TestCase implements TaskInterface
 
         $this->pathconfig = new PathConfig($this->wedetoroot);
         $this->config = new Dictionary;
-        $this->app = Application::setup($this->pathconfig, $this->config);
+        $this->app = new Application($this->pathconfig, $this->config);
     }
 
     public function testTaskRunner()

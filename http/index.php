@@ -24,18 +24,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 // Initialize Wedeto
-require "../bootstrap/init.php";
+require_once "../vendor/autoload.php";
 
-$root = dirname(dirname(__FILE__));
-$path = new Wedeto\Platform\PathConfig(array('root' => $root));
+use Wedeto\Application\Application;
+use Wedeto\Util\Dictionary;
+use Wedeto\Util\Functions as WF;
 
-// Dispatch the request
-$ini_file = $root . '/config/main.ini';
-$reader = Wedeto\FileFormats\ReaderFactory::factory($ini_file);
-$config = new Wedeto\Util\Dictionary($reader->readFile($ini_file));
-
-$wedeto = Wedeto\Platform\System::setup($path, $config);
-$dispatcher = $wedeto->get('dispatcher');
-$dispatcher->dispatch();
-
-die();
+$app = new Application();
+$app->handleWebRequest();

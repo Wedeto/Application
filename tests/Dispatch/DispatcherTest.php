@@ -91,7 +91,7 @@ final class DispatcherTest extends TestCase
         $this->pathconfig = new PathConfig($this->wedetoroot);
         $this->config = new Dictionary();
 
-        $this->app = Application::setup($this->pathconfig, $this->config);
+        $this->app = new Application($this->pathconfig, $this->config);
         $this->resolver = $this->app->resolver;
 
         $this->get = array(
@@ -212,7 +212,7 @@ PHP;
 
         $pc = new PathConfig($this->wedetoroot);
         $c = new Dictionary;
-        $app = Application::setup($pc, $c);
+        $app = new Application($pc, $c);
         $dispatch = Dispatcher::createFromApplication($app);
         $res = $app->resolver;
         $res->registerModule('test', $this->wedetoroot, 0);
