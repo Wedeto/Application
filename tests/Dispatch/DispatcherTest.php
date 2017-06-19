@@ -442,7 +442,7 @@ PHP;
         $pathconfig = Application::pathConfig();
         $testpath = $pathconfig->root . '/app';
         Path::mkdir($testpath);
-        $filename = $testpath . '/wasptest-validapp.php';
+        $filename = $testpath . '/wedetotest-validapp.php';
         $classname = "cl_" . str_replace(".", "", basename($filename));
 
         $phpcode = <<<EOT
