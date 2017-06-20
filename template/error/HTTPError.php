@@ -30,6 +30,8 @@ if ($exception instanceof Wedeto\HTTP\Response\Error)
 $error_title = "Unexpected error";
 $error_lead = "Your request cannot be handled";
 $error_description = "The server encountered an error while processing your request";
+
+$error_title = Wedeto\HTTP\StatusCode::description($error_code);
 switch ($error_code)
 {
     case 404:

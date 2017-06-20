@@ -82,6 +82,7 @@ class Application
     protected $resolver;
     protected $request;
     protected $template;
+    protected $dev = true;
 
     public static function hasInstance()
     {
@@ -142,6 +143,8 @@ class Application
             }
         }
 
+        $this->dev = $this->config->dget('site', 'dev', true);
+
         // Make sure permissions are adequate
         try
         {
@@ -173,12 +176,30 @@ class Application
         $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
         $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::DEBUG));
 
+        if ($this->config->has('log', Type::ARRAY))
+        {
+            foreach ($this->config['log'] as $logname => $level)
+            {
+                $logger = Logger::getLogger($logname);
+                $level = strtolower($level);
+
+                try
+                {
+                    $logger->setLevel($level);
+                }
+                catch (\DomainException $e)
+                {
+                    self::$logger->error("Failed to set log level for {0} to {1}: {2}", [$logname, $level, $e->getMessage()]);
+                }
+            }
+        }
+
         //
         $this->setupTranslateLog();
 
         // Load the configuration file
         // Attach the dev logger when dev-mode is enabled
-        if ($this->config->get('site', 'dev'))
+        if ($this->dev)
         {
             $devlogger = new MemLogWriter(LogLevel::DEBUG);
             $root_logger->addLogWriter($devlogger);
@@ -289,15 +310,13 @@ class Application
 
     private function showPermissionError(PermissionError $e)
     {
-        $dev = $this->config->dget('site', 'dev', true);
-
         if (PHP_SAPI !== "cli")
         {
             http_response_code(500);
             header("Content-type: text/plain");
         }
 
-        if ($dev)
+        if ($this->dev)
         {
             $file = $e->path;
             echo "{$e->getMessage()}\n";
@@ -389,21 +408,21 @@ class Application
     {
         $responder = new Responder($this->request);
 
-        if ($this->config->get('dev'))
+        $dispatcher = $this->get('dispatcher');
+        if ($this->dev)
         {
-            $memlogger = MemLogger::getInstance();
+            $memlogger = MemLogWriter::getInstance();
             if ($memlogger)
             {
-                $loghook = new MemLogHook($memlogger, $this);
+                $loghook = new LogAttachHook($memlogger, $dispatcher);
                 Hook::subscribe(
                     "Wedeto.HTTP.Responder.Respond", 
-                    new MemLogHook($memlogger, $this),
+                    $loghook,
                     Hook::RUN_LAST
                 );
             }
         }
 
-        $dispatcher = $this->get('dispatcher');
         $asset_manager = $dispatcher->getTemplate()->getAssetManager();
         $response = $dispatcher->dispatch();
         $responder->setResponse($response);
