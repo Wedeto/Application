@@ -169,9 +169,9 @@ class Application
 
         // Set up root logger
         $root_logger = Logger::getLogger();
-        $root_logger->setLevel(LogLevel::DEBUG);
+        $root_logger->setLevel(LogLevel::INFO);
         $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
-        $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::INFO));
+        $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::DEBUG));
 
         //
         $this->setupTranslateLog();

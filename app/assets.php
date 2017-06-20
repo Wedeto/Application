@@ -23,12 +23,18 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+use Wedeto\IO\Path;
+use Wedeto\Log\Logger;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\CachePolicy;
 use Wedeto\HTTP\Response\Error as HTTPError;
 use Wedeto\HTTP\Response\FileResponse;
 
 $path = implode("/", $arguments->getAll());
+
+// Avoid forcing relative paths as a security measure
+$path = str_replace("../", "", $path);
+$path = str_replace("..", "", $path);
 
 $qpos = strpos($path, "?");
 $query = null;
@@ -70,6 +76,19 @@ if ($full_path)
         $mime = "text/javascript";
     else
         $mime = mime_content_type($full_path);
+
+    // Link the file to the target path so it can be served directly
+    // on the next request
+    $assets = $app->pathConfig->assets;
+    $target_path = $assets . DIRECTORY_SEPARATOR . $path;
+    $target_dir = dirname($target_path);
+    if (!is_dir($target_dir))
+        Path::mkdir($target_dir);        
+
+    if (symlink($full_path, $target_path))
+        Logger::getLogger("Wedeto.Application.App.Assets")->info("Created asset symlink from {0} to {1}", [$full_path, $target_path]);
+    else
+        Logger::getLogger("Wedeto.Application.App.Assets")->info("Failed creating symlink from {0} to {1}", [$full_path, $target_path]);
 
     $cache = new CachePolicy;
     $cache->setCachePolicy(CachePolicy::CACHE_PUBLIC);
