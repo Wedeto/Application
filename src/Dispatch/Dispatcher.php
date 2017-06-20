@@ -307,7 +307,7 @@ class Dispatcher
                 ->setURLPrefix($vhost->getHost()->path)
                 ->assign('request', $this->request)
                 ->assign('config', $this->config)
-                ->assign('dev', true);
+                ->assign('dev', $this->config->dget('site', 'dev', true));
 
             $this->setTemplate($template);
         }

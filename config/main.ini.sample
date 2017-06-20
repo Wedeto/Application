@@ -1,32 +1,36 @@
 [site]
-site_id = "fedcba9876543210"
-secure = 1
-www = 1
+;Set URL to the URL of this website. Multiple can be defined by using
+; array notation, e.g. url[0] = "..." and url[1] = "..."
+;
+;unknown_host_policy can be IGNORE, REDIRECT or ERROR
+; IGNORE means to simply generate a new virtual host when an unknown hostname is used
+; REDIRECT will match to the available hosts and redirect to the closest match
+; ERROR will throw a HTTP 404 error
+;unknown_host_policy = "IGNORE"
 dev = 1
 redirect_unknown = 0
 default_language = en
-url = "example.com;example.net;example.nl"
+url = "example.com"
+
+[auth]
+;cost = 10
+; The salt is only used for backwards compatibility support with SHA256 hashing -
+; the newer crypt/blowfish hashing uses a different salt for every password.
+;salt = "fedcba9876543210"
+;salt_placement = "append"
 
 [sql]
-username = 
-password = 
-hostname = localhost
-database = 
-type = mysql 
+;username = 
+;password = 
+;hostname = localhost
+;database = 
+;type = MySQL/PGSQL
 
 [mail]
-username = 
-password = 
-server = localhost
-port = 587
-
-[admin]
-username = admin
-password = password
-
-[domainlanguage]
-url_en = "example.com;example.net"
-url_nl = "example.nl"
+;username = 
+;password = 
+;server = localhost
+;port = 587
 
 [path]
 ;root = ""
@@ -37,11 +41,3 @@ url_nl = "example.nl"
 ;cache = ""
 ;log = ""
 ;uploads = ""
-
-[image]
-max_dimension = 1600
-thumbsize = 200
-path = "uploads"
-
-[date]
-format = "H:i:s"
