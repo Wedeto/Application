@@ -176,12 +176,7 @@ class AppRunner
         }
         catch (Response $response)
         {
-            self::$logger->debug("While executing controller: {0}", [$this->app]);
-            $desc = StatusCode::description($response->getCode());
-            self::$logger->info(
-                "{0} {1}",
-                [$response->getCode(), $desc]
-            );
+            self::$logger->debug("Response type {0} returned from controller: {1}", [get_class($response), $this->app]);
             throw $response;
         }
         catch (Throwable $e)
