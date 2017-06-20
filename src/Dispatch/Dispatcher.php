@@ -300,8 +300,11 @@ class Dispatcher
             $asset_manager = new AssetManager($this->resolver->getResolver('assets'));
             $template = new Template($this->resolver->getResolver('template'), $asset_manager);
             Hook::subscribe('Wedeto.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
+
+            $vhost = $this->getVirtualHost();
             $template
                 ->setAssetManager($asset_manager)
+                ->setURLPrefix($vhost->getHost()->path)
                 ->assign('request', $this->request)
                 ->assign('config', $this->config)
                 ->assign('dev', true);
