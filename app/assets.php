@@ -100,4 +100,5 @@ if ($full_path)
     throw $response;
 }
 
-throw new HttpError(404, "File {$path} could not be found!");
+$msg = td('The file {path} could not be found', 'wedeto', ['path' => $path]);
+throw new HttpError(404, $msg);

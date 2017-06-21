@@ -27,41 +27,42 @@ $error_code = 500;
 if ($exception instanceof Wedeto\HTTP\Response\Error)
     $error_code = (int)$exception->getCode();
 
-$error_title = "Unexpected error";
-$error_lead = "Your request cannot be handled";
-$error_description = "The server encountered an error while processing your request";
+setTextDomain("wedeto");
+$error_title = t("Unexpected error");
+$error_lead = t("Your request cannot be handled");
+$error_description = t("The server encountered an error while processing your request");
 
-$error_title = Wedeto\HTTP\StatusCode::description($error_code);
+$error_title = t(Wedeto\HTTP\StatusCode::description($error_code));
 switch ($error_code)
 {
     case 404:
-        $error_title = "Not Found";
-        $error_lead = $request->url->path . " could not be found on this server";
-        $error_description = "The resource you requested can not be found";
+        $error_title = t("Not Found");
+        $error_lead = t("{path} could not be found on this server", ['path' => $request->url->path]);
+        $error_description = t("The resource you requested can not be found");
         break;
     case 400:
-        $error_title = "Bad Request";
-        $error_lead = "The request data is incompatible or incomplete";
-        $error_description = "Your browser sent a request that cannot be handled";
+        $error_title = t("Bad Request");
+        $error_lead = t("The request data is incompatible or incomplete");
+        $error_description = t("Your browser sent a request that cannot be handled");
         break;
     case 403:
-        $error_title = "Forbidden";
-        $error_lead = "You are not authorized for the action you tried to perform. Make sure you are logged in correctly.";
-        $error_description = "Your request cannot be handled because you are not authorized for it.";
+        $error_title = t("Forbidden");
+        $error_lead = t("You are not authorized for the action you tried to perform. Make sure you are logged in correctly.");
+        $error_description = t("Your request cannot be handled because you are not authorized for it.");
         break;
 }
 
 if ($dev)
 {
     $error_description .= 
-        "\n\nDescription: " . $exception->getMessage() . "\n" 
+        "\n\n" . t("Description: {message}", ['message' => $exception->getMessage()]) . "\n" 
         . Wedeto\Util\Functions::str($exception);
 }
 elseif (method_exists($exception, 'getUserMessage'))
 {
-    $user_message = $exception->getUserMessage();
+    $user_message = t($exception->getUserMessage());
     if (!empty($user_message))
-        $error_description .= "\n\nDescription: " . $user_message;
+        $error_description .= "\n\n" . t('Description: {message}', ['message' => $user_message]);
 }
 
 require tpl('error/HTMLErrorTemplate');

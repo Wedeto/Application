@@ -54,6 +54,7 @@ use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Error as HTTPError;
 
 use Wedeto\I18n\I18n;
+use Wedeto\I18n\I18nShortcut;
 use Wedeto\I18n\Translator\TranslationLogger;
 
 use Wedeto\HTTP\Responder;
@@ -207,6 +208,22 @@ class Application
         return $this->db;
     }
 
+    public function getI18n()
+    {
+        if ($this->i18n === null)
+        {
+            $this->i18n = new I18n;
+            I18nShortcut::setInstance($this->i18n);
+
+            $this->i18n->registerTextDomain('wedeto', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'language');
+
+            // Set a language
+            $language = $this->config->dget('site', 'default_language', 'en');
+            $this->i18n->setLocale($language);
+        }
+        return $this->i18n;
+    }
+
     public function get($parameter)
     {
         switch ($parameter)
@@ -226,12 +243,7 @@ class Application
             case "db":
                 return $this->getDB();
             case "i18n":
-                if ($this->i18n === null)
-                {
-                    $this->i18n = new I18n;
-                    //$this->i18n->registerTextDomain('core', $this->path_config->root . '/language');
-                }
-                return $this->i18n;
+                return $this->getI18n();
             case "dispatcher":
                 if ($this->dispatcher === null)
                     $this->dispatcher = Dispatcher::createFromApplication($this);
@@ -324,6 +336,7 @@ class Application
             ->addResolverType('assets', 'assets')
             ->addResolverType('app', 'app')
             ->addResolverType('code', 'src')
+            ->addResolverType('language', 'language')
             ->setResolver("app", new Router("router"));
 
         spl_autoload_register(array($this->autoloader, 'autoload'), true, true);

@@ -25,14 +25,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 include tpl('parts/header');
 ?>
         <div class="large-12 medium-12 columns callout">
-            <h1><?=$error_code ?? "500";?> - <?=txt($error_title ?? "Internal Server Error");?></h1>
+            <h1><?=$error_code ?? "500";?> - <?=txt($error_title ?? td("Internal Server Error", "wedeto"));?></h1>
             <p>
-                <?=txt($error_lead ?? "An unexpected error occured");?>
+                <?=txt($error_lead ?? td("An unexpected error occured", "wedeto"));?>
             </p>
             <div class="row">
                 <div class="large-12 columns">
                     <div class="callout" style="max-width: 100%; overflow: auto;">
-                        <pre><?=txt($error_description ?? "An unexpected error occured");?></pre>
+                        <pre><?=txt($error_description ?? td("An unexpected error occured", "wedeto"));?></pre>
                     </div>
                 </div>
             </div>

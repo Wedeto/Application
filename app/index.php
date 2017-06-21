@@ -27,7 +27,11 @@ use Wedeto\Template;
 use Wedeto\HTTP\Response\Error as HTTPError;
 
 if ($arguments->count())
-    throw new HTTPError(404, "The page " . $request->url . " could not be found");
+{
+    $i18n = Application::i18n();
+    $msg = td("The page {url} could not be found", "wedeto", ['url' => $request->url]);
+    throw new HTTPError(404, $msg);
+}
 
 $template->setTemplate('index');
 $template->render();

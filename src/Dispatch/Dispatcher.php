@@ -36,6 +36,7 @@ use Wedeto\Resolve\Manager as ResolveManager;
 
 use Wedeto\Util\Hook;
 use Wedeto\Util\Dictionary;
+use Wedeto\Util\Type;
 use Wedeto\Util\Functions as WF;
 
 use Wedeto\HTTP\Accept;
@@ -110,6 +111,8 @@ class Dispatcher
      */
     public function __construct(Request $request, ResolveManager $resolver, $config = [])
     {
+        self::getLogger();
+
         if (!($config instanceof Dictionary))
             $config = new Dictionary($config);
 
@@ -502,6 +505,37 @@ class Dispatcher
             $target = $vhost->getRedirect($this->request->url);
             if ($target)
                 throw new RedirectRequest($target, 301);
+            
+            // The virtual host may prescribe a language
+            if (isset($this->variables['i18n']))
+            {
+                $locales = $vhost->getLocales();
+                $session = $this->request->session;
+                $locale = null;
+                if ($session->has('locale', Type::STRING))
+                {
+                    $locval = $session['locale'];
+                    foreach ($locales as $supported_locale)
+                    {
+                        if ($locval === $supported_locale)
+                        {
+                            $locale = $locval;
+                            break;
+                        }
+                    }
+                }
+
+                if ($locale === null && !empty($locales))
+                    $locale = reset($locales);
+
+                if (!empty($locale))
+                {
+                    self::$logger->debug('Setting locale to {0}', [$locale]);
+                    $this->variables['i18n']->setLocale($locale);
+                }
+            }
+
+
         }
         $this->setVirtualHost($vhost);
         return $this;

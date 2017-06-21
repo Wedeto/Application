@@ -1,0 +1,429 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Untranslated string at 2017-06-21 12:56:38
+#: /home/eggie/Projects/qm/platform/app/index.php:30
+msgid "The page {url} could not be found"
+msgstr "De pagina {url} kan niet gevonden worden"
+
+#. Untranslated string at 2017-06-21 13:04:38
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:31
+msgid "Unexpected error"
+msgstr "Onverwachte fout"
+
+#. Untranslated string at 2017-06-21 13:04:38
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:32
+msgid "Your request cannot be handled"
+msgstr "Het verzoek kan niet beantwoord worden"
+
+#. Untranslated string at 2017-06-21 13:04:38
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:33
+msgid "The server encountered an error while processing your request"
+msgstr "Er is een probleem opgetreden bij het verwerken van het verzoek"
+
+#. Untranslated string at 2017-06-21 13:05:07
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:39
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Not Found"
+msgstr "Niet gevonden"
+
+#. Untranslated string at 2017-06-21 13:05:07
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:40
+msgid "{path} could not be found on this server"
+msgstr "{path} bestaat niet op deze server"
+
+#. Untranslated string at 2017-06-21 13:05:07
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:41
+msgid "The resource you requested can not be found"
+msgstr "Het bestand dat  gevraagd word kan niet gevonden worden"
+
+#. Untranslated string at 2017-06-21 13:05:07
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:58
+msgid "Description: {message}"
+msgstr "Omschrijving: {message}"
+
+#. Untranslated string at 2017-06-21 13:41:01
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:44
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Bad Request"
+msgstr "Foutief verzoek"
+
+#. Untranslated string at 2017-06-21 13:41:01
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:45
+msgid "The request data is incompatible or incomplete"
+msgstr "De verzoekgegevens zijn incompleet of ongeldig"
+
+#. Untranslated string at 2017-06-21 13:41:01
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:46
+msgid "Your browser sent a request that cannot be handled"
+msgstr "Uw browser stuurde een verzoek dat niet afgehandeld kan worden"
+
+#. Untranslated string at 2017-06-21 13:41:11
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:49
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Forbidden"
+msgstr "Verboden"
+
+#. Untranslated string at 2017-06-21 13:41:11
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:50
+msgid ""
+"You are not authorized for the action you tried to perform. Make sure you "
+"are logged in correctly."
+msgstr ""
+"U bent niet geautoriseerd voor deze actie. Controleer of u ingelogd bent."
+
+#. Untranslated string at 2017-06-21 13:41:11
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:51
+msgid "Your request cannot be handled because you are not authorized for it."
+msgstr ""
+"Uw verzoek kan niet behandeld worden omdat u hiertoe niet gemachtigd bent."
+
+#. Untranslated string at 2017-06-21 13:50:34
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Connection Time-out"
+msgstr "Time-out bij verbinding maken"
+
+#. Untranslated string at 2017-06-21 13:50:54
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Unknown Error"
+msgstr "Onbekende fout"
+
+#. Untranslated string at 2017-06-21 13:51:28
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Network Authentication Required"
+msgstr "Netwerkauthenticatie is vereist"
+
+#. Untranslated string at 2017-06-21 13:51:41
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Not Extended"
+msgstr "Uitbreiding mist"
+
+#. Untranslated string at 2017-06-21 13:51:53
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Loop Detected"
+msgstr "Lus gedetecteerd"
+
+#. Untranslated string at 2017-06-21 13:51:57
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Bandwidth Limit Exceeded"
+msgstr "Bandbreedte overschreden"
+
+#. Untranslated string at 2017-06-21 13:52:03
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Insufficient Storage"
+msgstr "Onvoldoende opslag"
+
+#. Untranslated string at 2017-06-21 13:52:06
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Variant Also Negotiates"
+msgstr "De gevraagde variant wil onderhandelen over het type"
+
+#. Untranslated string at 2017-06-21 13:52:08
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "HTTP Version Not Supported"
+msgstr "Niet-ondersteunde HTTP-versie"
+
+#. Untranslated string at 2017-06-21 13:52:10
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Gateway Timeout"
+msgstr "Time-out van de gateway"
+
+#. Untranslated string at 2017-06-21 13:52:12
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Service Unavailable"
+msgstr "Dienst niet beschikbaar"
+
+#. Untranslated string at 2017-06-21 13:52:15
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Bad Gateway"
+msgstr "Ongeldige gateway"
+
+#. Untranslated string at 2017-06-21 13:52:18
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Not Implemented"
+msgstr "Niet geïmplementeerd"
+
+#. Untranslated string at 2017-06-21 13:52:26
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Client Closed Request"
+msgstr "Cliënt verbrak de verbinding"
+
+#. Untranslated string at 2017-06-21 13:52:32
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "HTTP Request Sent to to HTTPS Port"
+msgstr "HTTP verzoek naar HTTPS poort verstuurd"
+
+#. Untranslated string at 2017-06-21 13:52:39
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "SSL Certificate Error"
+msgstr "SSL Certificaat ongeldig"
+
+#. Untranslated string at 2017-06-21 13:52:39
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "SSL Certficate Required"
+msgstr "SSL Certificaat vereist"
+
+#. Untranslated string at 2017-06-21 13:52:52
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Unavailable For Legal Reasons"
+msgstr "Niet beschikbaar vanwege juridische redenen"
+
+#. Untranslated string at 2017-06-21 13:53:00
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Retry With"
+msgstr "Probeer opnieuw"
+
+#. Untranslated string at 2017-06-21 13:53:05
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "No Response"
+msgstr "Geen antwoord"
+
+#. Untranslated string at 2017-06-21 13:53:11
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Login Time-out"
+msgstr "Log-in verlopen"
+
+#. Untranslated string at 2017-06-21 13:53:16
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Request Header Fields Too Large"
+msgstr "Verzoekheader te groot"
+
+#. Untranslated string at 2017-06-21 13:53:22
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Too Many Requests"
+msgstr "Te veel verzoeken"
+
+#. Untranslated string at 2017-06-21 13:53:33
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Precondition Required"
+msgstr "Preconditie is niet voldaan"
+
+#. Untranslated string at 2017-06-21 13:53:38
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Upgrade Required"
+msgstr "Protocol-upgrade vereist"
+
+#. Untranslated string at 2017-06-21 13:53:43
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Failed Dependency"
+msgstr "Afhankelijkheid niet vervuld"
+
+#. Untranslated string at 2017-06-21 13:53:45
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Locked"
+msgstr "Vergrendeld"
+
+#. Untranslated string at 2017-06-21 13:53:48
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Unprocessable Entity"
+msgstr "Onverwerkbaar object"
+
+#. Untranslated string at 2017-06-21 13:53:51
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Misdirected Request"
+msgstr "Fout gericht verzoek"
+
+#. Untranslated string at 2017-06-21 13:54:06
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "I'm a teapot"
+msgstr "Ik ben een theepot"
+
+#. Untranslated string at 2017-06-21 13:54:09
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Expectation Failed"
+msgstr "Kan niet voldoen aan verwachtingen"
+
+#. Untranslated string at 2017-06-21 13:54:11
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Requested Range Not Satisfiable"
+msgstr "Gevraagde gegevens niet leverbaar"
+
+#. Untranslated string at 2017-06-21 13:54:14
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Unsupported Media Type"
+msgstr "Niet-ondersteund media-type"
+
+#. Untranslated string at 2017-06-21 13:54:16
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Request-URI Too Long"
+msgstr "Verzoek-URI is te lang"
+
+#. Untranslated string at 2017-06-21 13:54:19
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Payload Too Large"
+msgstr "Verzoek te groot"
+
+#. Untranslated string at 2017-06-21 13:54:22
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Precondition Failed"
+msgstr "Preconditie onvoldaan"
+
+#. Untranslated string at 2017-06-21 13:54:24
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Length Required"
+msgstr "Lengte vereist"
+
+#. Untranslated string at 2017-06-21 13:54:27
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Gone"
+msgstr "Verdwenen"
+
+#. Untranslated string at 2017-06-21 13:54:30
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Conflict"
+msgstr "Conflict"
+
+#. Untranslated string at 2017-06-21 13:54:33
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Request Timeout"
+msgstr "Verzoek verlopen"
+
+#. Untranslated string at 2017-06-21 13:54:36
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Proxy Authentication Required"
+msgstr "Authenticatie met proxy vereist"
+
+#. Untranslated string at 2017-06-21 13:54:38
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Not Acceptable"
+msgstr "Niet acceptabel"
+
+#. Untranslated string at 2017-06-21 13:54:41
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Method Not Allowed"
+msgstr "Verzoekmethode niet toegestaan"
+
+#. Untranslated string at 2017-06-21 13:54:51
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Payment Required"
+msgstr "Betaling vereist"
+
+#. Untranslated string at 2017-06-21 13:54:54
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Unauthorized"
+msgstr "Ongeauthoriseerd"
+
+#. Untranslated string at 2017-06-21 13:55:04
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Permanent Redirect"
+msgstr "Permanente doorverwijzing"
+
+#. Untranslated string at 2017-06-21 13:55:07
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Temporary Redirect"
+msgstr "Tijdelijke doorverwijzing"
+
+#. Untranslated string at 2017-06-21 13:55:12
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Use Proxy"
+msgstr "Proxy vereist"
+
+#. Untranslated string at 2017-06-21 13:55:14
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Not Modified"
+msgstr "Niet veranderd"
+
+#. Untranslated string at 2017-06-21 13:55:17
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "See Other"
+msgstr "Zie elders"
+
+#. Untranslated string at 2017-06-21 13:55:20
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Found"
+msgstr "Gevonden"
+
+#. Untranslated string at 2017-06-21 13:55:22
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Moved Permanently"
+msgstr "Permanent verplaatst"
+
+#. Untranslated string at 2017-06-21 13:55:25
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Multiple Choices"
+msgstr "Meerdere keuzes"
+
+#. Untranslated string at 2017-06-21 13:55:33
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "IM Used"
+msgstr "Instance-Manipulation gebruikt"
+
+#. Untranslated string at 2017-06-21 13:55:38
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Already Reported"
+msgstr "Al afgeleverd"
+
+#. Untranslated string at 2017-06-21 13:55:42
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Multi-Status"
+msgstr "Multi-status"
+
+#. Untranslated string at 2017-06-21 13:55:44
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Partial Content"
+msgstr "Gedeeltelijke inhoud"
+
+#. Untranslated string at 2017-06-21 13:55:48
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Reset Content"
+msgstr "Leeg inhoud"
+
+#. Untranslated string at 2017-06-21 13:55:50
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "No Content"
+msgstr "Geen inhoud"
+
+#. Untranslated string at 2017-06-21 13:55:54
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Non-Authoritive Information"
+msgstr "Niet-authentieke informatie"
+
+#. Untranslated string at 2017-06-21 13:56:06
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Created"
+msgstr "Aangemaakt"
+
+#. Untranslated string at 2017-06-21 13:56:12
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "OK"
+msgstr "OK"
+
+#. Untranslated string at 2017-06-21 13:56:16
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Accepted"
+msgstr "Geaccepteerd"
+
+#. Untranslated string at 2017-06-21 13:56:22
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Processing"
+msgstr "Bezig met verwerken"
+
+#. Untranslated string at 2017-06-21 13:56:25
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Switching protocols"
+msgstr "Bezig met wisselen van protocol"
+
+#. Untranslated string at 2017-06-21 13:56:28
+#: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
+msgid "Continue"
+msgstr "Ga door"
+
+#~ msgid "Request Header Too Large"
+#~ msgstr "Verzoekheader te groot"
+
+#~ msgid "SSL Certficate Error"
+#~ msgstr "SSL Ceritificaat ongeldig"
+
+#~ msgid "HTTP to HTTPS"
+#~ msgstr "HTTP request naar HTTPS-poort gestuurd"
