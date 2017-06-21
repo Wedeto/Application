@@ -42,7 +42,7 @@ use Wedeto\Util\ErrorInterceptor;
 use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\{Logger, LoggerFactory};
-use Wedeto\Log\Writer\{FileWriter, MemLogWriter};
+use Wedeto\Log\Writer\{FileWriter, MemLogWriter, AbstractWriter};
 
 use Wedeto\Resolve\Autoloader;
 use Wedeto\Resolve\Manager as ResolveManager;
@@ -117,14 +117,14 @@ class Application
         // Attach the error handler - all PHP Errors should be thrown as Exceptions
         ErrorInterceptor::registerErrorHandler();
 
+        set_exception_handler(array(static::class, 'handleException'));
+
         // Set character set
         ini_set('default_charset', 'UTF-8');
         mb_internal_encoding('UTF-8');
 
         // Set up logging
         ini_set('log_errors', '1');
-
-        $test = defined('WEDETO_TEST') && WEDETO_TEST === 1;
 
         // Load configuration
         $ini_file = $this->path_config->config . '/main.ini';
@@ -155,6 +155,8 @@ class Application
             return $this->showPermissionError($e);
         }
 
+        $test = defined('WEDETO_TEST') && WEDETO_TEST === 1 ? 'test' : '';
+
         if (PHP_SAPI === 'cli')
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
         else
@@ -171,61 +173,7 @@ class Application
         Autoloader::setLogger(LoggerFactory::getLogger(['class' => Autoloader::class]));
 
         // Set up root logger
-        $root_logger = Logger::getLogger();
-        $root_logger->setLevel(LogLevel::INFO);
-        $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
-        $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::DEBUG));
-
-        if ($this->config->has('log', Type::ARRAY))
-        {
-            foreach ($this->config['log'] as $logname => $level)
-            {
-                $logger = Logger::getLogger($logname);
-                $level = strtolower($level);
-
-                try
-                {
-                    $logger->setLevel($level);
-                }
-                catch (\DomainException $e)
-                {
-                    self::$logger->error("Failed to set log level for {0} to {1}: {2}", [$logname, $level, $e->getMessage()]);
-                }
-            }
-        }
-
-        //
-        $this->setupTranslateLog();
-
-        // Load the configuration file
-        // Attach the dev logger when dev-mode is enabled
-        if ($this->dev)
-        {
-            $devlogger = new MemLogWriter(LogLevel::DEBUG);
-            $root_logger->addLogWriter($devlogger);
-        }
-
-        // Log beginning of request handling
-        if (isset($_SERVER['REQUEST_URI']))
-        {
-            self::$logger->debug(
-                "*** Starting processing for {0} request to {1}", 
-                [$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']]
-            );
-        }
-
-        // Change settings for CLI
-        if (Request::cli())
-        {
-            $limit = (int)$this->config->dget('cli', 'memory_limit', 1024);
-            ini_set('memory_limit', $limit . 'M');
-            ini_set('max_execution_time', 0);
-
-            ini_set('display_errors', 1);
-        }
-        else
-            ini_set('display_errors', 0);
-
+        $this->setupLogging();
 
         // Save the cache if configured so
         Cache::setCachePath($this->path_config->cache);
@@ -263,6 +211,8 @@ class Application
     {
         switch ($parameter)
         {
+            case "dev":
+                return $this->dev ?? true;
             case "config":
                 return $this->config;
             case "pathConfig":
@@ -397,6 +347,145 @@ class Application
             $modules = $this->resolver->findModules($wedeto_dir , '/modules', "", 0);
             foreach ($modules as $name => $path)
                 $this->resolver->registerModule($name, $path);
+        }
+    }
+
+    protected function setupLogging()
+    {
+        $test = defined('WEDETO_TEST') && WEDETO_TEST === 1 ? 'test' : '';
+
+        $root_logger = Logger::getLogger();
+        $root_logger->setLevel(LogLevel::INFO);
+        $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
+        $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::DEBUG));
+
+        // Set up logger based on ini file
+        if ($this->config->has('log', Type::ARRAY))
+        {
+            foreach ($this->config['log'] as $logname => $level)
+            {
+                if ($logname === "writer")
+                {
+                    foreach ($level as $logname => $parameters)
+                    {
+                        if (empty($logname) || strtoupper($logname) === "ROOT")
+                            $logname = '';
+                        $logger = Logger::getLogger($logname);
+                        $parameters = str_replace('{LOGDIR}', $this->path_config->log, $parameters);
+                        $parameters = explode(';', $parameters);
+
+                        $class = array_shift($parameters);
+                        if (!class_exists($class))
+                            throw new \DomainException("Invalid logger class: $class");
+
+                        $refl = new \ReflectionClass($class);
+                        $writer = $refl->newInstanceArgs($parameters);
+
+                        if (!($writer instanceof AbstractWriter))
+                            throw new \DomainException("Class $class is not a log writer");
+
+                        $logger->addLogWriter($writer);
+                    }
+                }
+                
+                $logger = Logger::getLogger($logname);
+                $level = strtolower($level);
+
+                try
+                {
+                    $logger->setLevel($level);
+                }
+                catch (\DomainException $e)
+                {
+                    self::$logger->error("Failed to set log level for {0} to {1}: {2}", [$logname, $level, $e->getMessage()]);
+                }
+            }
+        }
+
+        // Translation log setup
+        $this->setupTranslateLog();
+
+        // Load the configuration file
+        // Attach the dev logger when dev-mode is enabled
+        if ($this->dev)
+        {
+            $devlogger = new MemLogWriter(LogLevel::DEBUG);
+            $root_logger->addLogWriter($devlogger);
+        }
+
+        // Log beginning of request handling
+        if (isset($_SERVER['REQUEST_URI']))
+        {
+            self::$logger->debug(
+                "*** Starting processing for {0} request to {1}", 
+                [$_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']]
+            );
+        }
+
+        // Change settings for CLI
+        if (Request::cli())
+        {
+            $limit = (int)$this->config->dget('cli', 'memory_limit', 1024);
+            ini_set('memory_limit', $limit . 'M');
+            ini_set('max_execution_time', 0);
+
+            ini_set('display_errors', 1);
+        }
+        else
+            ini_set('display_errors', 0);
+    }
+
+    public static function handleException(\Throwable $e)
+    {
+        $app = self::$instance;
+        if ($app->request === null)
+            $app->request = Request::createFromGlobals();
+
+        $req = $app->request;
+
+        try
+        {
+            // Try to form a good looking response
+            if (!Request::cli())
+            {
+                $mgr = $app->resolver;
+                $res = $mgr->getResolver('template');
+                $assets = $mgr->getResolver('assets');
+                $amgr = new \Wedeto\HTML\AssetManager($assets);
+
+                $tpl = new \Wedeto\HTML\Template($res, $amgr, $req);
+                $tpl->setExceptionTemplate($e);
+
+                $tpl->assign('exception', $e);
+                $tpl->assign('request', $req);
+                $tpl->assign('dev', $app->dev);
+
+                $response = $tpl->renderReturn();
+                $responder = new \Wedeto\HTTP\Responder($req);
+                $responder->setResponse($response);
+
+                // Inject CSS/JS
+                $params = new Dictionary(['responder' => $responder, 'mime' => 'text/html']);
+                $amgr->executeHook($params);
+
+                $responder->respond();
+            }
+        }
+        catch (\Throwable $e2)
+        {
+            echo "<h1>Error while showing error template:</h1>\n\n";
+            echo "<pre>" . WF::html($e2) . "</pre>\n";
+        }
+
+        if (Request::cli())
+        {
+            fprintf(STDERR, Wedeto\Application\CLI\ANSI::bright("Error while showing error template:") . "\n\n");
+            WF::debug(WF::str($e));
+        }
+        else
+        {
+            echo "<h2>Original error:</h2>\n\n";
+            echo "<pre>" . WF::html($e) . "</pre>\n";
         }
     }
 
