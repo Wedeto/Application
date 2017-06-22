@@ -565,10 +565,7 @@ class Dispatcher
             }
 
             if (!empty($locale))
-            {
-                self::$logger->debug('Setting locale to {0}', [$locale]);
                 $this->variables['i18n']->setLocale($locale);
-            }
         }
     }
 

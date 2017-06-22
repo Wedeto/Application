@@ -23,7 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-$this->addJS('vendor/jquery/js/jquery');
+$this->addJS('vendor/jquery/jquery');
 $this->addJS('vendor/foundation/js/what-input');
 $this->addCSS('vendor/foundation/css/foundation');
 $this->addCSS('vendor/foundation/css/foundation-icons');
