@@ -301,6 +301,7 @@ class Dispatcher
         if ($this->template === null)
         {
             $asset_manager = new AssetManager($this->resolver->getResolver('assets'));
+            $asset_manager->setTidy($this->config->dget('site', 'tidy', true));
             $template = new Template($this->resolver->getResolver('template'), $asset_manager);
             Hook::subscribe('Wedeto.HTTP.Responder.Respond', array($asset_manager, 'executeHook'));
 

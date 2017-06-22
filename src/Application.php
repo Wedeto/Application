@@ -43,6 +43,7 @@ use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\{Logger, LoggerFactory};
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter, AbstractWriter};
+use Wedeto\Log\Formatter\PatternFormatter;
 
 use Wedeto\Resolve\Autoloader;
 use Wedeto\Resolve\Manager as ResolveManager;
@@ -246,7 +247,13 @@ class Application
                 return $this->getI18n();
             case "dispatcher":
                 if ($this->dispatcher === null)
+                {
                     $this->dispatcher = Dispatcher::createFromApplication($this);
+                    $this->template = $this->dispatcher->getTemplate();
+                    $amgr = $this->template->getAssetManager();
+                    $cache = new Cache('wedeto-asset-manager-cache');
+                    $amgr->setCache($cache);
+                }
                 return $this->dispatcher;
             case "template":
                 if ($this->template === null)
