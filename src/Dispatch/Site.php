@@ -54,7 +54,7 @@ class Site
         $host->setSite($this);
         $this->vhosts[] = $host;
         foreach ($host->getLocales() as $locale)
-            $this->locales[$locale] = true;
+            $this->locales[$locale->getLocale()] = true;
     }
 
     public function getVirtualHosts()

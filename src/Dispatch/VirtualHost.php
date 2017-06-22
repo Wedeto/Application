@@ -27,6 +27,8 @@ namespace Wedeto\Application\Dispatch;
 
 use Wedeto\Util\Functions as WF;
 use Wedeto\HTTP\URL;
+use Wedeto\HTTP\Accept;
+use Wedeto\I18n\Locale;
 
 /**
  * A VirtualHost is one site location managed by this Wedeto setup.
@@ -90,13 +92,40 @@ class VirtualHost
      */
     public function matchLocale($locale)
     {
+        $locale = Locale::create($locale);
         if (!empty($this->redirect))
             return false;
             
         if ($locale === null)
             return true;
 
-        return in_array($locale, $this->locales, true);
+        foreach ($this->locales as $l)
+            if ($l->getLocale() == $locale->getLocale())
+                return true;
+
+        return false;
+    }
+
+    /**
+     * Find the best match between the locales this virtual host supports
+     * and the locales the client accepts.
+     * 
+     * @param Accept $header The HTTP Accept header
+     * @return string The best matching locale
+     */
+    public function selectLocaleFromAcceptHeader(Accept $header)
+    {
+        // Collect a list of all supported locales
+        $my_locales = [];
+
+        foreach ($this->locales as $locale)
+        {
+            $list = $locale->getFallbackList();
+            foreach ($list as $locale)
+                $my_locales[] = $locale->getLocale();
+        }
+
+        return $header->getBestResponseType($my_locales);
     }
 
     /** 
@@ -116,7 +145,7 @@ class VirtualHost
     {
         $locale = WF::cast_array($locale);
         foreach ($locale as $l)
-            $this->locales[] = \Locale::canonicalize($l);
+            $this->locales[] = new Locale($l);
 
         // Remove duplicate locales
         $this->locales = array_unique($this->locales);

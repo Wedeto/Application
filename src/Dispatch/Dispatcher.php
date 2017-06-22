@@ -391,7 +391,7 @@ class Dispatcher
         {
             $this->resolveApp();
             $this->request->startSession($this->vhost->getHost(), $this->config);
-            $this->setupLanguage();
+            $this->setupLocale();
 
             if ($this->route === null)
                 throw new HTTPError(404, 'Could not resolve ' . $this->url);
@@ -521,7 +521,7 @@ class Dispatcher
      * When neither the user or the virtual host specifies any locale,
      * the default is maintained.
      */
-    public function setupLanguage()
+    public function setupLocale()
     {
         // The virtual host may prescribe a language
         if (isset($this->variables['i18n']))
@@ -536,7 +536,7 @@ class Dispatcher
                 $locval = $session['locale'];
                 foreach ($locales as $supported_locale)
                 {
-                    if ($locval === $supported_locale)
+                    if ($locval === $supported_locale->getLocale())
                     {
                         $locale = $locval;
                         self::$logger->debug("Set language based on session variable to {0}", [$locale]);
@@ -548,7 +548,7 @@ class Dispatcher
             if ($locale === null && !empty($locales))
             {
                 $accept = $this->request->accept_language;
-                $locale = $accept->getBestResponseType($locales);
+                $locale = $vhost->selectLocaleFromAcceptHeader($accept);
 
                 if ($locale === null)
                 {
