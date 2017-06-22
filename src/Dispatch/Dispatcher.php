@@ -539,6 +539,7 @@ class Dispatcher
                     if ($locval === $supported_locale)
                     {
                         $locale = $locval;
+                        self::$logger->debug("Set language based on session variable to {0}", [$locale]);
                         break;
                     }
                 }
@@ -550,15 +551,23 @@ class Dispatcher
                 $locale = $accept->getBestResponseType($locales);
 
                 if ($locale === null)
+                {
                     $locale = reset($locales);
+                    self::$logger->debug("Set language based on default locale {0}", [$locale]);
+                }
+                else
+                {
+                    self::$logger->debug("Set language based on HTTP request headers to {0}", [$locale]);
+                }
+
+                if ($session !== null)
+                    $session->set('locale', $locale);
             }
 
             if (!empty($locale))
             {
                 self::$logger->debug('Setting locale to {0}', [$locale]);
                 $this->variables['i18n']->setLocale($locale);
-                if ($session !== null)
-                    $session->set('locale', $locale);
             }
         }
     }
