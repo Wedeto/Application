@@ -52,6 +52,8 @@ use Wedeto\HTML\AssetManager;
 
 use Wedeto\IO\FileType;
 
+use Wedeto\I18n\Locale;
+
 use Wedeto\FileFormats\WriterFactory;
 
 use Wedeto\Application\Application;
@@ -543,12 +545,20 @@ class Dispatcher
             }
 
             if ($locale === null && !empty($locales))
-                $locale = reset($locales);
+            {
+                $accept = $this->request->accept_language;
+                $locale = $accept->getBestResponseType($locales);
+
+                if ($locale === null)
+                    $locale = reset($locales);
+            }
 
             if (!empty($locale))
             {
                 self::$logger->debug('Setting locale to {0}', [$locale]);
                 $this->variables['i18n']->setLocale($locale);
+                if ($session !== null)
+                    $session->set('locale', $locale);
             }
         }
     }

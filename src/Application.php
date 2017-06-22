@@ -52,7 +52,7 @@ use Wedeto\Resolve\Router;
 use Wedeto\Application\Dispatch\Dispatcher;
 
 use Wedeto\HTTP\Request;
-use Wedeto\HTTP\Error as HTTPError;
+use Wedeto\HTTP\Response\Response;
 
 use Wedeto\I18n\I18n;
 use Wedeto\I18n\I18nShortcut;
@@ -517,23 +517,30 @@ class Application
     {
         $responder = new Responder($this->request);
 
-        $dispatcher = $this->get('dispatcher');
-        if ($this->dev)
+        try
         {
-            $memlogger = MemLogWriter::getInstance();
-            if ($memlogger)
+            $dispatcher = $this->get('dispatcher');
+            if ($this->dev)
             {
-                $loghook = new LogAttachHook($memlogger, $dispatcher);
-                Hook::subscribe(
-                    "Wedeto.HTTP.Responder.Respond", 
-                    $loghook,
-                    Hook::RUN_LAST
-                );
+                $memlogger = MemLogWriter::getInstance();
+                if ($memlogger)
+                {
+                    $loghook = new LogAttachHook($memlogger, $dispatcher);
+                    Hook::subscribe(
+                        "Wedeto.HTTP.Responder.Respond", 
+                        $loghook,
+                        Hook::RUN_LAST
+                    );
+                }
             }
+
+            $response = $dispatcher->dispatch();
+        }
+        catch (Response $thrown_response)
+        {
+            $response = $thrown_response;
         }
 
-        $asset_manager = $dispatcher->getTemplate()->getAssetManager();
-        $response = $dispatcher->dispatch();
         $responder->setResponse($response);
         $session_cookie = $this->request->session !== null ? $this->request->session->getCookie() : null;
         if ($session_cookie)
