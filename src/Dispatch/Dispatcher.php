@@ -388,8 +388,8 @@ class Dispatcher
         try
         {
             $this->resolveApp();
-
             $this->request->startSession($this->vhost->getHost(), $this->config);
+            $this->setupLanguage();
 
             if ($this->route === null)
                 throw new HTTPError(404, 'Could not resolve ' . $this->url);
@@ -507,39 +507,50 @@ class Dispatcher
             if ($target)
                 throw new RedirectRequest($target, 301);
             
-            // The virtual host may prescribe a language
-            if (isset($this->variables['i18n']))
-            {
-                $locales = $vhost->getLocales();
-                $session = $this->request->session;
-                $locale = null;
-                if ($session->has('locale', Type::STRING))
-                {
-                    $locval = $session['locale'];
-                    foreach ($locales as $supported_locale)
-                    {
-                        if ($locval === $supported_locale)
-                        {
-                            $locale = $locval;
-                            break;
-                        }
-                    }
-                }
-
-                if ($locale === null && !empty($locales))
-                    $locale = reset($locales);
-
-                if (!empty($locale))
-                {
-                    self::$logger->debug('Setting locale to {0}', [$locale]);
-                    $this->variables['i18n']->setLocale($locale);
-                }
-            }
-
-
         }
         $this->setVirtualHost($vhost);
         return $this;
+    }
+
+    /**
+     * Set up the language / locale based on the users preferences and the 
+     * provided locales by the virtual host.
+     *
+     * When neither the user or the virtual host specifies any locale,
+     * the default is maintained.
+     */
+    public function setupLanguage()
+    {
+        // The virtual host may prescribe a language
+        if (isset($this->variables['i18n']))
+        {
+            $vhost = $this->vhost;
+            $locales = $vhost->getLocales();
+            $session = $this->request->session;
+            $locale = null;
+            
+            if ($session !== null && $session->has('locale', Type::STRING))
+            {
+                $locval = $session['locale'];
+                foreach ($locales as $supported_locale)
+                {
+                    if ($locval === $supported_locale)
+                    {
+                        $locale = $locval;
+                        break;
+                    }
+                }
+            }
+
+            if ($locale === null && !empty($locales))
+                $locale = reset($locales);
+
+            if (!empty($locale))
+            {
+                self::$logger->debug('Setting locale to {0}', [$locale]);
+                $this->variables['i18n']->setLocale($locale);
+            }
+        }
     }
 
     /** 
