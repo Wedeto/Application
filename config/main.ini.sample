@@ -8,7 +8,6 @@
 ; ERROR will throw a HTTP 404 error
 ;unknown_host_policy = "IGNORE"
 dev = 1
-redirect_unknown = 0
 default_language = en
 url = "example.com"
 
@@ -41,3 +40,14 @@ url = "example.com"
 ;cache = ""
 ;log = ""
 ;uploads = ""
+
+[log]
+; Add log levels here. Each key is the name of a logger, and the value
+; is the desired log level (debug/info/notice/warning/error/critical/alert/emergency)
+;
+; For example:
+; Wedeto.Application = "debug"
+;
+; You can also add writers here by providing constructor arguments.
+; If you, for example, want to log the autoloader to a file, you can add:
+; writer[Wedeto.Resolve.Autoloader] = "Wedeto\Log\Writer\FileWriter;{LOGDIR}/autoloader.log;debug"
