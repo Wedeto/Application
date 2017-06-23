@@ -147,6 +147,9 @@ class Application
 
         $this->dev = $this->config->dget('site', 'dev', true);
 
+        // Set up the autoloader
+        $this->configureAutoloaderAndResolver();
+
         // Make sure permissions are adequate
         try
         {
@@ -163,9 +166,6 @@ class Application
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
         else
             ini_set('error_log', $this->path_config->log . '/error-php' . $test . '.log');
-
-        // Set up the autoloader
-        $this->configureAutoloaderAndResolver();
 
         // Set default permissions for files and directories
         $this->setCreatePermissions();
@@ -479,6 +479,7 @@ class Application
                 $tpl->assign('exception', $e);
                 $tpl->assign('request', $req);
                 $tpl->assign('dev', $app->dev);
+                Application::i18n();
 
                 $response = $tpl->renderReturn();
                 $responder = new \Wedeto\HTTP\Responder($req);

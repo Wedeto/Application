@@ -151,7 +151,7 @@ class PathConfig
         if ($this->path_checked)
             return true;
 
-        foreach (array('root', 'webroot', 'config') as $type)
+        foreach (array('root', 'webroot') as $type)
         {
             $path = $this->$type;
             if (!file_exists($path) || !is_dir($path))
@@ -160,6 +160,11 @@ class PathConfig
             if (!is_readable($path))
                 throw new PermissionError($path, "Path '$type' cannot be read");
         }
+
+        if (!file_exists($this->config . DIRECTORY_SEPARATOR . 'main.ini'))
+            throw new ConfigurationException("No configuration file");
+        if (!is_readable($this->config . DIRECTORY_SEPARATOR . 'main.ini'))
+            throw new ConfigurationException("Configuration file unreadable");
         
         foreach (array('var', 'cache', 'log', 'uploads') as $write_dir)
         {
