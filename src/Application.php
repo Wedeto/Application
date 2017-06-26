@@ -178,8 +178,11 @@ class Application
         $this->setupLogging();
 
         // Save the cache if configured so
-        Cache::setCachePath($this->path_config->cache);
-        Cache::setHook($this->config->dget('cache', 'expiry', 60));
+        if ($this->path_config->cache)
+        {
+            Cache::setCachePath($this->path_config->cache);
+            Cache::setHook($this->config->dget('cache', 'expiry', 60));
+        }
 
         // Find installed modules and initialize them
         $this->module_manager = new Module\Manager($this->resolver);
@@ -376,8 +379,12 @@ class Application
 
         $root_logger = Logger::getLogger();
         $root_logger->setLevel(LogLevel::INFO);
-        $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
-        $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::DEBUG));
+
+        if ($this->path_config->log)
+        {
+            $logfile = $this->path_config->log . '/wedeto' . $test . '.log';
+            $root_logger->addLogWriter(new FileWriter($logfile, LogLevel::DEBUG));
+        }
 
         // Set up logger based on ini file
         if ($this->config->has('log', Type::ARRAY))

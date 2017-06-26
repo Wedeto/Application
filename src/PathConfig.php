@@ -28,6 +28,7 @@ namespace Wedeto\Application;
 use Wedeto\Resolve\Autoloader;
 use Wedeto\Util\Functions as WF;
 use Wedeto\IO\Path;
+use Wedeto\IO\PermissionError;
 use Wedeto\IO\IOException;
 
 class PathConfig
@@ -62,8 +63,12 @@ class PathConfig
     /** Whether the current path configuration has been validated */
     protected $path_checked = false;
     
+    /** If the script is run from CLI or through the web */
+    protected $cli;
+
     /** Provides access to a default instance */
     protected static $instance = null;
+
 
     /**
      * Construct the PathConfig object. Pass in a root path,
@@ -114,8 +119,8 @@ class PathConfig
             // @codeCoverageIgnoreEnd
         }
 
-        $cli = PHP_SAPI === 'cli';
-        if ($cli)
+        $this->cli = PHP_SAPI === 'cli';
+        if ($this->cli)
         {
             $this->webroot = $webroot ?? $this->root . $SEP . 'http';
         }
@@ -161,21 +166,45 @@ class PathConfig
                 throw new PermissionError($path, "Path '$type' cannot be read");
         }
 
-        if (!file_exists($this->config . DIRECTORY_SEPARATOR . 'main.ini'))
-            throw new ConfigurationException("No configuration file");
-        if (!is_readable($this->config . DIRECTORY_SEPARATOR . 'main.ini'))
-            throw new ConfigurationException("Configuration file unreadable");
-        
+        if (!is_dir($this->config) || is_readable($this->config))
+            $this->config = null;
+
         foreach (array('var', 'cache', 'log', 'uploads') as $write_dir)
         {
             $path = $this->$write_dir;
-            Path::mkdir($path);
-
             if (!is_dir($path))
-                throw new IOException("Path " . $path . " is not a directory");
+            {
 
-            if (!is_writable($path)) // We can try to make it writable, if we own the file
-                Path::makeWritable($path);
+                $dn = dirname($path);
+                if (!file_exists($path) && $dn === $this->var)
+                {
+                    // The parent directory is var/ and must be writeable as
+                    // this was checked earlier in this loop.
+                    Path::mkdir($path);
+                }
+                else
+                {
+                    if (file_exists($path))
+                        WF::debug("File exists but is not a directory: %s", $e->getMessage());
+                    $this->$write_dir = null;
+                    continue;
+                }
+            }
+
+            if (!is_writable($path))
+            {
+                try
+                {
+                    // We can try to fix permissions if we own the file
+                    Path::makeWritable($path);
+                }
+                catch (PermissionError $e)
+                {
+                    $this->$write_dir = null;
+                    if ($this->cli)
+                        WF::debug("Failed to get write access to: %s", $e->getMessage());
+                }
+            }
         }
         $this->path_checked = true;
         return true;
