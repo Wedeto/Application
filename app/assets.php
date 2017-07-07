@@ -85,10 +85,13 @@ if ($full_path)
     if (!is_dir($target_dir))
         Path::mkdir($target_dir);        
 
-    if (symlink($full_path, $target_path))
-        Logger::getLogger("Wedeto.Application.App.Assets")->info("Created asset symlink from {0} to {1}", [$full_path, $target_path]);
-    else
-        Logger::getLogger("Wedeto.Application.App.Assets")->info("Failed creating symlink from {0} to {1}", [$full_path, $target_path]);
+    if (!file_exists($target_path))
+    {
+        if (symlink($full_path, $target_path))
+            Logger::getLogger("Wedeto.Application.App.Assets")->info("Created asset symlink from {0} to {1}", [$full_path, $target_path]);
+        else
+            Logger::getLogger("Wedeto.Application.App.Assets")->info("Failed creating symlink from {0} to {1}", [$full_path, $target_path]);
+    }
 
     $cache = new CachePolicy;
     $cache->setCachePolicy(CachePolicy::CACHE_PUBLIC);
