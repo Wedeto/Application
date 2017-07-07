@@ -37,7 +37,7 @@ $this->addCSS('vendor/foundation/css/foundation-icons');
     </head>
     <body>
         <div class="top-bar">
-            <img src="<?=URL('/assets/img/touch-icon-152.png');?>" style="height: 20px;" />
+            <img src="<?=URL('assets/img/touch-icon-152.png');?>" style="height: 20px;" />
             <strong>Wedeto - WEb DEvelopment TOolkit</strong>
         </div>
         <div class="row" style="margin-top: 10px;">
