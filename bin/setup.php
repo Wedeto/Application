@@ -231,11 +231,12 @@ if (file_exists($tgt) && (CLI::input(ANSI::bright("Would you like to set up a da
 
         try
         {
-            $db->driver(); // Attempt to connect
+            $db->getDriver(); // Attempt to connect
             echo ANSI::setFGColor(ANSI::GREEN) . ANSI::bright("Successfully connected to database") . ANSI::reset() . $LN;
         }
         catch (PDOException $e)
         {
+            var_dump($e);
             echo ANSI::setFGColor(ANSI::RED) . ANSI::bright("Failed to connect: ") . ANSI::RESET . $e->getMessage() . $LN;
             echo ANSI::bright("Please try again") . $LN . $LN;
             continue;
