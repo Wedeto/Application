@@ -413,6 +413,7 @@ class Application
 
                         $logger->addLogWriter($writer);
                     }
+                    continue;
                 }
                 
                 $logger = Logger::getLogger($logname);

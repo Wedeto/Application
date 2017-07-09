@@ -32,6 +32,7 @@ $this->addCSS('vendor/foundation/css/foundation-icons');
 <html>
     <head lang="nl">
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?=txt($this->title());?></title>
         <?=$this->insertCSS();?>
     </head>
