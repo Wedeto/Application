@@ -25,6 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 use Wedeto\Template;
 use Wedeto\HTTP\Response\Error as HTTPError;
+use Wedeto\Application\Application;
 
 if ($arguments->count())
 {
