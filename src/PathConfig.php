@@ -120,7 +120,7 @@ class PathConfig
         }
 
         $this->cli = PHP_SAPI === 'cli';
-        if ($this->cli)
+        if ($this->cli || PHP_SAPI === 'cli-server')
         {
             $this->webroot = $webroot ?? $this->root . $SEP . 'http';
         }
