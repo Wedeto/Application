@@ -51,6 +51,7 @@ switch ($error_code)
         $error_description = t("Your request cannot be handled because you are not authorized for it.");
         break;
 }
+$this->setTitle($error_code . " - " . $error_title);
 
 if ($dev)
 {
@@ -76,6 +77,7 @@ elseif (method_exists($exception, 'getUserMessage'))
     if (!empty($user_message))
         $error_description .= "\n\n" . t('Description: {message}', ['message' => $user_message]);
 }
+$this->setTitle($error_code . " - " . $error_title);
 
 require tpl('error/HTMLErrorTemplate');
 

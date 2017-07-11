@@ -34,6 +34,7 @@ if ($dev)
         "\nDescription: " . $exception->getMessage() . "\n" 
         . Wedeto\Util\Functions::str($exception);
 }
+$this->setTitle($error_code . " - " . $error_title);
 
 require tpl('error/HTMLErrorTemplate');
 ?>
