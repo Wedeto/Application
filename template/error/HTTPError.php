@@ -61,8 +61,17 @@ if ($dev)
 elseif (method_exists($exception, 'getUserMessage'))
 {
     $msg = $exception->getUserMessage();
-    if ($msg !== null)
-        $user_message = t($exception->getUserMessage());
+    if (is_array($msg))
+    {
+        $params = $msg['params'] ?? [];
+        $domain = $msg['domain'] ?? "wedeto";
+        $msg = $msg['msg'] ?? reset($msg);
+        $user_message = td($msg, $domain, $params);
+    }
+    elseif (is_string($msg))
+        $user_message = t($msg);
+    elseif (!empty($msg))
+        $user_message = Wedeto\Util\Functions::str($msg);
 
     if (!empty($user_message))
         $error_description .= "\n\n" . t('Description: {message}', ['message' => $user_message]);
