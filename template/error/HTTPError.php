@@ -60,7 +60,10 @@ if ($dev)
 }
 elseif (method_exists($exception, 'getUserMessage'))
 {
-    $user_message = t($exception->getUserMessage());
+    $msg = $exception->getUserMessage();
+    if ($msg !== null)
+        $user_message = t($exception->getUserMessage());
+
     if (!empty($user_message))
         $error_description .= "\n\n" . t('Description: {message}', ['message' => $user_message]);
 }
