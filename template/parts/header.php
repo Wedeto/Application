@@ -24,13 +24,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 $this->addJS('vendor/jquery/jquery');
-$this->addJS('vendor/foundation/js/what-input');
+$this->addJS('vendor/foundation/js/what-input', 'jquery');
+$this->addJS('vendor/foundation/js/foundation', 'jquery');
 $this->addCSS('vendor/foundation/css/foundation');
 $this->addCSS('vendor/foundation/css/foundation-icons');
 
 ?><!doctype html>
-<html>
-    <head lang="nl">
+<html class="no-js" lang="en">
+    <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?=txt($this->title());?></title>
