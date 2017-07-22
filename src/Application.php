@@ -60,6 +60,8 @@ use Wedeto\I18n\Translator\TranslationLogger;
 
 use Wedeto\HTTP\Responder;
 
+use Wedeto\Auth\Authentication;
+
 use Wedeto\DB\DB;
 
 // @codeCoverageIgnoreStart
@@ -76,6 +78,7 @@ class Application
     protected $autoloader = null;
 
     protected $config;
+    protected $auth;
     protected $db;
     protected $dispatcher;
     protected $i18n;
@@ -202,6 +205,13 @@ class Application
         return $this->get($parameter);
     }
 
+    public function getAuth()
+    {
+        if ($this->auth === null)
+            $this->auth = new Authentication($this->config);
+        return $this->auth;
+    }
+
     public function getDB()
     {
         if ($this->db === null)
@@ -236,6 +246,8 @@ class Application
                 return $this->dev ?? true;
             case "config":
                 return $this->config;
+            case "auth":
+                return $this->getAuth();
             case "pathConfig":
                 return $this->path_config;
             case "request":
