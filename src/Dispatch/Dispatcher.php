@@ -57,6 +57,7 @@ use Wedeto\I18n\Locale;
 use Wedeto\FileFormats\WriterFactory;
 
 use Wedeto\Application\Application;
+use Wedeto\Application\FlashMessage;
 
 /**
  * Dispatcher dispatches a HTTP Request to the correct route.
@@ -391,6 +392,8 @@ class Dispatcher
         {
             $this->resolveApp();
             $this->request->startSession($this->vhost->getHost(), $this->config);
+            FlashMessage::setStorage($this->request->session);
+
             $this->setupLocale();
 
             if ($this->route === null)
