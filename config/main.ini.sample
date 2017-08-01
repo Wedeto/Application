@@ -28,7 +28,7 @@ url = "example.com"
 [mail]
 ;username = 
 ;password = 
-;server = localhost
+;host = localhost
 ;port = 587
 
 [path]
