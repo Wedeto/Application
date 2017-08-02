@@ -520,7 +520,7 @@ class Application
 
         if (Request::cli())
         {
-            fprintf(STDERR, Wedeto\Application\CLI\ANSI::bright("Error while showing error template:") . "\n\n");
+            fprintf(STDERR, \Wedeto\Application\CLI\ANSI::bright("An uncaught exception has occurred:") . "\n\n");
             WF::debug(WF::str($e));
         }
         else
