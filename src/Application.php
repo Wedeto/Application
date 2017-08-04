@@ -54,6 +54,8 @@ use Wedeto\Application\Dispatch\Dispatcher;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Response\Response;
 
+use Wedeto\Mail\SMTPSender;
+
 use Wedeto\I18n\I18n;
 use Wedeto\I18n\I18nShortcut;
 use Wedeto\I18n\Translator\TranslationLogger;
@@ -82,6 +84,7 @@ class Application
     protected $db;
     protected $dispatcher;
     protected $i18n;
+    protected $mailer;
     protected $module_manager;
     protected $path_config;
     protected $resolver;
@@ -238,6 +241,14 @@ class Application
         return $this->i18n;
     }
 
+    public function getMailer()
+    {
+        if ($this->mailer === null)
+            $this->mailer = new SMTPSender($this->config->getSection('mail')->toArray());
+
+        return $this->mailer;
+    }
+
     public function get($parameter)
     {
         switch ($parameter)
@@ -260,6 +271,8 @@ class Application
                 return $this->getDB();
             case "i18n":
                 return $this->getI18n();
+            case "mailer":
+                return $this->getMailer();
             case "dispatcher":
                 if ($this->dispatcher === null)
                 {
