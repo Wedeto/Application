@@ -69,9 +69,6 @@ class Dispatcher
 {
     use LoggerAwareStaticTrait;
 
-    /** The default language used for responses */
-    private static $default_language = 'en';
-
     /** The site configuration */
     protected $config;
 
@@ -663,7 +660,8 @@ class Dispatcher
         $url = new URL($webroot);
         $url->fragment = null;
         $url->query = null;
-        $vhost = new VirtualHost($url, self::$default_language);
+        $lang = $cfg->dget('default_language', 'en');
+        $vhost = new VirtualHost($url, $lang);
 
         // Add the new virtualhost to a site.
         if ($best_matching === null)
