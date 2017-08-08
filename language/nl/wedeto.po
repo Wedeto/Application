@@ -46,7 +46,7 @@ msgstr "{path} bestaat niet op deze server"
 #. Untranslated string at 2017-06-21 13:05:07
 #: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:41
 msgid "The resource you requested can not be found"
-msgstr "Het bestand dat  gevraagd word kan niet gevonden worden"
+msgstr "De opgevraagde bestaat niet op deze site"
 
 #. Untranslated string at 2017-06-21 13:05:07
 #: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:58
