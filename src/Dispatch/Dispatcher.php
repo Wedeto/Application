@@ -483,7 +483,7 @@ class Dispatcher
         $vhost = self::findVirtualHost($this->request->webroot, $this->sites);
         if ($vhost === null)
         {
-            $result = $this->handleUnknownHost($this->request->webroot, $this->sites, $cfg);
+            $result = $this->handleUnknownHost($this->request->webroot, $this->request->url, $this->sites, $cfg);
             
             // Handle according to the outcome
             if ($result === null)
@@ -633,6 +633,7 @@ class Dispatcher
      * VirtualHost is attached to that site. This makes configuration non-required for 
      * simple sites with one site and one hostname.
      * 
+     * @param URL $webroot The webroot where a request was made
      * @param URL $url The URL that was requested
      * @param array $sites The configured sites
      * @param Dictionary $cfg The configuration to get the policy from
@@ -641,7 +642,7 @@ class Dispatcher
      *               * URI: if the policy is to redirect to the closest matching host
      *               * VirtualHost: if the policy is to ignore / accept unknown hosts
      */
-    public static function handleUnknownHost(URL $webroot, array $sites, Dictionary $cfg)
+    public static function handleUnknownHost(URL $webroot, URL $request, array $sites, Dictionary $cfg)
     {
         // Determine behaviour on unknown host
         $on_unknown = strtoupper($cfg->dget('unknown_host_policy', "IGNORE"));
@@ -652,7 +653,7 @@ class Dispatcher
 
         if ($on_unknown === "REDIRECT")
         {
-            $redir = $best_matching->URL($webroot->path);
+            $redir = $best_matching->URL($request->path);
             return $redir;
         }
 
