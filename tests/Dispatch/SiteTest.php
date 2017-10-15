@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 use Wedeto\Util\Dictionary;
 use Wedeto\HTTP\URL;
 use Wedeto\HTTP\URLException;
+use Wedeto\I18n\Locale;
 
 /**
  * @covers Wedeto\Application\Dispatch\Site
@@ -179,7 +180,7 @@ final class SiteTest extends TestCase
     {
         $vhost1 = new VirtualHost('http://www.foobar.com', null);
 
-        $this->assertTrue($vhost1->match('www.foobar.com'));
+        $this->assertTrue($vhost1->match('http://www.foobar.com:80/'));
 
         $this->expectException(URLException::class);
         $this->expectExceptionMessage('Unsupported scheme: \'garbage\'');
@@ -193,11 +194,9 @@ final class SiteTest extends TestCase
         $vhost2->setRedirect('http://www.foobar.com');
 
         $this->assertTrue($vhost1->matchLocale('en'));
-        $this->assertTrue($vhost1->matchLocale(null));
         $this->assertFalse($vhost1->matchLocale('de'));
 
         $this->assertFalse($vhost2->matchLocale('en'));
-        $this->assertFalse($vhost2->matchLocale(null));
         $this->assertFalse($vhost2->matchLocale('de'));
     }
 }

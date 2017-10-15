@@ -32,7 +32,7 @@ use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\MemLogger;
 
-use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Resolver;
 
 use Wedeto\Util\Hook;
 use Wedeto\Util\Dictionary;
@@ -106,10 +106,10 @@ class Dispatcher
      * Create the dispatcher. 
      *
      * @param Request $request The request to dispatch
-     * @param ResolveManager $resolver The resolve manager able to resolve assets, templates and routes
+     * @param Resolver $resolver The resolve manager able to resolve assets, templates and routes
      * @param Dictionary $config The configuration used for setting up Site and VirtualHost instances
      */
-    public function __construct(Request $request, ResolveManager $resolver, $config = [])
+    public function __construct(Request $request, Resolver $resolver, $config = [])
     {
         self::getLogger();
 
@@ -117,9 +117,9 @@ class Dispatcher
             $config = new Dictionary($config);
 
         $this->setRequest($request);
-        $this->setResolveManager($resolver);
+        $this->setResolver($resolver);
         $this->setConfig($config);
-        $this->getTemplate();
+        //$this->getTemplate();
     }
 
     /**
@@ -286,7 +286,7 @@ class Dispatcher
      * @param Wedeto\Resolve\Resolver The resolver
      * @return Wedeto\HTTP\Request Provides fluent interface
      */
-    public function setResolveManager(ResolveManager $resolver)
+    public function setResolver(Resolver $resolver)
     {
         $this->resolver = $resolver;
         $this->setVariable('resolver', $resolver);
@@ -388,6 +388,7 @@ class Dispatcher
         try
         {
             $this->resolveApp();
+            $this->getTemplate();
             $this->request->startSession($this->vhost->getHost(), $this->config);
             FlashMessage::setStorage($this->request->session);
 

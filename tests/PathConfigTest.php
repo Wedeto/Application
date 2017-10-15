@@ -49,7 +49,6 @@ final class PathConfigTest extends TestCase
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
 
-        //$this->wedetoroot = dirname(dirname(realpath(__FILE__)));
         PathConfig::setInstance();
     }
 
@@ -149,11 +148,17 @@ final class PathConfigTest extends TestCase
     {
         $pc = new PathConfig($this->wedetoroot);
         
-        $tgt_path = $this->wedetoroot . DIRECTORY_SEPARATOR . 'foo' . DIRECTORY_SEPARATOR . 'var';
-        $pc->var = $tgt_path;
-        $this->assertEquals($tgt_path, $pc->var);
+        $var_path = $this->wedetoroot . DIRECTORY_SEPARATOR . 'foo' . DIRECTORY_SEPARATOR . 'var';
+        $pc->var = $var_path;
+        $this->assertEquals($var_path, $pc->var);
+
+        $log_path = $var_path . DIRECTORY_SEPARATOR . 'lug';
+        $pc->log = $log_path;
+        $this->assertEquals($log_path, $pc->log);
+
+        mkdir($var_path, 0777, true);
         $pc->checkPaths();
-        $this->assertTrue(is_dir($tgt_path));
+        $this->assertTrue(is_dir($log_path));
     }
 
     public function testChangeInvalidPathElementThrowsException()
@@ -187,25 +192,5 @@ final class PathConfigTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Invalid path: 3");
         $pc = new Pathconfig(['root' => 3]);
-    }
-
-    public function testConstructWithMissingUncreatableVarDirectory()
-    {
-        chmod($this->wedetoroot, 0400);
-        $pc = new PathConfig($this->wedetoroot);
-
-        $this->expectException(IOException::class);
-        $this->expectExceptionMessage('is not a directory');
-        $pc->checkPaths();
-    }
-
-    public function testConstructWithMissingConfigDirectory()
-    {
-        rmdir($this->wedetoroot . '/config');
-        $pc = new PathConfig($this->wedetoroot);
-
-        $this->expectException(IOException::class);
-        $this->expectExceptionMessage('Path config does not exist');
-        $pc->checkPaths();
     }
 }

@@ -31,6 +31,7 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 
 use Wedeto\Util\Dictionary;
+use Wedeto\Util\Cache;
 
 use Wedeto\Log\Logger;
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter};
@@ -39,7 +40,7 @@ use Wedeto\IO\Path;
 
 use Wedeto\HTML\Template;
 use Wedeto\HTTP\Request;
-use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Resolver;
 use Wedeto\Application\Module\Manager as ModuleManager;
 use Wedeto\I18n\I18n;
 use Wedeto\DB\DB;
@@ -65,6 +66,8 @@ class ApplicationTest extends TestCase
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'language');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var');
+        mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'log');
 
         PathConfig::setInstance();
         $this->pathconfig = new PathConfig($this->wedetoroot);
@@ -97,7 +100,7 @@ class ApplicationTest extends TestCase
 
         $this->assertSame($config, $app->config);
         $this->assertInstanceOf(Request::class, $app->request);
-        $this->assertInstanceOf(ResolveManager::class, $app->resolver);
+        $this->assertInstanceOf(Resolver::class, $app->resolver);
         $this->assertInstanceOf(PathConfig::class, $app->pathConfig);
         $this->assertInstanceOf(Template::class, $app->template);
         $this->assertInstanceOf(I18n::class, $app->i18n);
@@ -105,7 +108,7 @@ class ApplicationTest extends TestCase
 
         $this->assertSame($config, Application::config());
         $this->assertInstanceOf(Request::class, Application::request());
-        $this->assertInstanceOf(ResolveManager::class, Application::resolver());
+        $this->assertInstanceOf(Resolver::class, Application::resolver());
         $this->assertInstanceOf(PathConfig::class, Application::pathConfig());
         $this->assertInstanceOf(Template::class, Application::template());
         $this->assertInstanceOf(I18n::class, Application::i18n());
@@ -156,6 +159,7 @@ class ApplicationTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/foo';
 
         $config = new Dictionary(['site' => ['dev' => false]]);
+
         $app = new Application($this->pathconfig, $config);
 
         $log = Logger::getLogger();
@@ -175,7 +179,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($ml_found, "Mem log writer found");
 
         Logger::resetGlobalState();
-        $config = new Dictionary(['site' => ['dev' => true]]);
+        $config = new Dictionary(['site' => ['dev' => true], 'log' => ['ROOT' => 'DEBUG']]);
         $app = new Application($this->pathconfig, $config);
 
         $log = Logger::getLogger();

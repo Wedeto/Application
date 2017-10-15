@@ -174,7 +174,6 @@ class PathConfig
             $path = $this->$write_dir;
             if (!is_dir($path))
             {
-
                 $dn = dirname($path);
                 if (!file_exists($path) && $dn === $this->var)
                 {

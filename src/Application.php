@@ -46,7 +46,7 @@ use Wedeto\Log\Writer\{FileWriter, MemLogWriter, AbstractWriter};
 use Wedeto\Log\Formatter\PatternFormatter;
 
 use Wedeto\Resolve\Autoloader;
-use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Resolver;
 use Wedeto\Resolve\Router;
 
 use Wedeto\Application\Dispatch\Dispatcher;
@@ -365,7 +365,7 @@ class Application
         $cache = new Cache("resolution");
         $this->autoloader = new Autoloader();
         $this->autoloader->setCache($cache);
-        $this->resolver = new ResolveManager($cache);
+        $this->resolver = new Resolver($cache);
         $this->resolver
             ->addResolverType('template', 'template', '.php')
             ->addResolverType('assets', 'assets')
@@ -420,8 +420,6 @@ class Application
                 {
                     foreach ($level as $logname => $parameters)
                     {
-                        if (empty($logname) || strtoupper($logname) === "ROOT")
-                            $logname = '';
                         $logger = Logger::getLogger($logname);
                         $parameters = str_replace('{LOGDIR}', $this->path_config->log, $parameters);
                         $parameters = explode(';', $parameters);

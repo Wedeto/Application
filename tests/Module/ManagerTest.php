@@ -34,7 +34,7 @@ use Wedeto\Util\Dictionary;
 use Wedeto\Log\Logger;
 use Wedeto\Log\Writer\MemLogWriter;
 
-use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Resolver as Resolver;
 
 /**
  * @covers Wedeto\Application\Module\Manager
@@ -57,7 +57,7 @@ class ManagerTest extends TestCase
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'app');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'src');
 
-        $this->resolver = new ResolveManager;
+        $this->resolver = new Resolver;
         $this->resolver
             ->addResolverType('template', 'template', '.php')
             ->addResolverType('assets', 'assets')

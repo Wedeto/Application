@@ -24,7 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 namespace Wedeto\Application\Module;
 
-use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Resolver;
 use Wedeto\Util\LoggerAwareStaticTrait;
 
 /**
@@ -41,9 +41,9 @@ class Manager
     /** 
      * Find and initialize installed modules in the module path
      *
-     * @param ResolveManager $resolver The resolver that find modules
+     * @param Resolver $resolver The resolver that find modules
      */
-    public function __construct(ResolveManager $manager)
+    public function __construct(Resolver $manager)
     {
         self::getLogger();
         $modules = $manager->getModules();

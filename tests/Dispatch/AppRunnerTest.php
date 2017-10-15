@@ -42,7 +42,7 @@ use Wedeto\Application\PathConfig;
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Functions as WF;
 
-use Wedeto\Resolve\Resolver;
+use Wedeto\Resolve\SubResolver;
 
 use Wedeto\Log\Logger;
 use Wedeto\Log\Writer\MemLogWriter;
@@ -74,7 +74,7 @@ final class AppRunnerTest extends TestCase
         $this->filename = $this->testpath . '/wedetotest_' . (string)microtime(true) . ".php";
         $this->classname = "cl_" . str_replace(".", "", basename($this->filename));
 
-        $this->resolver = new Resolver('foo');
+        $this->resolver = new SubResolver('foo');
 
         $logger = Logger::getLogger(AppRunner::class);
         $this->devlogger = new MemLogWriter(LogLevel::DEBUG);
@@ -469,7 +469,7 @@ use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\HTTP\Request;
 use Wedeto\HTML\Template;
 use Wedeto\Util\Dictionary;
-use Wedeto\Resolve\Resolver;
+use Wedeto\Resolve\SubResolver;
 use Wedeto\Log\Logger;
 
 class {$classname}
@@ -489,7 +489,7 @@ class {$classname}
             \$response[] = "Request";
         if (\$this->logger instanceof Logger)
             \$response[] = "Logger";
-        if (\$this->resolve instanceof Resolver)
+        if (\$this->resolve instanceof SubResolver)
             \$response[] = "Resolver";
         else
             throw new \RuntimeException('Invalid resolve: ' . Wedeto\\Util\\functions::str(\$this->resolve));

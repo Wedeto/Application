@@ -483,11 +483,11 @@ EOT;
         );
 
         $webroot = new URL('http://www.foo.baz');
-        $actual = Dispatcher::handleUnknownHost($webroot, $sites, $dict);
+        $actual = Dispatcher::handleUnknownHost($webroot, $webroot, $sites, $dict);
         $this->assertEquals($vhost1->getHost(), $actual);
 
         $webroot = new URL('http://www.foo.xxy');
-        $actual = Dispatcher::handleUnknownHost($webroot, $sites, $dict);
+        $actual = Dispatcher::handleUnknownHost($webroot, $webroot, $sites, $dict);
         $this->assertEquals($vhost2->getHost(), $actual);
     }
 
@@ -508,7 +508,7 @@ EOT;
 
 }
 
-class MockRequestResolver extends \Wedeto\Resolve\Resolver
+class MockRequestResolver extends \Wedeto\Resolve\SubResolver
 {
     public $return_value = null;
 

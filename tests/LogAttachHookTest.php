@@ -35,7 +35,7 @@ use Wedeto\Log\Writer\MemLogWriter;
 
 use Wedeto\Application\Dispatch\Dispatcher;
 
-use Wedeto\Resolve\Manager as ResolveManager;
+use Wedeto\Resolve\Resolver;
 
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
@@ -52,7 +52,7 @@ class LogAttachHookTest extends TestCase
         $root = Logger::getLogger('');
         $root->addLogWriter($this->memlogger);
 
-        $this->resolver = new ResolveManager();
+        $this->resolver = new Resolver();
         $this->resolver
             ->addResolverType('assets', 'assets')
             ->addResolverType('template', 'template');
