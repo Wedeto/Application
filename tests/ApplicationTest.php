@@ -76,6 +76,7 @@ class ApplicationTest extends TestCase
     public function tearDown()
     {
         Application::setInstance();
+        Cache::clearHook();
         Logger::resetGlobalState(); 
         Path::setDefaultFileMode(0660);
         Path::setDefaultDirMode(0770);
@@ -115,8 +116,6 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(ModuleManager::class, Application::moduleManager());
 
         $this->assertInstanceOf(DB::class, $app->db);
-
-
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("No such object: foobar");

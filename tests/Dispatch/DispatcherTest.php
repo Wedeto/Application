@@ -39,6 +39,7 @@ use Wedeto\Application\PathConfig;
 use Wedeto\HTML\Template;
 
 use Wedeto\Util\Dictionary;
+use Wedeto\Util\Cache;
 use Wedeto\Util\Functions as WF;
 
 use Wedeto\HTTP\Request;
@@ -51,6 +52,9 @@ use Wedeto\HTTP\Response\StringResponse;
 use Wedeto\HTTP\Response\DataResponse;
 
 use Wedeto\Log\Logger;
+
+if (!defined('WEDETO_TEST'))
+    define('WEDETO_TEST', 1);
 
 /**
  * @covers Wedeto\Application\Dispatch\Dispatcher
@@ -138,6 +142,8 @@ final class DispatcherTest extends TestCase
     public function tearDown()
     {
         Logger::resetGlobalState();
+        Cache::clearHook();
+        Application::setInstance();
     }
 
     public function testRouting()

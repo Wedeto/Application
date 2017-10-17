@@ -91,6 +91,7 @@ class Application
     protected $request;
     protected $template;
     protected $dev = true;
+    protected $is_shutdown = false;
 
     public static function hasInstance()
     {
@@ -107,13 +108,16 @@ class Application
 
     public static function setInstance(Application $application = null)
     {
+        if (self::$instance !== null)
+            self::$instance->shutdown();
+
         self::$instance = $application;
     }
 
     public function __construct(PathConfig $path_config = null, Dictionary $config = null)
     {
         self::setLogger(Logger::getLogger(static::class));
-        self::$instance = $this;
+        self::setInstance($this);
 
         $this->path_config = $path_config ?? new PathConfig;
         $this->config = $config ?? new Dictionary;
@@ -538,6 +542,24 @@ class Application
         {
             echo "<h2>Original error:</h2>\n\n";
             echo "<pre>" . WF::html($e) . "</pre>\n";
+        }
+    }
+
+    public function shutdown()
+    {
+        if (!$this->is_shutdown)
+        {
+            $this->is_shutdown = true;
+
+            // Unregister the autoloader
+            if (!empty($this->autoloader))
+                spl_autoload_unregister(array($this->autoloader, 'autoload'));
+
+            // Unregister the error handler
+            ErrorInterceptor::unregisterErrorHandler();
+
+            // Unregister the exception handler
+            restore_exception_handler();
         }
     }
 
