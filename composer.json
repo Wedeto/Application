@@ -6,7 +6,7 @@
     "type": "project",
     "require": {
         "Wedeto/Auth": ">=0.9.0",
-        "Wedeto/DB": ">=0.9.0",
+        "Wedeto/DB": ">=0.9.14",
         "Wedeto/FileFormats": ">=0.9.0",
         "Wedeto/HTML": ">=0.9.8",
         "Wedeto/HTTP": ">=0.9.9",
