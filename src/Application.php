@@ -33,6 +33,7 @@ use Psr\Log\LogLevel;
 use Wedeto\IO\Path;
 use Wedeto\IO\PermissionError;
 
+use Wedeto\Util\DI\DI;
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
 use Wedeto\Util\Type;
@@ -81,6 +82,7 @@ class Application
 
     protected $config;
     protected $auth;
+    protected $cachemanager;
     protected $db;
     protected $dispatcher;
     protected $i18n;
@@ -155,6 +157,7 @@ class Application
             }
         }
 
+        $this->cachemanager = DI::getInjector()->getInstance(Cache\Manager::class);
         $this->dev = $this->config->dget('site', 'dev', true);
 
         // Set up the autoloader
@@ -190,8 +193,8 @@ class Application
         // Save the cache if configured so
         if ($this->path_config->cache)
         {
-            Cache::setCachePath($this->path_config->cache);
-            Cache::setHook($this->config->dget('cache', 'expiry', 60));
+            $this->cachemanager->setCachePath($this->path_config->cache);
+            $this->cachemanager->setHook($this->config->dget('cache', 'expiry', 60));
         }
 
         // Find installed modules and initialize them
@@ -283,7 +286,7 @@ class Application
                     $this->dispatcher = Dispatcher::createFromApplication($this);
                     $this->template = $this->dispatcher->getTemplate();
                     $amgr = $this->template->getAssetManager();
-                    $cache = new Cache('wedeto-asset-manager-cache');
+                    $cache = $this->cachemanager->getCache('wedeto-asset-manager-cache');
                     $amgr->setCache($cache);
                 }
                 return $this->dispatcher;
@@ -366,7 +369,7 @@ class Application
             return;
 
         // Construct the Wedeto autoloader and resolver
-        $cache = new Cache("resolution");
+        $cache = $this->cachemanager->getCache("resolution");
         $this->autoloader = new Autoloader();
         $this->autoloader->setCache($cache);
         $this->resolver = new Resolver($cache);

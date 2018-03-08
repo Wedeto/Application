@@ -15,7 +15,7 @@
         "Wedeto/Log": ">=0.9.10",
         "Wedeto/Mail": ">=0.9.2",
         "Wedeto/Resolve": ">=0.9.4",
-        "Wedeto/Util": ">=0.9.10",
+        "Wedeto/Util": ">=0.9.14",
         "php": ">=7.0.0"
     },
     "require-dev": {

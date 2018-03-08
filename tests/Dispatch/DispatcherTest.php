@@ -40,6 +40,7 @@ use Wedeto\HTML\Template;
 
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
+use Wedeto\Util\DI\DI;
 use Wedeto\Util\Functions as WF;
 
 use Wedeto\HTTP\Request;
@@ -137,12 +138,14 @@ final class DispatcherTest extends TestCase
 
         $this->config = new Dictionary($config);
         $this->resolve = $this->app->resolver;
+
+        DI::startNewContext('test');
     }
 
     public function tearDown()
     {
         Logger::resetGlobalState();
-        Cache::clearHook();
+        DI::destroyContext('test');
         Application::setInstance();
     }
 

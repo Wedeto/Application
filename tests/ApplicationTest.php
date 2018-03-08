@@ -32,6 +32,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
+use Wedeto\Util\DI\DI;
 
 use Wedeto\Log\Logger;
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter};
@@ -71,12 +72,15 @@ class ApplicationTest extends TestCase
 
         PathConfig::setInstance();
         $this->pathconfig = new PathConfig($this->wedetoroot);
+        DI::startNewContext('test');
+        $this->cmgr = DI::getInjector()->getInstance(Cache\Manager::class);
     }
 
     public function tearDown()
     {
         Application::setInstance();
-        Cache::clearHook();
+        $this->cmgr->unsetHook();
+        DI::destroyContext('test');
         Logger::resetGlobalState(); 
         Path::setDefaultFileMode(0660);
         Path::setDefaultDirMode(0770);
