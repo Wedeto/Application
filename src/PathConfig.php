@@ -3,7 +3,7 @@
 This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
-Copyright 2017, Egbert van der Wal
+Copyright 2017-2018, Egbert van der Wal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -30,9 +30,12 @@ use Wedeto\Util\Functions as WF;
 use Wedeto\IO\Path;
 use Wedeto\IO\PermissionError;
 use Wedeto\IO\IOException;
+use Wedeto\Util\DI\InjectionTrait;
 
 class PathConfig
 {
+    use InjectionTrait;
+
     /** Path where Composer stores the dependencies - obtained from Composer autoloader */
     protected $vendor_dir = null;
 
@@ -68,7 +71,6 @@ class PathConfig
 
     /** Provides access to a default instance */
     protected static $instance = null;
-
 
     /**
      * Construct the PathConfig object. Pass in a root path,
@@ -207,27 +209,6 @@ class PathConfig
         }
         $this->path_checked = true;
         return true;
-    }
-    
-    /** 
-     * Return the default PathConfig instance.
-     * @return PathConfig The default PathConfig element
-     * @throws RuntimeException When no default is available
-     */
-    public static function getInstance()
-    {
-        if (self::$instance === null) throw new \RuntimeException("No path config available");
-
-        return self::$instance;
-    }
-
-    /**
-     * Set the default instance of the Path Configuration
-     * @param Path $instance The PathConfig instance to set
-     */
-    public static function setInstance(PathConfig $instance = null)
-    {
-        self::$instance = $instance;
     }
 
     /**

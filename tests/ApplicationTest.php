@@ -30,7 +30,7 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 
-use Wedeto\Util\Dictionary;
+use Wedeto\Util\Configuration;
 use Wedeto\Util\Cache;
 use Wedeto\Util\DI\DI;
 
@@ -57,7 +57,8 @@ class ApplicationTest extends TestCase
 
     public function setUp()
     {
-        Application::setInstance();
+        DI::startNewContext('test');
+        $this->injector = DI::getInjector();
         Logger::resetGlobalState(); 
         vfsStreamWrapper::register();
         $dirname = 'appdir' . (++self::$it);
@@ -70,15 +71,12 @@ class ApplicationTest extends TestCase
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'log');
 
-        PathConfig::setInstance();
         $this->pathconfig = new PathConfig($this->wedetoroot);
-        DI::startNewContext('test');
         $this->cmgr = DI::getInjector()->getInstance(Cache\Manager::class);
     }
 
     public function tearDown()
     {
-        Application::setInstance();
         $this->cmgr->unsetHook();
         DI::destroyContext('test');
         Logger::resetGlobalState(); 
@@ -92,12 +90,12 @@ class ApplicationTest extends TestCase
      */
     public function testInstance()
     {
-        $config = new Dictionary();
+        $config = new Configuration();
 
         $app = new Application($this->pathconfig, $config);
         $this->assertInstanceOf(Application::class, $app);
 
-        $this->assertTrue(Application::hasInstance());
+        $this->assertSame($app, $this->injector->getInstance(Application::class));
 
         $mocker = $this->prophesize(DB::class);
         $mock = $mocker->reveal();
@@ -110,15 +108,6 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(Template::class, $app->template);
         $this->assertInstanceOf(I18n::class, $app->i18n);
         $this->assertInstanceOf(ModuleManager::class, $app->moduleManager);
-
-        $this->assertSame($config, Application::config());
-        $this->assertInstanceOf(Request::class, Application::request());
-        $this->assertInstanceOf(Resolver::class, Application::resolver());
-        $this->assertInstanceOf(PathConfig::class, Application::pathConfig());
-        $this->assertInstanceOf(Template::class, Application::template());
-        $this->assertInstanceOf(I18n::class, Application::i18n());
-        $this->assertInstanceOf(ModuleManager::class, Application::moduleManager());
-
         $this->assertInstanceOf(DB::class, $app->db);
 
         $this->expectException(\InvalidArgumentException::class);
@@ -132,7 +121,7 @@ class ApplicationTest extends TestCase
         $gri = posix_getgrgid($gid);
         $grn = $gri['name'];
 
-        $config = new Dictionary([
+        $config = new Configuration([
             'io' => [
                 'group' => $grn,
                 'file_mode' => "0666",
@@ -146,22 +135,13 @@ class ApplicationTest extends TestCase
         $this->assertEquals(0777, Path::getDefaultDirMode());
     }
 
-    public function testNoInitialization()
-    {
-        $this->assertFalse(Application::hasInstance());
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Wedeto has not been initialized yet");
-        Application::getInstance();
-    }
-
     public function testLoggerSetup()
     {
         Logger::resetGlobalState();
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/foo';
 
-        $config = new Dictionary(['site' => ['dev' => false]]);
+        $config = new Configuration(['site' => ['dev' => false]]);
 
         $app = new Application($this->pathconfig, $config);
 
@@ -182,7 +162,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($ml_found, "Mem log writer found");
 
         Logger::resetGlobalState();
-        $config = new Dictionary(['site' => ['dev' => true], 'log' => ['ROOT' => 'DEBUG']]);
+        $config = new Configuration(['site' => ['dev' => true], 'log' => ['ROOT' => 'DEBUG']]);
         $app = new Application($this->pathconfig, $config);
 
         $log = Logger::getLogger();

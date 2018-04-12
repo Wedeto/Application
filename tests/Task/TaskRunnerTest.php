@@ -30,6 +30,7 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 
+use Wedeto\Util\Configuration;
 use Wedeto\Util\Dictionary;
 use Wedeto\Application\PathConfig;
 use Wedeto\Application\Application;
@@ -55,7 +56,7 @@ final class TaskRunnerTest extends TestCase implements TaskInterface
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
 
         $this->pathconfig = new PathConfig($this->wedetoroot);
-        $this->config = new Dictionary;
+        $this->config = new Configuration;
         $this->app = new Application($this->pathconfig, $this->config);
     }
 

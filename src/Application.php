@@ -3,7 +3,7 @@
 This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
-Copyright 2017, Egbert van der Wal
+Copyright 2017-2018, Egbert van der Wal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -33,39 +33,38 @@ use Psr\Log\LogLevel;
 use Wedeto\IO\Path;
 use Wedeto\IO\PermissionError;
 
-use Wedeto\Util\DI\DI;
-use Wedeto\Util\Dictionary;
 use Wedeto\Util\Cache;
-use Wedeto\Util\Type;
-use Wedeto\Util\Hook;
-use Wedeto\Util\Functions as WF;
+use Wedeto\Util\Configuration;
+use Wedeto\Util\DI\DI;
+use Wedeto\Util\DI\InjectionTrait;
+use Wedeto\Util\Dictionary;
 use Wedeto\Util\ErrorInterceptor;
+use Wedeto\Util\Functions as WF;
+use Wedeto\Util\Hook;
 use Wedeto\Util\LoggerAwareStaticTrait;
+use Wedeto\Util\Validation\Type;
 
 use Wedeto\Log\{Logger, LoggerFactory};
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter, AbstractWriter};
-use Wedeto\Log\Formatter\PatternFormatter;
 
 use Wedeto\Resolve\Autoloader;
 use Wedeto\Resolve\Resolver;
 use Wedeto\Resolve\Router;
 
 use Wedeto\Application\Dispatch\Dispatcher;
+use Wedeto\Auth\Authentication;
 
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Response\Response;
-
-use Wedeto\Mail\SMTPSender;
-
-use Wedeto\I18n\I18n;
-use Wedeto\I18n\I18nShortcut;
-use Wedeto\I18n\Translator\TranslationLogger;
-
 use Wedeto\HTTP\Responder;
 
-use Wedeto\Auth\Authentication;
+use Wedeto\HTML\Template;
+use Wedeto\HTML\AssetManager;
 
+use Wedeto\Mail\SMTPSender;
 use Wedeto\DB\DB;
+use Wedeto\I18n\I18n;
+
 
 // @codeCoverageIgnoreStart
 if (!defined('WEDETO_TEST'))
@@ -75,62 +74,46 @@ if (!defined('WEDETO_TEST'))
 class Application
 {
     use LoggerAwareStaticTrait;
+    use InjectionTrait;
 
-    private static $instance = null;
+    const WDT_NO_AUTO = true;
+    const WDI_REUSABLE = true;
 
     protected $autoloader = null;
 
+    protected $dev = true;
     protected $config;
-    protected $auth;
+    protected $injector;
     protected $cachemanager;
-    protected $db;
-    protected $dispatcher;
-    protected $i18n;
-    protected $mailer;
     protected $module_manager;
     protected $path_config;
     protected $resolver;
     protected $request;
-    protected $template;
-    protected $dev = true;
     protected $is_shutdown = false;
 
-    public static function hasInstance()
+    /**
+     * Create the object. To do this, a path configuration and a application configuration is required
+     * but these can be omitted assume configuration out of convention.
+     */
+    public function __construct(PathConfig $path_config = null, Configuration $config = null)
     {
-        return self::$instance !== null;
-    }
-
-    public static function getInstance()
-    {
-        if (self::$instance === null)
-            throw new RuntimeException("Wedeto has not been initialized yet");
-
-        return self::$instance;
-    }
-
-    public static function setInstance(Application $application = null)
-    {
-        if (self::$instance !== null)
-            self::$instance->shutdown();
-
-        self::$instance = $application;
-    }
-
-    public function __construct(PathConfig $path_config = null, Dictionary $config = null)
-    {
+        $this->injector = DI::getInjector();
+        $this->injector->setInstance(static::class, $this);
         self::setLogger(Logger::getLogger(static::class));
-        self::setInstance($this);
 
         $this->path_config = $path_config ?? new PathConfig;
-        $this->config = $config ?? new Dictionary;
+        $this->config = $config ?? new Configuration;
+        $this->injector->setInstance(Configuration::class, $this->config);
         $this->bootstrap();
     }
 
-    protected function bootstrap()
+    /**
+     * Helper method to bootstrap the system - adjust PHP configuration, set up logging and autoloading
+     */
+    private function bootstrap()
     {
         // Attach the error handler - all PHP Errors should be thrown as Exceptions
         ErrorInterceptor::registerErrorHandler();
-
         set_exception_handler(array(static::class, 'handleException'));
 
         // Set character set
@@ -157,7 +140,7 @@ class Application
             }
         }
 
-        $this->cachemanager = DI::getInjector()->getInstance(Cache\Manager::class);
+        $this->cachemanager = $this->injector->getInstance(Cache\Manager::class);
         $this->dev = $this->config->dget('site', 'dev', true);
 
         // Set up the autoloader
@@ -174,7 +157,6 @@ class Application
         }
 
         $test = defined('WEDETO_TEST') && WEDETO_TEST === 1 ? 'test' : '';
-
         if (PHP_SAPI === 'cli')
             ini_set('error_log', $this->path_config->log . '/error-php-cli' . $test . '.log');
         else
@@ -202,70 +184,78 @@ class Application
 
         // Prepare the HTTP Request Object
         $this->request = Request::createFromGlobals();
+
+        // Load plugins
+        $this->setupPlugins();
     }
     
-    public static function __callStatic($func, $arguments)
+    /**
+     * Set up all plugins specified in the config file. Plugins can be specified
+     * in the [plugins] section. The key can be any reference, the value
+     * should either be a fully qualified class name, or a name of a class in 
+     * Wedeto\Application\Plugins. Each plugin should implement
+     * Wedeto\Application\Plugins\WedetoPlugin
+     */
+    private function setupPlugins()
     {
-        $instance = self::getInstance();
-        return $instance->__get($func);
+        if (!$this->config->has('plugins', Type::ARRAY))
+            return;
+
+        foreach ($this->config->get('plugins') as $key => $value)
+        {
+            if (!is_string($value))
+            {
+                self::$logger->error("Not a plugin class: {0}", [$value]);
+                continue;
+            }
+                
+            if (is_a($value, Plugins\WedetoPlugin::class, true))
+            {
+                $instance = $this->injector->getInstance($value);
+                $instance->initialize();
+            }
+            else
+            {
+                $fqcn = __NAMESPACE__ . "\\Plugins\\" . $value;
+                if (is_a($fqcn, Plugins\WedetoPlugin::class, true))
+                {
+                    $instance = $this->injector->getInstance($fqcn);
+                    $instance->initialize();
+                }
+                else
+                {
+                    self::$logger->error("Not a plugin class: {0}", [$value]);
+                }
+            }
+        }
     }
 
+    /**
+     * Magic method to allow access to modules as properties.
+     *
+     * @param string $parameter The module to get
+     */
     public function __get($parameter)
     {
         return $this->get($parameter);
     }
 
-    public function getAuth()
-    {
-        if ($this->auth === null)
-            $this->auth = new Authentication($this->config);
-        return $this->auth;
-    }
-
-    public function getDB()
-    {
-        if ($this->db === null)
-        {
-            if ($this->config->has('sql', Type::ARRAY))
-                $this->db = DB::get($this->config);
-        }
-        return $this->db;
-    }
-
-    public function getI18n()
-    {
-        if ($this->i18n === null)
-        {
-            $this->i18n = new I18n;
-            I18nShortcut::setInstance($this->i18n);
-
-            $this->i18n->registerTextDomain('wedeto', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'language');
-
-            // Set a language
-            $language = $this->config->dget('site', 'default_language', 'en');
-            $this->i18n->setLocale($language);
-        }
-        return $this->i18n;
-    }
-
-    public function getMailer()
-    {
-        if ($this->mailer === null)
-            $this->mailer = new SMTPSender($this->config->getSection('mail')->toArray());
-
-        return $this->mailer;
-    }
-
+    /**
+     * Allow access to one or more of the core Wedeto components.
+     *
+     * Objects non-essential for the core are instantiated upon first request.
+     */
     public function get($parameter)
     {
         switch ($parameter)
         {
+            // Essential components are instantiated during application set up
             case "dev":
                 return $this->dev ?? true;
             case "config":
                 return $this->config;
-            case "auth":
-                return $this->getAuth();
+            case "injector":
+                return $this->injector;
             case "pathConfig":
                 return $this->path_config;
             case "request":
@@ -274,44 +264,28 @@ class Application
                 return $this->resolver;
             case "moduleManager":
                 return $this->module_manager;
+
+            // Non-essential components are created on-the-fly
+            case "auth":
+                return $this->injector->getInstance(Authentication::class);
             case "db":
-                return $this->getDB();
-            case "i18n":
-                return $this->getI18n();
-            case "mailer":
-                return $this->getMailer();
+                return $this->injector->getInstance(DB::class);
             case "dispatcher":
-                if ($this->dispatcher === null)
-                {
-                    $this->dispatcher = Dispatcher::createFromApplication($this);
-                    $this->template = $this->dispatcher->getTemplate();
-                    $amgr = $this->template->getAssetManager();
-                    $cache = $this->cachemanager->getCache('wedeto-asset-manager-cache');
-                    $amgr->setCache($cache);
-                }
-                return $this->dispatcher;
+                return $this->injector->getInstance(Dispatcher::class);
             case "template":
-                if ($this->template === null)
-                    $this->template = $this->get('dispatcher')->getTemplate();
-                return $this->template;
+                return $this->injector->getInstance(Template::class);
+            case "mailer":
+                return $this->injector->getInstance(SMTPSender::class);
+            case "i18n":
+                return $this->injector->getInstance(I18n::class);
         }
         throw new InvalidArgumentException("No such object: $parameter");
     }
 
     /**
-     * Overwrite system objects, only to be used in unit tests
+     * Helper to display permission errors when system setup fails due to
+     * broken permissions.
      */
-    public function __set($parameter, $value)
-    {
-        if (!defined('WEDETO_TEST') || WEDETO_TEST !== 1)
-            throw new RuntimeException("Cannot modify system objects");
-        
-        if (!property_exists($this, $parameter))
-            throw new InvalidArgumentException("No such object: $parameter");
-
-        $this->$parameter = $value;
-    }
-
     private function showPermissionError(PermissionError $e)
     {
         if (PHP_SAPI !== "cli")
@@ -334,6 +308,9 @@ class Application
         die();
     }
 
+    /**
+     * Configure the create permissions when new files are created by Wedeto.
+     */
     private function setCreatePermissions()
     {
         if ($this->config->has('io', 'group'))
@@ -356,13 +333,10 @@ class Application
         }
     }
 
-    private function setupTranslateLog()
-    {
-        $logger = Logger::getLogger('Wedeto.I18n.Translator.Translator');
-        $writer = new TranslationLogger($this->path_config->log . '/translate-%s-%s.pot');
-        $logger->addLogWriter($writer);
-    }
-
+    /**
+     * Configure the auto loader - replace the default autoloader provided by composer
+     * and register all resolvable assets.
+     */
     private function configureAutoloaderAndResolver()
     {
         if ($this->autoloader !== null)
@@ -370,8 +344,11 @@ class Application
 
         // Construct the Wedeto autoloader and resolver
         $cache = $this->cachemanager->getCache("resolution");
+
         $this->autoloader = new Autoloader();
         $this->autoloader->setCache($cache);
+        $this->injector->setInstance(Autoloader::class, $this->autoloader);
+
         $this->resolver = new Resolver($cache);
         $this->resolver
             ->addResolverType('template', 'template', '.php')
@@ -379,7 +356,9 @@ class Application
             ->addResolverType('app', 'app')
             ->addResolverType('code', 'src')
             ->addResolverType('language', 'language')
+            ->addResolverType('migrations', 'migrations')
             ->setResolver("app", new Router("router"));
+        $this->injector->setInstance(Resolver::class, $this->resolver);
 
         spl_autoload_register(array($this->autoloader, 'autoload'), true, true);
 
@@ -405,7 +384,10 @@ class Application
         }
     }
 
-    protected function setupLogging()
+    /**
+     * Helper method to set up logging based on the application configuration file.
+     */
+    private function setupLogging()
     {
         $test = defined('WEDETO_TEST') && WEDETO_TEST === 1 ? 'test' : '';
 
@@ -460,9 +442,6 @@ class Application
             }
         }
 
-        // Translation log setup
-        $this->setupTranslateLog();
-
         // Load the configuration file
         // Attach the dev logger when dev-mode is enabled
         if ($this->dev)
@@ -493,6 +472,14 @@ class Application
             ini_set('display_errors', 0);
     }
 
+    /**
+     * The exception handler is called whenever an uncaught exception occurs.
+     *
+     * This will send a notification to the user that something went wrong,
+     * attempting to format this as fancy as possible given the circumstances.
+     *
+     * @param Throwable $e The exception that wasn't caught elsewhere
+     */
     public static function handleException(\Throwable $e)
     {
         $app = self::$instance;
@@ -509,9 +496,9 @@ class Application
                 $mgr = $app->resolver;
                 $res = $mgr->getResolver('template');
                 $assets = $mgr->getResolver('assets');
-                $amgr = new \Wedeto\HTML\AssetManager($assets);
+                $amgr = new AssetManager($assets);
 
-                $tpl = new \Wedeto\HTML\Template($res, $amgr, $req);
+                $tpl = new Template($res, $amgr, $req);
                 $tpl->setExceptionTemplate($e);
 
                 $tpl->assign('exception', $e);
@@ -548,6 +535,10 @@ class Application
         }
     }
 
+    /**
+     * Terminate the application - unregister handlers and autoloaders. Does a
+     * best effort to restore the global state.
+     */
     public function shutdown()
     {
         if (!$this->is_shutdown)

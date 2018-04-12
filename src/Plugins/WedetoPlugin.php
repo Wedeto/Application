@@ -3,7 +3,7 @@
 This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
-Copyright 2017, Egbert van der Wal
+Copyright 2018, Egbert van der Wal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,19 +23,14 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+namespace Wedeto\Application\Plugins;
+
 use Wedeto\Application\Application;
 
-$error_code = 500;
-$error_title = "Internal Server Error";
-$error_lead = "Something unanticipated went wrong. We'll try to fix this as soon as we can.";
-$error_description = "An exception occured.\n";
-
-if (Application::getInstance()->dev)
+/**
+ * The interface plugins should adhere to.
+ */
+interface WedetoPlugin
 {
-    $error_description .= 
-        "\nDescription: " . $exception->getMessage() . "\n" 
-        . Wedeto\Util\Functions::str($exception);
+    public function initialize(Application $app);
 }
-
-require tpl('error/HTMLErrorTemplate');
-?>

@@ -36,7 +36,8 @@ use Wedeto\Resolve\Resolver;
 
 use Wedeto\Util\Hook;
 use Wedeto\Util\Dictionary;
-use Wedeto\Util\Type;
+use Wedeto\Util\DI\DI;
+use Wedeto\Util\Validation\Type;
 use Wedeto\Util\Functions as WF;
 
 use Wedeto\HTTP\Accept;
@@ -347,7 +348,8 @@ class Dispatcher
     {
         if (!array_key_exists('app', $this->variables['app']))
         {
-            $app = Application::hasInstance() ? Application::getInstance() : null;
+            $ij = DI::getInjector();
+            $app = $ij->hasInstance(Application::class) ? $ij->getInstance(Application::class) : null;
             $this->variables['app'] = $app;
         }
         return $this->variables['app'];

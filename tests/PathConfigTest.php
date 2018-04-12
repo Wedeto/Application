@@ -30,6 +30,8 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 
+use Wedeto\Util\DI\DI;
+
 use Wedeto\IO\Path;
 use Wedeto\IO\IOException;
 
@@ -42,19 +44,18 @@ final class PathConfigTest extends TestCase
 
     public function setUp()
     {
+        DI::startNewContext('test');
         vfsStreamWrapper::register();
         vfsStreamWrapper::setRoot(new vfsStreamDirectory('pathdir'));
         $this->wedetoroot = vfsStream::url('pathdir');
 
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'config');
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
-
-        PathConfig::setInstance();
     }
 
     public function tearDown()
     {
-        PathConfig::setInstance();
+        DI::destroyContext('test');
     }
 
     /**
@@ -90,7 +91,7 @@ final class PathConfigTest extends TestCase
 
         $path->checkPaths();
 
-        PathConfig::setInstance($path);
+        DI::getInjector()->setInstance(PathConfig::class, $path);
         $current = PathConfig::getInstance();
         $this->assertSame($current, $path);
 

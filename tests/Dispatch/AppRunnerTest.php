@@ -733,7 +733,7 @@ use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public function foo(Wedeto\Application\Dispatch\MockAppRunnerDAO \$arg1, string \$arg2)
+    public function foo(Wedeto\Application\Dispatch\MockAppRunnerModel \$arg1, string \$arg2)
     {
         return new StringResponse(\$arg1->getName() . \$arg2, "text/plain");
     }
@@ -763,7 +763,7 @@ use Wedeto\HTTP\Response\StringResponse;
 
 class {$classname}
 {
-    public function foo(string \$arg1, string \$arg2, Wedeto\Application\Dispatch\MockAppRunnerDAO \$arg3)
+    public function foo(string \$arg1, string \$arg2, Wedeto\Application\Dispatch\MockAppRunnerModel \$arg3)
     {
         return new StringResponse(\$arg3->getName(), "text/plain");
     }
@@ -822,7 +822,7 @@ EOT;
     }
 }
 
-class MockAppRunnerDAO extends \Wedeto\DB\DAO
+class MockAppRunnerModel extends \Wedeto\DB\Model
 {
     protected $name;
 
@@ -831,14 +831,25 @@ class MockAppRunnerDAO extends \Wedeto\DB\DAO
         $this->name = $name . "DAO";
     }
 
-    public static function get($id, \Wedeto\DB\DB $database = null)
-    {
-        return new MockAppRunnerDAO($id);
-    }
-
     public function getName()
     {
         return $this->name;
+    }
+
+    public static function getDAO(\Wedeto\DB\DB $db = null)
+    {
+        return new MockAppRunnerDAO;
+    }
+}
+
+class MockAppRunnerDAO extends \Wedeto\DB\DAO
+{
+    public function __construct()
+    {}
+
+    public function get(...$args)
+    {
+        return new MockAppRunnerModel($args[0]);
     }
 }
 

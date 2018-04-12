@@ -39,9 +39,11 @@ use Wedeto\Application\PathConfig;
 use Wedeto\HTML\Template;
 
 use Wedeto\Util\Dictionary;
+use Wedeto\Util\Configuration;
 use Wedeto\Util\Cache;
 use Wedeto\Util\DI\DI;
 use Wedeto\Util\Functions as WF;
+use Wedeto\DB\DB;
 
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Responder;
@@ -80,7 +82,6 @@ final class DispatcherTest extends TestCase
     public function setUp()
     {
         Logger::resetGlobalState();
-        Template::setInstance();
 
         vfsStreamWrapper::register();
         $d = 'dispatchdir' . (++self::$it);
@@ -94,7 +95,7 @@ final class DispatcherTest extends TestCase
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'var/log');
 
         $this->pathconfig = new PathConfig($this->wedetoroot);
-        $this->config = new Dictionary();
+        $this->config = new Configuration();
 
         $this->app = new Application($this->pathconfig, $this->config);
         $this->resolver = $this->app->resolver;
@@ -146,7 +147,6 @@ final class DispatcherTest extends TestCase
     {
         Logger::resetGlobalState();
         DI::destroyContext('test');
-        Application::setInstance();
     }
 
     public function testRouting()
@@ -220,8 +220,10 @@ PHP;
         $_SERVER['REQUEST_URI'] = '/test-integration/foo/bar';
 
         $pc = new PathConfig($this->wedetoroot);
-        $c = new Dictionary;
+        $c = new Configuration;
         $app = new Application($pc, $c);
+        $db_mock = $this->prophesize(DB::class);
+        DI::getInjector()->setInstance(DB::class, $db_mock->reveal());
         $dispatch = Dispatcher::createFromApplication($app);
         $res = $app->resolver;
         $res->registerModule('test', $this->wedetoroot, 0);
@@ -356,7 +358,7 @@ PHP;
 
     public function testRoutingFailsThrowsException()
     {
-        $pathconfig = Application::pathConfig();
+        $pathconfig = Application::getInstance()->pathConfig;
         $testpath = $pathconfig->root . '/app';
         Path::mkdir($testpath);
         Path::mkdir($testpath . '/foo');
@@ -379,7 +381,7 @@ PHP;
     public function testBadControllerThrowsException()
     {
         $this->config['site']['dev'] = true;
-        $pathconfig = Application::pathConfig();
+        $pathconfig = Application::getInstance()->pathConfig;
         $testpath = $pathconfig->root . '/app';
         Path::mkdir($testpath);
         $filename = $testpath . '/baz.php';
@@ -405,6 +407,7 @@ PHP;
         $this->assertInstanceOf(HTTPError::class, $response);
         $sub = $response->getResponse();
         $this->assertInstanceOf(StringResponse::class, $sub);
+        print_r($sub->getOutput('text/plain'));
         $this->assertContains('LogicException [0] boo', $sub->getOutput('text/html'));
 
         $this->server['HTTP_ACCEPT'] = 'application/json';
@@ -448,7 +451,7 @@ PHP;
 
     public function testDispatchWithValidApp()
     {
-        $pathconfig = Application::pathConfig();
+        $pathconfig = Application::getInstance()->pathConfig;
         $testpath = $pathconfig->root . '/app';
         Path::mkdir($testpath);
         $filename = $testpath . '/wedetotest-validapp.php';

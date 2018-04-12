@@ -25,11 +25,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application\Dispatch;
 
-use Wedeto\DB\DAO;
+use Wedeto\DB\Model;
 
 use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Dictionary;
-use Wedeto\Util\Type;
+use Wedeto\Util\Validation\Type;
 use Wedeto\Util\LoggerAwareStaticTrait;
 
 use Wedeto\Log\Logger;
@@ -296,7 +296,7 @@ class AppRunner
      *
      * The parameters of your methods are extracted using reflection and
      * matched to the request. You can use string or int types, or subclasses
-     * of Wedeto\DB\DAO. In the latter case, the object will be instantiated
+     * of Wedeto\DB\Model. In the latter case, the object will be instantiated
      * using the parameter as identifier, that will be passed to the
      * DAO::get method.
      *
@@ -390,12 +390,13 @@ class AppRunner
                 continue;
             }
 
-            if (class_exists($tp) && is_subclass_of($tp, DAO::class))
+            if (class_exists($tp) && is_subclass_of($tp, Model::class))
             {
                 if (!$urlargs->has(0))
                     throw new HTTPError(400, "Invalid arguments - missing identifier as argument $cnt");
                 $object_id = $urlargs->shift();    
-                $obj = $tp::get($object_id);
+                $dao = $tp::getDAO();
+                $obj = $dao->get($object_id);
                 $args[] = $obj;
                 continue;
             }
