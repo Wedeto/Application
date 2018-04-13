@@ -78,11 +78,11 @@ class ApplicationTest extends TestCase
     public function tearDown()
     {
         $this->cmgr->unsetHook();
-        DI::destroyContext('test');
         Logger::resetGlobalState(); 
         Path::setDefaultFileMode(0660);
         Path::setDefaultDirMode(0770);
         Path::setDefaultFileGroup();
+        DI::destroyContext('test');
     }
 
     /**

@@ -39,6 +39,7 @@ use Wedeto\HTML\Template;
 use Wedeto\Application\Application;
 use Wedeto\Application\PathConfig;
 
+use Wedeto\Util\DI\DI;
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Functions as WF;
 
@@ -68,6 +69,7 @@ final class AppRunnerTest extends TestCase
 
     public function setUp()
     {
+        DI::startNewContext('test');
         vfsStreamWrapper::register();
         vfsStreamWrapper::setRoot(new vfsStreamDirectory('apprunnerdir'));
         $this->testpath = vfsStream::url('apprunnerdir');
@@ -86,6 +88,7 @@ final class AppRunnerTest extends TestCase
     {
         $logger = Logger::getLogger(AppRunner::class);
         $logger->removeLogWriters();
+        DI::destroyContext('test');
     }
 
     /**

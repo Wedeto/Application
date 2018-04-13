@@ -81,6 +81,7 @@ final class DispatcherTest extends TestCase
 
     public function setUp()
     {
+        DI::startNewContext('test');
         Logger::resetGlobalState();
 
         vfsStreamWrapper::register();
@@ -139,8 +140,6 @@ final class DispatcherTest extends TestCase
 
         $this->config = new Dictionary($config);
         $this->resolve = $this->app->resolver;
-
-        DI::startNewContext('test');
     }
 
     public function tearDown()
