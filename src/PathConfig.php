@@ -69,9 +69,6 @@ class PathConfig
     /** If the script is run from CLI or through the web */
     protected $cli;
 
-    /** Provides access to a default instance */
-    protected static $instance = null;
-
     /**
      * Construct the PathConfig object. Pass in a root path,
      * or an array of path element => path pairs.
@@ -96,9 +93,9 @@ class PathConfig
                 if (!is_string($path) || empty($path))
                     throw new \InvalidArgumentException("Invalid path: " . WF::str($path));
                 if (!file_exists($path))
-                    throw new \InvalidArgumentException("Path '$key' does not exist: " . $path);
+                    throw new IOException("Path '$key' does not exist: " . $path);
                 if (!is_dir($path))
-                    throw new \InvalidArgumentException("Path is not a directory: " . $path);
+                    throw new IOException("Path is not a directory: " . $path);
             }
 
             extract($root);
@@ -142,9 +139,6 @@ class PathConfig
 
         $this->log = $log ?? $this->var . $SEP . 'log';
         $this->cache = $cache ?? $this->var . $SEP . 'cache';
-
-        if (self::$instance === null)
-            self::$instance = $this;
     }
 
     /**
@@ -162,7 +156,7 @@ class PathConfig
         {
             $path = $this->$type;
             if (!file_exists($path) || !is_dir($path))
-                throw new IOException("Path $type does not exist: " . $path);
+                throw new IOException("Path '$type' does not exist: " . $path);
 
             if (!is_readable($path))
                 throw new PermissionError($path, "Path '$type' cannot be read");
@@ -186,7 +180,7 @@ class PathConfig
                 else
                 {
                     if (file_exists($path))
-                        WF::debug("File exists but is not a directory: %s", $e->getMessage());
+                        throw new IOException("Path '$write_dir' exists but is not a directory: " . $path);
                     $this->$write_dir = null;
                     continue;
                 }

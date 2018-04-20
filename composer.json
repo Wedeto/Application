@@ -8,14 +8,14 @@
         "Wedeto/Auth": "~0.9.3",
         "Wedeto/DB": "~0.9.22",
         "Wedeto/FileFormats": "~0.9.4",
-        "Wedeto/HTML": "~0.9.10",
-        "Wedeto/HTTP": "~0.9.19",
+        "Wedeto/HTML": "~0.9.12",
+        "Wedeto/HTTP": "~0.9.21",
         "Wedeto/I18n": "~0.9.3",
         "Wedeto/IO": "~0.9.7",
         "Wedeto/Log": "~0.9.12",
         "Wedeto/Mail": "~0.9.5",
         "Wedeto/Resolve": "~0.9.7",
-        "Wedeto/Util": "~0.9.36.1",
+        "Wedeto/Util": "~0.9.37",
         "php": ">=7.0.0"
     },
     "require-dev": {

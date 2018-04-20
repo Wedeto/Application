@@ -3,7 +3,7 @@
 This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
-Copyright 2017, Egbert van der Wal
+Copyright 2018, Egbert van der Wal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,21 +23,39 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-use Wedeto\Template;
-use Wedeto\HTTP\Response\Error as HTTPError;
-use Wedeto\Application\Application;
+namespace Wedeto\Application;
 
-if ($arguments->count())
+use Wedeto\HTTP\ProcessChain;
+use Wedeto\HTTP\Responder;
+
+use Wedeto\Log\Writer\{FileWriter, MemLogWriter, AbstractWriter};
+
+/**
+ * AppChain subclasses the ProcessChain to add a default processing pipeline
+ * for a Wedeto application.
+ */
+class AppChain extends ProcessChain
 {
-    $i18n = Application::getInstance()->i18n;
-    $msg = [
-        'msg' => "The page {url} could not be found", 
-        "domain" => "wedeto", 
-        "params" => ['url' => $request->url->path]
-    ];
-    throw new HTTPError(404, $request->url->path, $msg);
-}
+    public function __construct(Application $app)
+    {
+        $responder = new Responder;
+        $dispatcher = $app->dispatcher;
 
-$template->setTemplate('index');
-$template->render();
-?>
+        $this->addProcessor($dispatcher);
+        $this->addPostProcessor($responder, ProcessChain::RUN_LAST);
+
+        if ($app->dev)
+        {
+            $memlogger = MemLogWriter::getInstance();
+            if ($memlogger)
+            {
+                $loghook = new LogAttachHook($memlogger, $dispatcher);
+                Hook::subscribe(
+                    "Wedeto.HTTP.Responder.Respond", 
+                    $loghook,
+                    Hook::RUN_LAST
+                );
+            }
+        }
+    }
+}

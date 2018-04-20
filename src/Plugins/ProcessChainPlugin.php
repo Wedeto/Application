@@ -3,7 +3,7 @@
 This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
-Copyright 2017, Egbert van der Wal
+Copyright 2018, Egbert van der Wal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,21 +23,31 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-use Wedeto\Template;
-use Wedeto\HTTP\Response\Error as HTTPError;
+namespace Wedeto\Application\Plugins;
+
+use Wedeto\Util\DI\BasicFactory;
+
+use Wedeto\HTTP\ProcessChain;
+use Wedeto\HTTP\Responder;
+
 use Wedeto\Application\Application;
+use Wedeto\Application\AppChain;
 
-if ($arguments->count())
+/**
+ * Plugin that sets the default ProcessChain to be an AppChain instance.
+ */
+class ProcessChainPlugin implements WedetoPlugin
 {
-    $i18n = Application::getInstance()->i18n;
-    $msg = [
-        'msg' => "The page {url} could not be found", 
-        "domain" => "wedeto", 
-        "params" => ['url' => $request->url->path]
-    ];
-    throw new HTTPError(404, $request->url->path, $msg);
-}
+    private $app;
 
-$template->setTemplate('index');
-$template->render();
-?>
+    public function initialize(Application $app)
+    {
+        $this->app = $app;
+        $app->injector->registerFactory(ProcessChain::class, new BasicFactory([$this, "createProcessChain"]));
+    }
+
+    public function createProcessChain()
+    {
+        return new AppChain($this->app);
+    }
+}

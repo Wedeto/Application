@@ -42,6 +42,8 @@ use Wedeto\Util\Functions as WF;
 
 use Wedeto\HTTP\Accept;
 use Wedeto\HTTP\Request;
+use Wedeto\HTTP\Processor;
+use Wedeto\HTTP\Result;
 use Wedeto\HTTP\Responder;
 use Wedeto\HTTP\Response\{Response, DataResponse, StringResponse, RedirectRequest};
 use Wedeto\HTTP\Response\Error as HTTPError;
@@ -66,7 +68,7 @@ use Wedeto\Application\FlashMessage;
  * It will dispatch the request to the correct app by resolving the route in
  * the configured paths.
  */
-class Dispatcher
+class Dispatcher implements Processor
 {
     use LoggerAwareStaticTrait;
 
@@ -121,6 +123,16 @@ class Dispatcher
         $this->setResolver($resolver);
         $this->setConfig($config);
         //$this->getTemplate();
+    }
+
+    public function process(Request $request, Result $result)
+    {
+        $this->setRequest($request);
+        $result->setResponse($this->dispatch());
+        
+        $session_cookie = $request->session !== null ? $request->session->getCookie() : null;
+        if ($session_cookie)
+            $result->addCookie($session_cookie);
     }
 
     /**

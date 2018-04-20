@@ -89,7 +89,8 @@ final class PathConfigTest extends TestCase
         $this->assertEquals($webroot, $path->webroot);
         $this->assertEquals($assets, $path->assets);
 
-        $path->checkPaths();
+        $this->assertTrue($path->checkPaths());
+        $this->assertTrue($path->checkPaths(), "Repeated caling should still succeed");
 
         DI::getInjector()->setInstance(PathConfig::class, $path);
         $current = PathConfig::getInstance();
@@ -106,7 +107,7 @@ final class PathConfigTest extends TestCase
      */
     public function testExceptionRootInvalid()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(IOException::class);
         $this->expectExceptionMessage("Path 'root' does not exist: /tmp/non/existing/dir");
         new PathConfig(array('root' => '/tmp/non/existing/dir'));
     }
@@ -117,9 +118,56 @@ final class PathConfigTest extends TestCase
     public function testExceptionWebrootInvalid()
     {
         $path = $this->wedetoroot;
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(IOException::class);
         $this->expectExceptionMessage("Path 'webroot' does not exist: /tmp/non/existing/dir");
         new PathConfig(array('root' => $path, 'webroot' => '/tmp/non/existing/dir'));
+    }
+
+    /**
+     * @covers Wedeto\Application\PathConfig::__construct
+     * @covers Wedeto\Application\PathConfig::checkPaths
+     */
+    public function testExceptionDefaultWebrootInvalid()
+    {
+        $pc = new PathConfig(array('root' => $this->wedetoroot . '/http'));
+
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage("Path 'webroot' does not exist: " . $this->wedetoroot . '/http');
+        $pc->checkPaths();
+    }
+    
+    /*
+     * @covers Wedeto\Application\PathConfig::__construct
+     * @covers Wedeto\Application\PathConfig::checkPaths
+     */
+    public function testExceptionDefaultDirnameExistsAsFile()
+    {
+        $pc = new PathConfig(['root' => $this->wedetoroot]);
+        touch($this->wedetoroot . '/var');
+
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage("Path 'var' exists but is not a directory: " . $this->wedetoroot . '/var');
+        $pc->checkPaths();
+    }
+
+    /*
+     * @covers Wedeto\Application\PathConfig::__construct
+     * @covers Wedeto\Application\PathConfig::checkPaths
+     */
+    public function testUnreadableDirectoryHasPermissionsFixed()
+    {
+        $pc = new PathConfig(['root' => $this->wedetoroot]);
+        $dir = $this->wedetoroot . DIRECTORY_SEPARATOR . 'var';
+        mkdir($dir);
+        chmod($dir, 0000);
+
+        $this->assertFalse(is_writable($dir));
+        $this->assertFalse(is_readable($dir));
+
+        $pc->checkPaths();
+
+        $this->assertTrue(is_writable($dir));
+        $this->assertFalse(is_readable($dir));
     }
 
     public function testProvideOnlyRoot()

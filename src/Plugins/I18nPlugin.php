@@ -29,6 +29,8 @@ use Wedeto\Util\DI\BasicFactory;
 
 use Wedeto\Application\Application;
 
+use Wedeto\Log\Logger;
+
 use Wedeto\I18n\I18n;
 use Wedeto\I18n\I18nShortcut;
 use Wedeto\I18n\Translator\TranslationLogger;
@@ -56,13 +58,13 @@ class I18nPlugin implements WedetoPlugin
         I18nShortcut::setInstance($i18n);
 
         // Add all module paths to the I18n object
-        $modules = $app->resolver->getResolver("language");
+        $modules = $this->app->resolver->getResolver("language");
         foreach ($modules as $name => $path)
             $i18n->registerTextDomain($name, $path);
 
         // Set a language
-        $site_language = $app->config->dget('site', 'default_language', 'en');
-        $locale = $args['locale'] ?? $language;
+        $site_language = $this->app->config->dget('site', 'default_language', 'en');
+        $locale = $args['locale'] ?? $site_language;
         $i18n->setLocale($locale);
 
         $this->setupTranslateLog();

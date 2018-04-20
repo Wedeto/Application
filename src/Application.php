@@ -54,6 +54,7 @@ use Wedeto\Resolve\Router;
 use Wedeto\Application\Dispatch\Dispatcher;
 use Wedeto\Auth\Authentication;
 
+use Wedeto\HTTP\ProcessChain;
 use Wedeto\HTTP\Request;
 use Wedeto\HTTP\Response\Response;
 use Wedeto\HTTP\Responder;
@@ -90,6 +91,7 @@ class Application
     protected $resolver;
     protected $request;
     protected $is_shutdown = false;
+    protected $http_chain = null;
 
     /**
      * Create the object. To do this, a path configuration and a application configuration is required
@@ -198,10 +200,13 @@ class Application
      */
     private function setupPlugins()
     {
-        if (!$this->config->has('plugins', Type::ARRAY))
-            return;
+        $plugins = $this->config->has('plugins', Type::ARRAY) ?
+            $this->config->get('plugins', Type::ARRAY)
+            :
+            ['i18n' => 'I18nPlugin', 'httpchain' => 'ProcessChainPlugin']
+        ;
 
-        foreach ($this->config->get('plugins') as $key => $value)
+        foreach ($plugins as $key => $value)
         {
             if (!is_string($value))
             {
@@ -211,21 +216,22 @@ class Application
                 
             if (is_a($value, Plugins\WedetoPlugin::class, true))
             {
-                $instance = $this->injector->getInstance($value);
-                $instance->initialize();
+                $fqcn = $value;
             }
             else
             {
                 $fqcn = __NAMESPACE__ . "\\Plugins\\" . $value;
-                if (is_a($fqcn, Plugins\WedetoPlugin::class, true))
-                {
-                    $instance = $this->injector->getInstance($fqcn);
-                    $instance->initialize();
-                }
-                else
-                {
-                    self::$logger->error("Not a plugin class: {0}", [$value]);
-                }
+            }
+
+
+            if (is_a($fqcn, Plugins\WedetoPlugin::class, true))
+            {
+                $instance = $this->injector->getInstance($fqcn);
+                $instance->initialize($this);
+            }
+            else
+            {
+                self::$logger->error("Not a plugin class: {0}", [$value]);
             }
         }
     }
@@ -278,6 +284,8 @@ class Application
                 return $this->injector->getInstance(SMTPSender::class);
             case "i18n":
                 return $this->injector->getInstance(I18n::class);
+            case "processChain":
+                return $this->injector->getInstance(ProcessChain::class);
         }
         throw new InvalidArgumentException("No such object: $parameter");
     }
@@ -563,38 +571,8 @@ class Application
      */
     public function handleWebRequest()
     {
-        $responder = new Responder($this->request);
-
-        try
-        {
-            $dispatcher = $this->get('dispatcher');
-            if ($this->dev)
-            {
-                $memlogger = MemLogWriter::getInstance();
-                if ($memlogger)
-                {
-                    $loghook = new LogAttachHook($memlogger, $dispatcher);
-                    Hook::subscribe(
-                        "Wedeto.HTTP.Responder.Respond", 
-                        $loghook,
-                        Hook::RUN_LAST
-                    );
-                }
-            }
-
-            $response = $dispatcher->dispatch();
-        }
-        catch (Response $thrown_response)
-        {
-            $response = $thrown_response;
-        }
-
-        $responder->setResponse($response);
-        $session_cookie = $this->request->session !== null ? $this->request->session->getCookie() : null;
-        if ($session_cookie)
-            $responder->addCookie($session_cookie);
-
-        $responder->respond();
+        $chain = $this->processChain;
+        $chain->process($this->request);
     }
 
     /**

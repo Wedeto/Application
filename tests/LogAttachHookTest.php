@@ -38,7 +38,7 @@ use Wedeto\Application\Dispatch\Dispatcher;
 use Wedeto\Resolve\Resolver;
 
 use Wedeto\HTTP\Request;
-use Wedeto\HTTP\Responder;
+use Wedeto\HTTP\{Responder, Result};
 use Wedeto\HTTP\Response\{StringResponse, DataResponse};
 
 /**
@@ -85,9 +85,12 @@ class LogAttachHookTest extends TestCase
         $dispatcher = new Dispatcher($req, $this->resolver);
         $this->assertSame($this->lahook, $this->lahook->setDispatcher($dispatcher));
 
-        $responder = new MockLogAttachResponder($req);
+        $responder = new MockLogAttachResponder;
+        $responder->setRequest($req);
         $response = new StringResponse("Foobar", "text/plain");
-        $this->assertSame($responder, $responder->setResponse($response));
+        $result = new Result;
+        $result->setResponse($response);
+        $this->assertSame($responder, $responder->setResult($result));
 
         $lvl = ob_get_level();
         try
@@ -117,8 +120,11 @@ class LogAttachHookTest extends TestCase
         $this->assertSame($this->lahook, $this->lahook->setDispatcher($dispatcher));
 
         $response = new StringResponse("Foobar", "text/html");
-        $responder = new MockLogAttachResponder($req);
-        $this->assertSame($responder, $responder->setResponse($response));
+        $result = new Result;
+        $result->setResponse($response);
+        $responder = new MockLogAttachResponder;
+        $responder->setRequesT($req);
+        $this->assertSame($responder, $responder->setResult($result));
 
         $lvl = ob_get_level();
         try
@@ -148,8 +154,11 @@ class LogAttachHookTest extends TestCase
         $this->assertSame($this->lahook, $this->lahook->setDispatcher($dispatcher));
 
         $response = new DataResponse(['foo' => 'bar']);
-        $responder = new MockLogAttachResponder($req);
-        $this->assertSame($responder, $responder->setResponse($response));
+        $result = new Result;
+        $result->setResponse($response);
+        $responder = new MockLogAttachResponder;
+        $responder->setRequest($req);
+        $this->assertSame($responder, $responder->setResult($result));
 
         $lvl = ob_get_level();
         try
@@ -181,6 +190,6 @@ class MockLogAttachResponder extends Responder
 {
     protected function doOutput(string $mime)
     {
-        throw $this->response;
+        throw $this->result->getResponse();
     }
 }

@@ -41,6 +41,9 @@ use Wedeto\IO\Path;
 
 use Wedeto\HTML\Template;
 use Wedeto\HTTP\Request;
+use Wedeto\HTTP\ProcessChain;
+use Wedeto\HTTP\Responder;
+
 use Wedeto\Resolve\Resolver;
 use Wedeto\Application\Module\Manager as ModuleManager;
 use Wedeto\I18n\I18n;
@@ -193,5 +196,31 @@ class ApplicationTest extends TestCase
                 $request_found = true;
         }
         $this->assertTrue($request_found);
+    }
+
+    public function testHandleWebRequest()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/foo';
+        $config = new Configuration(['site' => ['dev' => false]]);
+        $app = new Application($this->pathconfig, $config);
+
+        $chain = DI::getInjector()->getInstance(ProcessChain::class);
+        $proc = $chain->getProcessors(ProcessChain::STAGE_POSTPROCESS);
+
+        foreach ($proc as $p)
+        {
+            if ($p instanceof Responder)
+            {
+                $p->setTargetOutputBufferLevel(ob_get_level() + 1);
+            }
+        }
+
+        ob_start();
+        $app->handleWebRequest();
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertContains("[404] /foo", $contents);
     }
 }

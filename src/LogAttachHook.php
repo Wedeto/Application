@@ -107,7 +107,8 @@ class LogAttachHook
     {
         $responder = $params['responder'];
         $request = $responder->getRequest();
-        $response = $responder->getResponse();
+        $result = $responder->getResult();
+        $response = $result->getResponse();
 
         // Calculate elapsed time
         $now = Date::now();

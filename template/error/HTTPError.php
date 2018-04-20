@@ -3,7 +3,7 @@
 This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
-Copyright 2017, Egbert van der Wal
+Copyright 2017-2018, Egbert van der Wal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,6 +27,7 @@ $error_code = 500;
 if ($exception instanceof Wedeto\HTTP\Response\Error)
     $error_code = (int)$exception->getCode();
 
+$i18n = Wedeto\Application\Application::getInstance()->i18n;
 setTextDomain("wedeto");
 $error_title = t("Unexpected error");
 $error_lead = t("Your request cannot be handled");
