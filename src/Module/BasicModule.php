@@ -25,6 +25,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application\Module;
 
+use Wedeto\Application\Task\TaskRunner;
+
 /**
  * The BasicModule implements ModuleInterface and will be used as a fallback
  * class for the module manager when the module does not implement its own
@@ -54,6 +56,6 @@ class BasicModule implements ModuleInterface
         return $this->path;
     }
 
-    public function registerTasks()
+    public function registerTasks(TaskRunner $taskrunner)
     {}
 }

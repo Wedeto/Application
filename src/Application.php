@@ -105,7 +105,6 @@ class Application
 
         $this->path_config = $path_config ?? new PathConfig;
         $this->config = $config ?? new Configuration;
-        $this->injector->setInstance(Configuration::class, $this->config);
         $this->bootstrap();
     }
 
@@ -141,6 +140,7 @@ class Application
                 }
             }
         }
+        $this->injector->setInstance(Configuration::class, $this->config);
 
         $this->cachemanager = $this->injector->getInstance(Cache\Manager::class);
         $this->dev = $this->config->dget('site', 'dev', true);
@@ -201,7 +201,7 @@ class Application
     private function setupPlugins()
     {
         $plugins = $this->config->has('plugins', Type::ARRAY) ?
-            $this->config->get('plugins', Type::ARRAY)
+            $this->config->getType('plugins', Type::ARRAY)
             :
             ['i18n' => 'I18nPlugin', 'httpchain' => 'ProcessChainPlugin']
         ;
@@ -231,7 +231,7 @@ class Application
             }
             else
             {
-                self::$logger->error("Not a plugin class: {0}", [$value]);
+                self::$logger->error("Not a plugin class: {0}", [$fqcn]);
             }
         }
     }

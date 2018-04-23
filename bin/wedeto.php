@@ -34,7 +34,6 @@ if (!class_exists(Application::class))
     foreach ($paths as $path)
     {
         $file = $path . DIRECTORY_SEPARATOR . 'autoload.php';
-        echo $file . "\n";
         if (file_exists($file))
         {
             require_once $file;

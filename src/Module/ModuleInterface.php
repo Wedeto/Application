@@ -25,6 +25,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\Application\Module;
 
+use Wedeto\Application\Task\TaskRunner;
+
 /**
  * The Module interface should be implemented by all installed modules that
  * need initialization code. Once the module is located, a class named
@@ -46,7 +48,7 @@ interface ModuleInterface
      * Called in order to allow the module to register tasks for the scheduler
      * and the CLI task runner.
      */
-    public function registerTasks();
+    public function registerTasks(TaskRunner $taskrunner);
 
     /**
      * @return string the name of the module
