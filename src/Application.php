@@ -133,7 +133,7 @@ class Application
             if ($config !== false)
             {
                 $ini_config = new Dictionary($config);
-                $this->config->addAll($ini_config);
+                $this->config = new Configuration($ini_config);
                 if ($ini_config->has('path', Type::ARRAY))
                 {
                     foreach ($ini_config->get('path') as $element => $path)
@@ -490,7 +490,7 @@ class Application
      */
     public static function handleException(\Throwable $e)
     {
-        $app = self::$instance;
+        $app = self::getInstance();
         if ($app->request === null)
             $app->request = Request::createFromGlobals();
 
@@ -512,11 +512,14 @@ class Application
                 $tpl->assign('exception', $e);
                 $tpl->assign('request', $req);
                 $tpl->assign('dev', $app->dev);
-                Application::i18n();
+                $app->i18n;
 
                 $response = $tpl->renderReturn();
-                $responder = new \Wedeto\HTTP\Responder($req);
-                $responder->setResponse($response);
+                $responder = new \Wedeto\HTTP\Responder();
+                $result = new \Wedeto\HTTP\Result();
+                $result->setResponse($response);
+                $responder->setRequest($req);
+                $responder->setResult($result);
 
                 // Inject CSS/JS
                 $params = new Dictionary(['responder' => $responder, 'mime' => 'text/html']);
