@@ -202,7 +202,7 @@ class VirtualHost
     }
 
     /**
-     * Extract the path of the provided URL that is below the webroot if this VirtualHost
+     * Extract the path of the provided URL that is below the webroot of this VirtualHost
      *
      * @param string $url The URL to get the path from
      * @return string The path relative to this VirtualHost
@@ -216,7 +216,7 @@ class VirtualHost
         if (strpos($path, $to_replace) === 0)
             $path = substr($path, strlen($to_replace));
 
-        $path = '/' . $path;
+        $path = '/' . urldecode($path);
         return $path; 
     }
 
