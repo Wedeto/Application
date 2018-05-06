@@ -54,10 +54,20 @@ switch ($error_code)
 }
 $this->setTitle($error_code . " - " . $error_title);
 
+if (method_exists($exception, 'getUserMessage'))
+    $user_msg = $exception->getUserMessage();
+else
+    $user_msg = null;
+
 if ($dev)
 {
+    if (null != $user_msg)
+    {
+        $user_msg = t("User message: {message}", ['message' => $user_msg]) . "\n";
+    }
+
     $error_description .= 
-        "\n\n" . t("Description: {message}", ['message' => $exception->getMessage()]) . "\n" 
+        "\n\n" . $user_msg . t("Description: {message}", ['message' => $exception->getMessage()]) . "\n"
         . Wedeto\Util\Functions::str($exception);
 }
 elseif (method_exists($exception, 'getUserMessage'))
