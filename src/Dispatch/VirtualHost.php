@@ -118,14 +118,15 @@ class VirtualHost
         // Collect a list of all supported locales
         $my_locales = [];
 
-        foreach ($this->locales as $locale)
+        foreach ($this->locales as $supported_locale)
         {
-            $list = $locale->getFallbackList();
+            $list = $supported_locale->getFallbackList();
             foreach ($list as $locale)
-                $my_locales[] = $locale->getLocale();
+                $my_locales[$locale->getLocale()] = $supported_locale->getLocale();
         }
 
-        return $header->getBestResponseType($my_locales);
+        $best = $header->getBestResponseType(array_keys($my_locales));
+        return empty($best) ? null : ($my_locales[$best] ?? null);
     }
 
     /** 
