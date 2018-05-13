@@ -126,21 +126,7 @@ class Application
         ini_set('log_errors', '1');
 
         // Load configuration
-        $ini_file = $this->path_config->config . '/main.ini';
-        if (file_exists($ini_file))
-        {
-            $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
-            if ($config !== false)
-            {
-                $ini_config = new Dictionary($config);
-                $this->config = new Configuration($ini_config);
-                if ($ini_config->has('path', Type::ARRAY))
-                {
-                    foreach ($ini_config->get('path') as $element => $path)
-                        $this->path_config->$element = $path;
-                }
-            }
-        }
+        $this->loadConfig();
         $this->injector->setInstance(Configuration::class, $this->config);
 
         $this->cachemanager = $this->injector->getInstance(Cache\Manager::class);
@@ -191,6 +177,33 @@ class Application
         // Load plugins
         $this->setupPlugins();
     }
+
+    protected function loadConfig()
+    {
+        $ini_file = $this->path_config->config . '/main.ini';
+        $config = new Dictionary(); 
+        if (file_exists($ini_file))
+        {
+            $ini_config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
+            if ($ini_config !== false)
+                $config->addAll($ini_config);
+        }
+
+        $local_file = $this->path_config->config . '/local.ini';
+        if (file_exists($local_file))
+        {
+            $ini_config = parse_ini_file($local_file, true, INI_SCANNER_TYPED);
+            if ($config !== false)
+                $config->addAll($ini_config);
+        }
+
+        $this->config = new Configuration($config);
+        if ($config->has('path', Type::ARRAY))
+        {
+            foreach ($config->get('path') as $element => $path)
+                $this->path_config->$element = $path;
+        }
+    }
     
     /**
      * Set up all plugins specified in the config file. Plugins can be specified
@@ -211,7 +224,7 @@ class Application
      * Wedeto\Application\Plugins. Each plugin should implement
      * Wedeto\Application\Plugins\WedetoPlugin
      */
-    private function setupPlugins()
+    protected function setupPlugins()
     {
         // Default plugins
         $plugins = ['I18nPlugin', 'ProcessChainPlugin'];
