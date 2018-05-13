@@ -55,7 +55,11 @@ switch ($error_code)
 $this->setTitle($error_code . " - " . $error_title);
 
 if (method_exists($exception, 'getUserMessage'))
+{
     $user_msg = $exception->getUserMessage();
+    if (isset($user_msg['msg']))
+        $user_msg = td($user_msg['msg'], $user_msg['domain'], $user_msg['params']);
+}
 else
     $user_msg = null;
 
