@@ -41,6 +41,7 @@ use Wedeto\Util\Dictionary;
 use Wedeto\Util\ErrorInterceptor;
 use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Hook;
+use Wedeto\Util\DefVal;
 use Wedeto\Util\LoggerAwareStaticTrait;
 use Wedeto\Util\Validation\Type;
 
@@ -193,20 +194,48 @@ class Application
     
     /**
      * Set up all plugins specified in the config file. Plugins can be specified
-     * in the [plugins] section. The key can be any reference, the value
-     * should either be a fully qualified class name, or a name of a class in 
+     * in the [plugins] section. 
+     *
+     * The default plugins are:
+     * 
+     * - Wedeto\Application\Plugins\I18nPlugin
+     * - Wedeto\Application\Plugins\ProcessChainPlugin
+     *
+     * You can load additional plugins by adding elements to the [plugins] section
+     * with key enable[]
+     *
+     * You can also disable default plugins by adding them to the [plugins] section
+     * with key disable[]. You should use their class name without the namespace.
+     *
+     * Each key should be the fully qualified class name or a name of a class in
      * Wedeto\Application\Plugins. Each plugin should implement
      * Wedeto\Application\Plugins\WedetoPlugin
      */
     private function setupPlugins()
     {
-        $plugins = $this->config->has('plugins', Type::ARRAY) ?
-            $this->config->getType('plugins', Type::ARRAY)
-            :
-            ['i18n' => 'I18nPlugin', 'httpchain' => 'ProcessChainPlugin']
-        ;
+        // Default plugins
+        $plugins = ['I18nPlugin', 'ProcessChainPlugin'];
 
-        foreach ($plugins as $key => $value)
+        $disable = $this->config->getArray('plugins', 'disable', new DefVal([]));
+        $enable = $this->config->getArray('plugins', 'enable', new DefVal([]));
+
+        foreach ($enable as $plugin)
+        {
+            if (array_search($plugin, $plugins) === false)
+            {
+                $plugins[] = $plugin;
+            }
+        }
+
+        foreach ($disable as $plugin)
+        {
+            if (($idx = array_search($plugin, $plugins)) !== false)
+            {
+                array_splice($plugins, $idx, 1);
+            }
+        }
+
+        foreach ($plugins as $value)
         {
             if (!is_string($value))
             {
