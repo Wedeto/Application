@@ -5,22 +5,23 @@
     "homepage": "https://wedeto.net/",
     "type": "project",
     "require": {
-        "Wedeto/Auth": "~0.9.3",
-        "Wedeto/DB": "~0.9.22",
-        "Wedeto/FileFormats": "~0.9.4",
-        "Wedeto/HTML": "~0.9.12",
-        "Wedeto/HTTP": "~0.9.21",
-        "Wedeto/I18n": "~0.9.3",
-        "Wedeto/IO": "~0.9.7",
-        "Wedeto/Log": "~0.9.12",
-        "Wedeto/Mail": "~0.9.5",
-        "Wedeto/Resolve": "~0.9.7",
-        "Wedeto/Util": "~0.9.37",
+        "Wedeto/Auth": "~1.0.0-beta1",
+        "Wedeto/DB": "~1.0",
+        "Wedeto/FileFormats": "~1.0",
+        "Wedeto/HTML": "~1.0",
+        "Wedeto/HTTP": "~1.0",
+        "Wedeto/I18n": "~1.0",
+        "Wedeto/IO": "~1.0",
+        "Wedeto/Log": "~1.0",
+        "Wedeto/Mail": "~1.0",
+        "Wedeto/Resolve": "~1.0",
+        "Wedeto/Util": "~1.0",
         "php": ">=7.0.0"
     },
+    "minimum-stability": "beta",
     "require-dev": {
         "mikey179/vfsStream": "~1",
-        "phpunit/phpunit": ">=6.0.8"
+        "phpunit/phpunit": "~6"
     },
     "autoload": {
         "psr-4": {
