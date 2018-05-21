@@ -26,6 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application\Dispatch;
 
 use Wedeto\DB\Model;
+use Wedeto\DB\Exception\DAOException;
 
 use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Dictionary;
@@ -396,7 +397,16 @@ class AppRunner
                     throw new HTTPError(400, "Invalid arguments - missing identifier as argument $cnt");
                 $object_id = $urlargs->shift();    
                 $dao = $tp::getDAO();
-                $obj = $dao->get($object_id);
+                try
+                {
+                    $obj = $dao->getByID($object_id);
+                }
+                catch (DAOException $e)
+                {
+                    $namespace_parts = explode("\\", $tp);
+                    $base_class_name = end($namespace_parts);
+                    throw new HTTPError(404, "Unable to load {$base_class_name} with ID $object_id", "Invalid entity");
+                }
                 $args[] = $obj;
                 continue;
             }

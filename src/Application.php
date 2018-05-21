@@ -41,6 +41,7 @@ use Wedeto\Util\Dictionary;
 use Wedeto\Util\ErrorInterceptor;
 use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Hook;
+use Wedeto\Util\DefVal;
 use Wedeto\Util\LoggerAwareStaticTrait;
 use Wedeto\Util\Validation\Type;
 
@@ -105,7 +106,6 @@ class Application
 
         $this->path_config = $path_config ?? new PathConfig;
         $this->config = $config ?? new Configuration;
-        $this->injector->setInstance(Configuration::class, $this->config);
         $this->bootstrap();
     }
 
@@ -126,21 +126,8 @@ class Application
         ini_set('log_errors', '1');
 
         // Load configuration
-        $ini_file = $this->path_config->config . '/main.ini';
-        if (file_exists($ini_file))
-        {
-            $config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
-            if ($config !== false)
-            {
-                $ini_config = new Dictionary($config);
-                $this->config->addAll($ini_config);
-                if ($ini_config->has('path', Type::ARRAY))
-                {
-                    foreach ($ini_config->get('path') as $element => $path)
-                        $this->path_config->$element = $path;
-                }
-            }
-        }
+        $this->loadConfig();
+        $this->injector->setInstance(Configuration::class, $this->config);
 
         $this->cachemanager = $this->injector->getInstance(Cache\Manager::class);
         $this->dev = $this->config->dget('site', 'dev', true);
@@ -190,23 +177,78 @@ class Application
         // Load plugins
         $this->setupPlugins();
     }
+
+    protected function loadConfig()
+    {
+        $ini_file = $this->path_config->config . '/main.ini';
+        $config = new Dictionary(); 
+        if (file_exists($ini_file))
+        {
+            $ini_config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
+            if ($ini_config !== false)
+                $config->addAll($ini_config);
+        }
+
+        $local_file = $this->path_config->config . '/local.ini';
+        if (file_exists($local_file))
+        {
+            $ini_config = parse_ini_file($local_file, true, INI_SCANNER_TYPED);
+            if ($config !== false)
+                $config->addAll($ini_config);
+        }
+
+        $this->config = new Configuration($config);
+        if ($config->has('path', Type::ARRAY))
+        {
+            foreach ($config->get('path') as $element => $path)
+                $this->path_config->$element = $path;
+        }
+    }
     
     /**
      * Set up all plugins specified in the config file. Plugins can be specified
-     * in the [plugins] section. The key can be any reference, the value
-     * should either be a fully qualified class name, or a name of a class in 
+     * in the [plugins] section. 
+     *
+     * The default plugins are:
+     * 
+     * - Wedeto\Application\Plugins\I18nPlugin
+     * - Wedeto\Application\Plugins\ProcessChainPlugin
+     *
+     * You can load additional plugins by adding elements to the [plugins] section
+     * with key enable[]
+     *
+     * You can also disable default plugins by adding them to the [plugins] section
+     * with key disable[]. You should use their class name without the namespace.
+     *
+     * Each key should be the fully qualified class name or a name of a class in
      * Wedeto\Application\Plugins. Each plugin should implement
      * Wedeto\Application\Plugins\WedetoPlugin
      */
-    private function setupPlugins()
+    protected function setupPlugins()
     {
-        $plugins = $this->config->has('plugins', Type::ARRAY) ?
-            $this->config->get('plugins', Type::ARRAY)
-            :
-            ['i18n' => 'I18nPlugin', 'httpchain' => 'ProcessChainPlugin']
-        ;
+        // Default plugins
+        $plugins = ['I18nPlugin', 'ProcessChainPlugin'];
 
-        foreach ($plugins as $key => $value)
+        $disable = $this->config->getArray('plugins', 'disable', new DefVal([]));
+        $enable = $this->config->getArray('plugins', 'enable', new DefVal([]));
+
+        foreach ($enable as $plugin)
+        {
+            if (array_search($plugin, $plugins) === false)
+            {
+                $plugins[] = $plugin;
+            }
+        }
+
+        foreach ($disable as $plugin)
+        {
+            if (($idx = array_search($plugin, $plugins)) !== false)
+            {
+                array_splice($plugins, $idx, 1);
+            }
+        }
+
+        foreach ($plugins as $value)
         {
             if (!is_string($value))
             {
@@ -231,7 +273,7 @@ class Application
             }
             else
             {
-                self::$logger->error("Not a plugin class: {0}", [$value]);
+                self::$logger->error("Not a plugin class: {0}", [$fqcn]);
             }
         }
     }
@@ -490,7 +532,7 @@ class Application
      */
     public static function handleException(\Throwable $e)
     {
-        $app = self::$instance;
+        $app = self::getInstance();
         if ($app->request === null)
             $app->request = Request::createFromGlobals();
 
@@ -512,11 +554,14 @@ class Application
                 $tpl->assign('exception', $e);
                 $tpl->assign('request', $req);
                 $tpl->assign('dev', $app->dev);
-                Application::i18n();
+                $app->i18n;
 
                 $response = $tpl->renderReturn();
-                $responder = new \Wedeto\HTTP\Responder($req);
-                $responder->setResponse($response);
+                $responder = new \Wedeto\HTTP\Responder();
+                $result = new \Wedeto\HTTP\Result();
+                $result->setResponse($response);
+                $responder->setRequest($req);
+                $responder->setResult($result);
 
                 // Inject CSS/JS
                 $params = new Dictionary(['responder' => $responder, 'mime' => 'text/html']);

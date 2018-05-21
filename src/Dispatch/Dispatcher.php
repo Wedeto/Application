@@ -67,6 +67,8 @@ use Wedeto\Application\FlashMessage;
  *
  * It will dispatch the request to the correct app by resolving the route in
  * the configured paths.
+ *
+ * @generator createFromApplication
  */
 class Dispatcher implements Processor
 {
@@ -377,8 +379,14 @@ class Dispatcher implements Processor
         $this
             ->setVariable('app', $app)
             ->setVariable('path_config', $app->pathConfig)
-            ->setVariable('i18n', $app->i18n)
-            ->setVariable('db', $app->db);
+            ->setVariable('i18n', $app->i18n);
+
+        try
+        {
+            $this->setVariable('db', $app->db);
+        }
+        catch (\Wedeto\DB\Exception\ConfigurationException $db)
+        {}
         return $this;
     }
 

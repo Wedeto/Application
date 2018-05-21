@@ -30,6 +30,9 @@ use Wedeto\Application\CLI\CLI;
 use Wedeto\Application\Application;
 use Wedeto\Application\Module\Manager as ModuleManager;
 
+use Wedeto\Log\Logger;
+use Wedeto\Log\Writer\StreamWriter;
+
 /**
  * The TaskRunner collects and runs tasks. It is also used by the scheduler to
  * run periodic jobs
@@ -70,7 +73,7 @@ class TaskRunner
         $resolver = $this->app->moduleManager;
         $modules = $resolver->getModules();
         foreach ($modules as $mod)
-            $mod->registerTasks();
+            $mod->registerTasks($this);
 
         // Provide a way to register tasks using a hook
         Hook::execute("Wedeto.Application.Task.TaskRunner.findTasks", ['taskrunner' => $this]);
@@ -98,7 +101,7 @@ class TaskRunner
             {
                 $task = str_replace('\\', ':', $task);
                 fprintf($ostr, "- %-30s", $task);
-                CLI::formatText(32, CLI::MAX_LINE_LENGTH, $desc, $ostr);
+                CLI::formatText(32, CLI::MAX_LINE_LENGTH, ' ' . $desc, $ostr);
             }
             printf("\n");
         }
@@ -117,6 +120,9 @@ class TaskRunner
         // CLI uses : because \ is used as escape character, so that
         // awkward syntax is required.
         $task = str_replace(":", "\\", $task);
+
+        $log = Logger::getLogger('');
+        $log->addLogWriter(new StreamWriter(STDOUT));
 
         if (!class_exists($task))
         {

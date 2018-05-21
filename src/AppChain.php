@@ -28,6 +28,8 @@ namespace Wedeto\Application;
 use Wedeto\HTTP\ProcessChain;
 use Wedeto\HTTP\Responder;
 
+use Wedeto\Util\Hook;
+
 use Wedeto\Log\Writer\{FileWriter, MemLogWriter, AbstractWriter};
 
 /**

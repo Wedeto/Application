@@ -26,10 +26,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\Application\Plugins;
 
 use Wedeto\Util\DI\BasicFactory;
+use Wedeto\Util\DI\DI;
+use Wedeto\Util\Hook;
+use Wedeto\Util\Dictionary;
+
+use Wedeto\Log\Logger;
 
 use Wedeto\Application\Application;
 use Wedeto\DB\Migrate\Repository;
 use Wedeto\DB\Migrate\Module;
+
+use Wedeto\Application\Task\TaskRunner;
+use Wedeto\Application\Task\TaskInterface;
 
 /**
  * Plugin that connects the migrations of Wedeto\DB to the application, to make
@@ -43,6 +51,14 @@ class DBMigratePlugin implements WedetoPlugin
     {
         $this->app = $app;
         $app->injector->registerFactory(Repository::class, new BasicFactory([$this, "createMigrateRepository"]));
+
+        Hook::subscribe("Wedeto.Application.Task.TaskRunner.findTasks", [$this, 'registerTasks']);
+    }
+
+    public function registerTasks(Dictionary $params)
+    {
+        $taskRunner = $params['taskrunner'];
+        $taskRunner->registerTask(MigrationRunner::class, 'Run database migrations');
     }
 
     /**
@@ -51,17 +67,50 @@ class DBMigratePlugin implements WedetoPlugin
      */
     public function createMigrateRepository(array $args)
     {
-        $db = $app->db;
+        $db = $this->app->db;
         $repo = new Repository($db);
 
         // Add all module paths to the Migration object
-        $modules = $app->resolver->getResolver("migrations");
-        foreach ($modules as $name => $path)
+        $resolver = $this->app->resolver->getResolver("migrations");
+        $mods = [];
+
+        foreach ($resolver->getSearchPath() as $name => $path)
         {
             $module = new Module($name, $path, $db);
-            $repo->addModule($module);
+            if ($name === "wedeto.db")
+                array_unshift($mods, $module);
+            else
+                array_push($mods, $module);
         }
 
+        foreach ($mods as $module)
+            $repo->addModule($module);
+
         return $repo;
+    }
+}
+
+class MigrationRunner implements TaskInterface
+{   
+    public function execute()
+    {
+        $log = Logger::getLogger(MigrationRunner::class);
+        $repository = DI::getInjector()->getInstance(Repository::class);
+
+        foreach ($repository as $module)
+        {
+            $cv = $module->getCurrentVersion();
+            $lv = $module->getLatestVersion();
+
+            if ($module->isUpToDate())
+            {
+                $log->info("Module {0} is up to date (@{1})", [$module->getModule(), $cv]);
+            }
+            else
+            {
+                $log->info("Upgrading module {0} from {1} to {2}", [$module->getModule(), $cv, $lv]);
+                $module->upgradeToLatest();
+            }
+        }
     }
 }

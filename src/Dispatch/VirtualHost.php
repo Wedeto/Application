@@ -118,14 +118,15 @@ class VirtualHost
         // Collect a list of all supported locales
         $my_locales = [];
 
-        foreach ($this->locales as $locale)
+        foreach ($this->locales as $supported_locale)
         {
-            $list = $locale->getFallbackList();
+            $list = $supported_locale->getFallbackList();
             foreach ($list as $locale)
-                $my_locales[] = $locale->getLocale();
+                $my_locales[$locale->getLocale()] = $supported_locale->getLocale();
         }
 
-        return $header->getBestResponseType($my_locales);
+        $best = $header->getBestResponseType(array_keys($my_locales));
+        return empty($best) ? null : ($my_locales[$best] ?? null);
     }
 
     /** 
@@ -202,7 +203,7 @@ class VirtualHost
     }
 
     /**
-     * Extract the path of the provided URL that is below the webroot if this VirtualHost
+     * Extract the path of the provided URL that is below the webroot of this VirtualHost
      *
      * @param string $url The URL to get the path from
      * @return string The path relative to this VirtualHost
@@ -216,7 +217,7 @@ class VirtualHost
         if (strpos($path, $to_replace) === 0)
             $path = substr($path, strlen($to_replace));
 
-        $path = '/' . $path;
+        $path = '/' . urldecode($path);
         return $path; 
     }
 
