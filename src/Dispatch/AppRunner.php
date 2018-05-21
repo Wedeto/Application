@@ -32,6 +32,7 @@ use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Dictionary;
 use Wedeto\Util\Validation\Type;
 use Wedeto\Util\LoggerAwareStaticTrait;
+use Wedeto\Util\DI\DI;
 
 use Wedeto\Log\Logger;
 
@@ -167,11 +168,17 @@ class AppRunner
             ob_start();
             $response = $this->doExecute();
 
-            if (is_object($response) && !($response instanceof Response))
+            if (
+                (is_object($response) && !($response instanceof Response)) || 
+                (is_string($response) && class_exists($response))
+            )
+            {
                 $response = $this->reflect($response);
+            }
 
             if ($response instanceof Response)
                 throw $response;
+
 
             throw new HTTPError(500, "App did not produce any response");
         }
@@ -285,7 +292,6 @@ class AppRunner
         return $controller;
     }
 
-    
     /**
      * If you prefer to encapsulate your controllers in classes, you can 
      * have your app files return an object instead of a response.
@@ -311,6 +317,10 @@ class AppRunner
      */
     protected function reflect($object)
     {
+        // Instantiate an object when a classname is specified
+        if (is_string($object) && class_exists($object))
+            $object = DI::getInjector()->newInstance($object, $this->variables);
+
         // Find the correct method in the object
         $controller = $this->findController($object);
         
