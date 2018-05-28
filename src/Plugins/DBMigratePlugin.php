@@ -27,6 +27,7 @@ namespace Wedeto\Application\Plugins;
 
 use Wedeto\Util\DI\BasicFactory;
 use Wedeto\Util\DI\DI;
+use Wedeto\Util\Functions as WF;
 use Wedeto\Util\Hook;
 use Wedeto\Util\Dictionary;
 
@@ -96,6 +97,24 @@ class MigrationRunner implements TaskInterface
     {
         $log = Logger::getLogger(MigrationRunner::class);
         $repository = DI::getInjector()->getInstance(Repository::class);
+
+        $target_version = getenv("WDB_VERSION");
+        $target_module = getenv("WDB_MODULE");
+        
+        if (!empty($target_version) && !empty($target_module))
+        {
+            $ver = (int)$target_version;
+            $module = $repository->getMigration($target_module);
+            if (empty($module))
+            {
+                WF::debug("Invalid module: $target_module");
+            }
+            else
+            {
+                $module->migrateTo($ver);
+            }
+            return;
+        }
 
         foreach ($repository as $module)
         {
