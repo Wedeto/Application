@@ -101,7 +101,7 @@ class MigrationRunner implements TaskInterface
         $target_version = getenv("WDB_VERSION");
         $target_module = getenv("WDB_MODULE");
         
-        if (!empty($target_version) && !empty($target_module))
+        if (is_numeric($target_version) && !empty($target_module))
         {
             $ver = (int)$target_version;
             $module = $repository->getMigration($target_module);
