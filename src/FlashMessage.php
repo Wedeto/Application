@@ -66,7 +66,7 @@ class FlashMessage
      * @param string|array msg The message. If it is a string, a new flash message will be generated.
      *                         If this is an array, an existing message is reconstructed from the storage.
      */
-    public function __construct($msg, $type = FlashMessage::INFO)
+    public function __construct($msg, int $type = FlashMessage::INFO)
     {
         if (WF::is_array_like($msg))
         {
@@ -75,6 +75,11 @@ class FlashMessage
             $this->type = $msg[1];
             $this->date = new \DateTime("@" . $msg[2]);
             return;
+        }
+
+        if (!array_key_exists($type, self::$types))
+        {
+            throw new \RuntimeException("Invalid message type: $type");
         }
 
         $storage = self::getStorage();
