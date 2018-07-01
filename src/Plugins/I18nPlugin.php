@@ -59,8 +59,13 @@ class I18nPlugin implements WedetoPlugin
 
         // Add all module paths to the I18n object
         $modules = $this->app->resolver->getResolver("language");
-        foreach ($modules as $name => $path)
+        $log = \Wedeto\Log\Logger::getLogger(I18nPlugin::class);
+        
+        $search_path = $modules->getSearchPath();
+        foreach ($search_path as $name => $path)
+        {
             $i18n->registerTextDomain($name, $path);
+        }
 
         // Set a language
         $site_language = $this->app->config->dget('site', 'default_language', 'en');
