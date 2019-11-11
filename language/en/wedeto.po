@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.2.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -419,6 +419,31 @@ msgstr "Switching protocols"
 #: /home/eggie/Projects/qm/platform/vendor/wedeto/application/template/error/HTTPError.php:35
 msgid "Continue"
 msgstr "Continue"
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:28
+msgid "Internal Server Error"
+msgstr "Internal Server Error"
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:28
+msgid "Database connection failed"
+msgstr "Database connection failed"
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:30
+msgid "The database cannot be reached."
+msgstr "The database cannot be reached."
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:31
+msgid "A site administrator will need to look into this problem."
+msgstr "A site administrator will need to look into this problem."
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:33
+msgid "The connection to the database could not be established."
+msgstr "The connection to the database could not be established."
 
 #~ msgid "Origin Connection Time-out"
 #~ msgstr "Origin Connection Time-out"

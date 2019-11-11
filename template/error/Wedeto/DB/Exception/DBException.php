@@ -25,12 +25,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 $error_code = 500;
 setTextDomain('wedeto');
-$error_title = t("Internal Server Error") . ' - ' . t("Configuration invalid or missing");
+$error_title = t("Internal Server Error") . ' - ' . t("Database connection failed");
 $error_lead = 
     t('The database cannot be reached.') . ' ' .
     t('A site administrator will need to look into this problem.');
 
-$error_description = t("The connection to the databse could not be established.") . "\n";
+$error_description = t("The connection to the database could not be established.") . "\n";
 
 if ($dev)
 {

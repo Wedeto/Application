@@ -401,3 +401,28 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:28
+msgid "Internal Server Error"
+msgstr ""
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:28
+msgid "Database connection failed"
+msgstr ""
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:30
+msgid "The database cannot be reached."
+msgstr ""
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:31
+msgid "A site administrator will need to look into this problem."
+msgstr ""
+
+#. Untranslated string at 2019-11-11 15:54:27
+#: /home/evdwal/Projects/cgresponsive/vendor/wedeto/application/template/error/Wedeto/DB/Exception/DBException.php:33
+msgid "The connection to the database could not be established."
+msgstr ""
+
