@@ -93,6 +93,7 @@ class Application
     protected $request;
     protected $is_shutdown = false;
     protected $http_chain = null;
+    protected $plugins_initalized = false;
 
     /**
      * Create the object. To do this, a path configuration and a application configuration is required
@@ -226,6 +227,12 @@ class Application
      */
     protected function setupPlugins()
     {
+        if ($this->plugins_initalized)
+            return;
+
+        // Only run once
+        $this->plugins_initalized = true;
+
         // Default plugins
         $plugins = ['I18nPlugin', 'ProcessChainPlugin'];
 
@@ -625,6 +632,8 @@ class Application
      */
     public function handleCLIRequest()
     {
+        $this->setupPlugins();
+
         $cli = new CLI\CLI;
         $cli->addOption("r", "run", "action", "Run the specified task");
         $cli->addOption("s", "list", false, "List the available tasks");
