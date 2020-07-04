@@ -93,7 +93,7 @@ class Application
     protected $request;
     protected $is_shutdown = false;
     protected $http_chain = null;
-    protected $plugins_initalized = false;
+    protected $plugins_initialized = false;
 
     /**
      * Create the object. To do this, a path configuration and a application configuration is required
@@ -227,11 +227,11 @@ class Application
      */
     protected function setupPlugins()
     {
-        if ($this->plugins_initalized)
+        if ($this->plugins_initialized)
             return;
 
         // Only run once
-        $this->plugins_initalized = true;
+        $this->plugins_initialized = true;
 
         // Default plugins
         $plugins = ['I18nPlugin', 'ProcessChainPlugin'];
