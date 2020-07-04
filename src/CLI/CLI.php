@@ -180,11 +180,11 @@ class CLI
     public static function formatText($indent, $max_width, $text, $ostr = STDOUT)
     {
         $parts = explode(" ", $text);
-        $str_part = "";
+        $str_part = str_pad("", $indent);
         $first = true;
         foreach ($parts as $p)
         {
-            if (strlen($str_part) + ($first ? $indent : 0) + strlen($p) > $max_width && strlen($str_part) != $indent)
+            if (strlen($str_part) + strlen($p) > $max_width && (!$first || strlen($str_part) != $indent))
             {
                 fprintf($ostr, $str_part . "\n");
                 $first = false;

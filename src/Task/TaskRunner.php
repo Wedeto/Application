@@ -100,8 +100,8 @@ class TaskRunner
             foreach ($this->task_list as $task => $desc)
             {
                 $task = str_replace('\\', ':', $task);
-                fprintf($ostr, "- %-30s", $task);
-                CLI::formatText(32, CLI::MAX_LINE_LENGTH, ' ' . $desc, $ostr);
+                fprintf($ostr, "- %-30s\n", $task);
+                CLI::formatText(32, CLI::MAX_LINE_LENGTH, $desc, $ostr);
             }
             printf("\n");
         }
