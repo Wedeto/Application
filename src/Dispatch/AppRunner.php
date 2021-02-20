@@ -354,7 +354,11 @@ class AppRunner
                 continue;
             }
 
-            $tp = (string)$tp;
+            if (method_exists($tp, 'getName')) {
+                $tp = $tp->getName();
+            } else {
+                $tp = (string)$tp;
+            }
 
             // Check if a variable by the correct name was set
             $name = $param->getName();
