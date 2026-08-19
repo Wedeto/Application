@@ -40,13 +40,13 @@ final class FlashMessageTest extends TestCase
 {
     protected $storage;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->storage = new Dictionary;
         FlashMessage::setStorage($this->storage);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         FlashMessage::setStorage();
     }

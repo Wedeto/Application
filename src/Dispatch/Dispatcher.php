@@ -360,7 +360,7 @@ class Dispatcher implements Processor
      */
     public function getApplication()
     {
-        if (!array_key_exists('app', $this->variables['app']))
+        if (!array_key_exists('app', $this->variables))
         {
             $ij = DI::getInjector();
             $app = $ij->hasInstance(Application::class) ? $ij->getInstance(Application::class) : null;

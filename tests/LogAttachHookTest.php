@@ -46,7 +46,7 @@ use Wedeto\HTTP\Response\{StringResponse, DataResponse};
  */
 class LogAttachHookTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->memlogger = new MemLogWriter("DEBUG");
         $root = Logger::getLogger('');
@@ -72,7 +72,7 @@ class LogAttachHookTest extends TestCase
 
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Logger::resetGlobalState();
     }
@@ -102,8 +102,8 @@ class LogAttachHookTest extends TestCase
             $this->assertSame($response, $e);
 
             $content = $response->getOutput('text/plain');
-            $this->assertContains('// DEVELOPMENT LOG', $content);
-            $this->assertContains('Foo <>bar', $content);
+            $this->assertStringContainsString('// DEVELOPMENT LOG', $content);
+            $this->assertStringContainsString('Foo <>bar', $content);
         }
 
         while ($lvl !== ob_get_level())
@@ -136,8 +136,8 @@ class LogAttachHookTest extends TestCase
             $this->assertSame($response, $e);
 
             $content = $response->getOutput('text/html');
-            $this->assertContains('<!-- DEVELOPMENT LOG -->', $content);
-            $this->assertContains('Foo &lt;&gt;bar', $content);
+            $this->assertStringContainsString('<!-- DEVELOPMENT LOG -->', $content);
+            $this->assertStringContainsString('Foo &lt;&gt;bar', $content);
         }
 
         while ($lvl !== ob_get_level())
@@ -176,7 +176,7 @@ class LogAttachHookTest extends TestCase
             $this->assertEquals(1, count($content['devlog']));
             $line = $content['devlog'][0];
 
-            $this->assertContains('Foo <>bar', $line);
+            $this->assertStringContainsString('Foo <>bar', $line);
         }
 
         while ($lvl !== ob_get_level())

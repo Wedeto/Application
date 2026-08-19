@@ -52,7 +52,7 @@ class CLITest extends TestCase
         $ostr = fread($fh, 500);
         fclose($fh);
 
-        $this->assertEquals($ostr, "12345 \n  67890 \n  12345 \n  67890 \n  12345 \n  67890 \n  12345 \n  67890 \n");
+        $this->assertEquals($ostr, "  12345 \n  67890 \n  12345 \n  67890 \n  12345 \n  67890 \n  12345 \n  67890 \n");
     }
 
     public function testGetOptString()

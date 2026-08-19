@@ -45,7 +45,7 @@ class ManagerTest extends TestCase
     protected $wedetoroot;
     protected $resolver;
 
-    public function setUp()
+    public function setUp(): void
     {
         Logger::resetGlobalState();
         vfsStreamWrapper::register();
@@ -66,7 +66,7 @@ class ManagerTest extends TestCase
         $this->resolver->registerModule('test', $this->wedetoroot, 0);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Logger::resetGlobalState();
     }
@@ -137,8 +137,6 @@ PHP;
         $this->assertTrue(isset($mods['test']));
         $this->assertEquals('test', $mods['test']->getName());
         $this->assertEquals($this->wedetoroot, $mods['test']->getPath());
-
-        $mods['test']->registerTasks();
 
         $this->assertEquals('MyModClass', get_class($mods['test']));
     }

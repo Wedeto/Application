@@ -4,3 +4,4 @@ var/*
 composer.lock
 vendor/
 cc/
+.phpunit.result.cache

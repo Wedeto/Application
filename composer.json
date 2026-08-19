@@ -5,22 +5,23 @@
     "homepage": "https://wedeto.net/",
     "type": "project",
     "require": {
-        "wedeto/auth": "~1.0.0",
-        "wedeto/db": "~1.0",
-        "wedeto/fileformats": "~1.0",
-        "wedeto/html": "~1.0",
-        "wedeto/http": "~1.0",
-        "wedeto/i18n": "~1.0",
-        "wedeto/io": "~1.0",
-        "wedeto/log": "~1.0",
-        "wedeto/mail": "~1.0",
-        "wedeto/resolve": "~1.0",
-        "wedeto/util": "~1.0",
-        "php": ">=7.0.0"
+        "wedeto/auth": "^1.1.0",
+        "wedeto/db": "^1.1.0",
+        "wedeto/fileformats": "^1.1.0",
+        "wedeto/html": "^1.1.0",
+        "wedeto/http": "^1.1.2",
+        "wedeto/i18n": "^1.1.1",
+        "wedeto/io": "^1.1.0",
+        "wedeto/log": "^1.1.0",
+        "wedeto/mail": "^1.1.0",
+        "wedeto/resolve": "^1.1.0",
+        "wedeto/util": "^1.1.6",
+        "php": "^7.4 || >=8.1"
     },
     "require-dev": {
-        "mikey179/vfsstream": "~1",
-        "phpunit/phpunit": "~6"
+        "mikey179/vfsstream": "^1.6",
+        "phpunit/phpunit": "^9.6.33",
+        "phpspec/prophecy-phpunit": "^2.0"
     },
     "autoload": {
         "psr-4": {

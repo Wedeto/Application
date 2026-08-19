@@ -8,9 +8,8 @@ dispatching and response building.
 
 # Requirements:
 
-php >= 7.0
+PHP 7.4 or PHP 8.1 and newer. PHP 8.0 is not supported.
 
 # License
 
 Wedeto\Application is covered by the MIT license. 
-

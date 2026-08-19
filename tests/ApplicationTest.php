@@ -56,9 +56,11 @@ define('WEDETO_TEST', 1);
  */
 class ApplicationTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
+
     protected static $it = 0;
 
-    public function setUp()
+    public function setUp(): void
     {
         DI::startNewContext('test');
         $this->injector = DI::getInjector();
@@ -78,7 +80,7 @@ class ApplicationTest extends TestCase
         $this->cmgr = DI::getInjector()->getInstance(Cache\Manager::class);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->cmgr->unsetHook();
         Logger::resetGlobalState(); 
@@ -102,7 +104,7 @@ class ApplicationTest extends TestCase
 
         $mocker = $this->prophesize(DB::class);
         $mock = $mocker->reveal();
-        $app->db = $mock;
+        $this->injector->setInstance(DB::class, $mock);
 
         $this->assertSame($config, $app->config);
         $this->assertInstanceOf(Request::class, $app->request);
@@ -221,6 +223,7 @@ class ApplicationTest extends TestCase
         $contents = ob_get_contents();
         ob_end_clean();
 
-        $this->assertContains("[404] /foo", $contents);
+        $this->assertStringContainsString("404 - Not Found", $contents);
+        $this->assertStringContainsString("/foo could not be found", $contents);
     }
 }

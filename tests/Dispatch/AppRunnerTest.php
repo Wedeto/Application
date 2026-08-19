@@ -67,7 +67,7 @@ final class AppRunnerTest extends TestCase
     private $classname;
     private $devlogger;
 
-    public function setUp()
+    public function setUp(): void
     {
         DI::startNewContext('test');
         vfsStreamWrapper::register();
@@ -84,7 +84,7 @@ final class AppRunnerTest extends TestCase
         AppRunner::setLogger($logger);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $logger = Logger::getLogger(AppRunner::class);
         $logger->removeLogWriters();
@@ -643,7 +643,6 @@ EOT;
 
     public function testAppReturnsObjectWithIntAndStringParameters()
     {
-        $this->request->arguments[1] = 3;
         $classname = $this->classname;
         $phpcode = <<<EOT
 <?php
@@ -676,7 +675,6 @@ EOT;
     public function testAppReturnsObjectWithStringAndStringParameters()
     {
         $classname = $this->classname;
-        $this->request->arguments[1] = 3;
         $phpcode = <<<EOT
 <?php
 use Wedeto\HTTP\Response\StringResponse;
@@ -703,7 +701,6 @@ EOT;
     public function testAppReturnsObjectWithInvalidParameters()
     {
         $classname = $this->classname;
-        $this->request->arguments[1] = 3;
         $phpcode = <<<EOT
 <?php
 use Wedeto\HTTP\Response\StringResponse;
@@ -839,7 +836,7 @@ class MockAppRunnerModel extends \Wedeto\DB\Model
         return $this->name;
     }
 
-    public static function getDAO(\Wedeto\DB\DB $db = null)
+    public static function getDAO(?\Wedeto\DB\DB $db = null)
     {
         return new MockAppRunnerDAO;
     }
@@ -853,6 +850,11 @@ class MockAppRunnerDAO extends \Wedeto\DB\DAO
     public function get(...$args)
     {
         return new MockAppRunnerModel($args[0]);
+    }
+
+    public function getByID($id)
+    {
+        return new MockAppRunnerModel($id);
     }
 }
 

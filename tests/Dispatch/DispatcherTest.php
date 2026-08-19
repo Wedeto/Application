@@ -64,6 +64,8 @@ if (!defined('WEDETO_TEST'))
  */
 final class DispatcherTest extends TestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
+
     protected static $it = 0;
 
     protected $app;
@@ -79,7 +81,7 @@ final class DispatcherTest extends TestCase
     protected $request;
     protected $resolver;
 
-    public function setUp()
+    public function setUp(): void
     {
         DI::startNewContext('test');
         Logger::resetGlobalState();
@@ -142,8 +144,9 @@ final class DispatcherTest extends TestCase
         $this->resolve = $this->app->resolver;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
+        DI::getInjector()->getInstance(Cache\Manager::class)->unsetHook();
         Logger::resetGlobalState();
         DI::destroyContext('test');
     }
@@ -374,7 +377,7 @@ PHP;
 
         $response = $dispatch->dispatch();
         $this->assertInstanceOf(HTTPError::class, $response);
-        $this->assertContains('Could not resolve', $response->getMessage());
+        $this->assertStringContainsString('Could not resolve', $response->getMessage());
     }
 
     public function testBadControllerThrowsException()
@@ -395,7 +398,7 @@ PHP;
 
         $response = $dispatch->dispatch();
         $this->assertInstanceOf(HTTPError::class, $response);
-        $this->assertContains('Exception of type LogicException thrown', $response->getMessage());
+        $this->assertStringContainsString('Exception of type LogicException thrown', $response->getMessage());
 
         // Validate some other types
         $this->server['HTTP_ACCEPT'] = 'text/html';
@@ -407,7 +410,7 @@ PHP;
         $sub = $response->getResponse();
         $this->assertInstanceOf(StringResponse::class, $sub);
         print_r($sub->getOutput('text/plain'));
-        $this->assertContains('LogicException [0] boo', $sub->getOutput('text/html'));
+        $this->assertStringContainsString('LogicException [0] boo', $sub->getOutput('text/html'));
 
         $this->server['HTTP_ACCEPT'] = 'application/json';
         $this->request = new Request($this->get, $this->post, $this->cookie, $this->server, $this->files);

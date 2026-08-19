@@ -131,7 +131,7 @@ class FlashMessage
      * can also be a different object, useful for testing.
      * @param Dictionary $storage Where to store and retrieve flash messages
      */
-    public static function setStorage(Dictionary $storage = null)
+    public static function setStorage(?Dictionary $storage = null)
     {
         self::$storage = $storage;
     }

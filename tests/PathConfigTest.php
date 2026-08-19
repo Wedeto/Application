@@ -42,7 +42,7 @@ final class PathConfigTest extends TestCase
 {
     private $wedetoroot;
 
-    public function setUp()
+    public function setUp(): void
     {
         DI::startNewContext('test');
         vfsStreamWrapper::register();
@@ -53,7 +53,7 @@ final class PathConfigTest extends TestCase
         mkdir($this->wedetoroot . DIRECTORY_SEPARATOR . 'http');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         DI::destroyContext('test');
     }

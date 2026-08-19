@@ -99,7 +99,7 @@ class Application
      * Create the object. To do this, a path configuration and a application configuration is required
      * but these can be omitted assume configuration out of convention.
      */
-    public function __construct(PathConfig $path_config = null, Configuration $config = null)
+    public function __construct(?PathConfig $path_config = null, ?Configuration $config = null)
     {
         $this->injector = DI::getInjector();
         $this->injector->setInstance(static::class, $this);
@@ -182,7 +182,7 @@ class Application
     protected function loadConfig()
     {
         $ini_file = $this->path_config->config . '/main.ini';
-        $config = new Dictionary(); 
+        $config = $this->config;
         if (file_exists($ini_file))
         {
             $ini_config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
@@ -198,7 +198,6 @@ class Application
                 $config->addAll($ini_config);
         }
 
-        $this->config = new Configuration($config);
         if ($config->has('path', Type::ARRAY))
         {
             foreach ($config->get('path') as $element => $path)
