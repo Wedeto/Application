@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+
+- Preserve supplied configuration objects and safely load INI configuration into typed configuration.
+- Handle controller routes without an action segment on PHP 8.
+- Require the Wedeto patch releases containing the corresponding PHP compatibility fixes.
+
 ## 1.1.0
 
 - Add support for PHP 8.1 through PHP 8.5.

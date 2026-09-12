@@ -73,6 +73,13 @@ if (!defined('WEDETO_TEST'))
     define('WEDETO_TEST', 0);
 // @codeCoverageIgnoreEnd
 
+/**
+ * Class Application
+ * @package Wedeto\Application
+ *
+ * @property Configuration $config
+ * @property Authentication $auth
+ */
 class Application
 {
     use LoggerAwareStaticTrait;
@@ -182,22 +189,38 @@ class Application
     protected function loadConfig()
     {
         $ini_file = $this->path_config->config . '/main.ini';
-        $config = $this->config;
+        $config = new Dictionary();
+        $config_loaded = false;
         if (file_exists($ini_file))
         {
             $ini_config = parse_ini_file($ini_file, true, INI_SCANNER_TYPED);
             if ($ini_config !== false)
+            {
                 $config->addAll($ini_config);
+                $config_loaded = true;
+            }
         }
 
         $local_file = $this->path_config->config . '/local.ini';
         if (file_exists($local_file))
         {
             $ini_config = parse_ini_file($local_file, true, INI_SCANNER_TYPED);
-            if ($config !== false)
+            if ($ini_config !== false)
+            {
                 $config->addAll($ini_config);
+                $config_loaded = true;
+            }
         }
 
+        if ($config_loaded)
+        {
+            $config->addAll($this->config);
+            $this->config = new Configuration($config);
+        }
+        else
+        {
+            $config = $this->config;
+        }
         if ($config->has('path', Type::ARRAY))
         {
             foreach ($config->get('path') as $element => $path)

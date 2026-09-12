@@ -6,16 +6,16 @@
     "type": "project",
     "require": {
         "wedeto/auth": "^1.1.0",
-        "wedeto/db": "^1.1.0",
+        "wedeto/db": "^1.1.3",
         "wedeto/fileformats": "^1.1.0",
         "wedeto/html": "^1.1.0",
-        "wedeto/http": "^1.1.2",
-        "wedeto/i18n": "^1.1.1",
+        "wedeto/http": "^1.1.3",
+        "wedeto/i18n": "^1.1.2",
         "wedeto/io": "^1.1.0",
-        "wedeto/log": "^1.1.0",
+        "wedeto/log": "^1.1.1",
         "wedeto/mail": "^1.1.0",
         "wedeto/resolve": "^1.1.0",
-        "wedeto/util": "^1.1.6",
+        "wedeto/util": "^1.1.7",
         "php": "^7.4 || >=8.1"
     },
     "require-dev": {

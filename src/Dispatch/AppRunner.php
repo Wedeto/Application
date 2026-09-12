@@ -273,11 +273,11 @@ class AppRunner
         $controller = $arg;
         
         // Strip any suffix
-        if (($pos = strpos($controller, '.')) !== false)
+        if ($controller !== null && ($pos = strpos($controller, '.')) !== false)
             $controller = substr($controller, 0, $pos);
         
         // Check if the method exists
-        if (!method_exists($object, $controller))
+        if ($controller === null || !method_exists($object, $controller))
         {
             // Fall back to an index method
             if (method_exists($object, "index"))
